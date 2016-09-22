@@ -1,0 +1,94 @@
+global
+  log /dev/log local0
+  log /dev/log local1 notice
+  chroot /var/lib/haproxy
+  stats socket /run/haproxy/admin.sock mode 660 level admin
+  stats timeout 30s
+  user haproxy
+  group haproxy
+  daemon
+  maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+
+  # Default SSL material locations
+  ca-base /etc/ssl/certs
+  crt-base /etc/ssl/private
+
+  # Default ciphers to use on SSL-enabled listening sockets.
+  # For more information, see ciphers(1SSL).
+  ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
+  # Keep DH params size at 1024 for Java 6 HTTPS clients
+  tune.ssl.default-dh-param 1024
+
+defaults
+  log global
+  mode http
+  option httplog
+  option dontlognull
+  maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+  timeout connect 5000
+  timeout check 30000
+  timeout client <%= @client_timeout %>
+  timeout server <%= @server_timeout %>
+  errorfile 400 /etc/haproxy/errors/400.http
+  errorfile 403 /etc/haproxy/errors/429.http
+  errorfile 408 /etc/haproxy/errors/400.http
+  errorfile 500 /etc/haproxy/errors/500.http
+  errorfile 502 /etc/haproxy/errors/500.http
+  errorfile 503 /etc/haproxy/errors/500.http
+  errorfile 504 /etc/haproxy/errors/500.http
+
+listen stats_7331
+  bind 127.0.0.1:7331
+  mode http
+  stats enable
+  stats hide-version
+  stats realm Haproxy\ Statistics
+  stats uri /
+  stats auth admin:<%= @admin_password %>
+  stats admin if TRUE
+
+listen gitlab_80
+  mode http
+  bind <%= @listen_address %>:80
+  acl ce_gitlab_com hdr_beg(host) -i ce.gitlab.com
+  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ce if ce_gitlab_com
+  acl ee_gitlab_com hdr_beg(host) -i ee.gitlab.com
+  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ee if ee_gitlab_com
+  acl jobs_gitlab_com hdr_beg(host) -i jobs.gitlab.com
+  http-request redirect location https://about.gitlab.com/jobs if jobs_gitlab_com
+  http-request redirect scheme https
+
+listen gitlab_443
+  mode http
+  bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/haproxy.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
+  balance roundrobin
+  option forwardfor
+  option httpchk GET /
+  stick-table type ip size 5m expire 30s store conn_rate(3s)
+  tcp-request connection track-sc1 src
+  acl ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
+  http-request set-uri https://gitlab.com/ci%[path]?%[query] if ci_gitlab_com
+  acl ce_gitlab_com hdr_beg(host) -i ce.gitlab.com
+  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ce if ce_gitlab_com
+  acl ee_gitlab_com hdr_beg(host) -i ee.gitlab.com
+  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ee if ee_gitlab_com
+  acl jobs_gitlab_com hdr_beg(host) -i jobs.gitlab.com
+  http-request redirect location https://about.gitlab.com/jobs if jobs_gitlab_com
+  http-request set-header X-Forwarded-Proto https
+  http-request set-header X-SSL %[ssl_fc]
+<%= @https_custom_config %>
+  <% @workers.each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+  <% end %>
+
+listen gitlab_22
+  mode tcp
+  bind <%= @listen_address %>:22
+  balance roundrobin
+  # Use a HTTP check so that `gitlab-ctl stop` on the worker will tell HAproxy
+  # to also stop forwarding SSH connections to a worker.
+  option tcplog
+  option httpchk GET /
+  <% @workers.each do |name, ip| %>
+    server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
+  <% end %>
