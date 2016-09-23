@@ -60,7 +60,7 @@ listen gitlab_80
 
 listen gitlab_443
   mode http
-  bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/haproxy.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
+  bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
   balance roundrobin
   option forwardfor
   option httpchk GET /
