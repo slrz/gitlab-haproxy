@@ -1,3 +1,7 @@
+# 0.1.9
+
+- Add landing support for get.gitlab.com
+
 # 0.1.8
 
 - Add landing support for feedback.gitlab.com
