@@ -66,8 +66,8 @@ listen gitlab_443
   balance roundrobin
   option forwardfor
   option httpchk GET /
-  stick-table type ip size 5m expire 30s store conn_rate(3s)
-  tcp-request connection track-sc1 src
+  stick-table type ip size 5m expire 5m store gpc0,conn_rate(30s)
+  tcp-request connection track-sc0 src
   acl ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
   http-request set-uri https://gitlab.com/ci%[path]?%[query] if ci_gitlab_com
   acl ce_gitlab_com hdr_beg(host) -i ce.gitlab.com
