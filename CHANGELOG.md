@@ -1,3 +1,7 @@
+# 0.1.10
+
+- Provide better throttling for connections
+
 # 0.1.9
 
 - Add landing support for get.gitlab.com
