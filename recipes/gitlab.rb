@@ -40,6 +40,14 @@ workers.sort_by!(&:first) unless workers.empty?
 
 listen_address = Gitlab.private_ips_for_node(node).last
 
+template '/etc/haproxy/slow-hand.lua' do
+    owner 'root'
+    group 'root'
+    mode '0600'
+    action :create
+    variables(haproxy_conf.to_hash())
+end
+
 template '/etc/haproxy/haproxy.cfg' do
   mode '0600'
   variables(
