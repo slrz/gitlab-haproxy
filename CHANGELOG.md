@@ -1,3 +1,7 @@
+# 0.1.12
+
+- Impliment lua function for slow-down of bad traffic
+
 # 0.1.10
 
 - Provide better throttling for connections
