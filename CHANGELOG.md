@@ -1,3 +1,7 @@
+# 0.1.13
+
+- move slow-hand.rb to correctly be an erb template
+
 # 0.1.12
 
 - Impliment lua function for slow-down of bad traffic
