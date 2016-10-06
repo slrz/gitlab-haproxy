@@ -1,6 +1,7 @@
 default['gitlab-haproxy']['chef_vault'] = nil
 default['gitlab-haproxy']['chef_vault_item'] = nil
 default['gitlab-haproxy']['admin_password'] = nil
+default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['client_timeout'] = '90s'
 default['gitlab-haproxy']['server_timeout'] = '90s'
 default['gitlab-haproxy']['https_custom_config'] = nil
