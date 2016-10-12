@@ -52,7 +52,7 @@ listen pages_80
   bind <%= @listen_address %>:80
   balance roundrobin
   option forwardfor
-  <% @workers.each do |name, ip| %>
+  <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
   <% end %>
 
@@ -64,6 +64,6 @@ listen pages_443
   stick-table type ip size 5m expire 30s store conn_rate(3s)
   tcp-request connection track-sc1 src
 <%= @https_custom_config %>
-  <% @workers.each do |name, ip| %>
+  <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1443 check inter 5000 fall 3
   <% end %>

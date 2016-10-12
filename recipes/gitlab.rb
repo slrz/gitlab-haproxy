@@ -29,32 +29,16 @@ file '/etc/haproxy/ssl/registry.pem' do
   notifies :reload, 'service[haproxy]'
 end
 
-workers = search(:node, haproxy_conf['worker_chef_query']).map do |n|
-  first_ipv4_address = Gitlab.private_ips_for_node(n).first
-
-  next unless first_ipv4_address
-
-  [n.name, first_ipv4_address]
-end.compact
-workers.sort_by!(&:first) unless workers.empty?
-
-listen_address = Gitlab.private_ips_for_node(node).last
-
 template '/etc/haproxy/slow-hand.lua' do
-    owner 'root'
-    group 'root'
-    mode '0600'
-    action :create
-    variables(haproxy_conf.to_hash())
+  owner 'root'
+  group 'root'
+  mode '0600'
+  action :create
+  variables(haproxy_conf.to_hash())
 end
 
 template '/etc/haproxy/haproxy.cfg' do
   mode '0600'
-  variables(
-    {
-      workers: workers,
-      listen_address: listen_address
-    }.merge(haproxy_conf)
-  )
+  variables(haproxy_conf.to_hash())
   notifies :reload, 'service[haproxy]'
 end
