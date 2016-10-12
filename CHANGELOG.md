@@ -1,3 +1,7 @@
+# 0.1.14
+
+- Drop chef search and use attributes for nodes
+
 # 0.1.13
 
 - move slow-hand.rb to correctly be an erb template

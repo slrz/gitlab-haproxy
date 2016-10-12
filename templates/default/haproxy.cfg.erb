@@ -80,7 +80,7 @@ listen gitlab_443
   http-request set-header X-Forwarded-Proto https
   http-request set-header X-SSL %[ssl_fc]
 <%= @https_custom_config %>
-  <% @workers.each do |name, ip| %>
+  <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
   <% end %>
 
@@ -92,6 +92,6 @@ listen gitlab_22
   # to also stop forwarding SSH connections to a worker.
   option tcplog
   option httpchk GET /
-  <% @workers.each do |name, ip| %>
+  <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
   <% end %>
