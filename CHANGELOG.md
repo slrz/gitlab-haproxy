@@ -1,3 +1,7 @@
+# 0.1.16
+
+- Move redirect for doc to pages template
+
 # 0.1.15
 
 - Added redirect for doc to docs.gitlab.com

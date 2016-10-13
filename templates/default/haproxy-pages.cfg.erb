@@ -52,6 +52,8 @@ listen pages_80
   bind <%= @listen_address %>:80
   balance roundrobin
   option forwardfor
+  acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
+  http-request redirect location https://docs.gitlab.com if doc_gitlab_com
   <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
   <% end %>
