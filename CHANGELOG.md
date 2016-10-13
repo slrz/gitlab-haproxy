@@ -1,3 +1,7 @@
+# 0.1.15
+
+- Added redirect for doc to docs.gitlab.com
+
 # 0.1.14
 
 - Drop chef search and use attributes for nodes
