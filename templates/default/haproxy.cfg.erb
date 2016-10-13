@@ -59,6 +59,8 @@ listen gitlab_80
   http-request redirect location https://about.gitlab.com/jobs if jobs_gitlab_com
   acl feedback_gitlab_com hdr_beg(host) -i feedback.gitlab.com
   http-request redirect location https://gitlab.uservoice.com if feedback_gitlab_com
+  acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
+  http-request redirect location https://docs.gitlab.com if doc_gitlab_com
   http-request redirect scheme https
 
 listen gitlab_443
