@@ -1,3 +1,7 @@
+# 0.1.17
+
+- Change expiration time for counter from 5m to 1m to better model usage patterns
+
 # 0.1.16
 
 - Move redirect for doc to pages template
