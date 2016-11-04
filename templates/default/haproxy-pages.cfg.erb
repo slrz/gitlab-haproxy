@@ -61,9 +61,9 @@ listen pages_80
 
 listen pages_443
   mode tcp
-  option tcplog
+  # option tcplog
   bind <%= @listen_address %>:443
-  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
   balance source
   stick-table type ip size 5m expire 30s store conn_rate(3s)
   tcp-request connection track-sc1 src
