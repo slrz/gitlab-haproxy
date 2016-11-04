@@ -23,7 +23,7 @@ global
 defaults
   log global
   mode http
-  option httplog
+  # option httplog
   option dontlognull
   maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
   timeout connect 5000
@@ -51,6 +51,7 @@ listen stats_7331
 listen gitlab_80
   mode http
   bind <%= @listen_address %>:80
+  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
   acl ce_gitlab_com hdr_beg(host) -i ce.gitlab.com
   http-request redirect location https://gitlab.com/gitlab-org/gitlab-ce if ce_gitlab_com
   acl ee_gitlab_com hdr_beg(host) -i ee.gitlab.com
@@ -67,6 +68,7 @@ listen gitlab_443
   balance roundrobin
   option forwardfor
   option httpchk GET /
+  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
   stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
   tcp-request connection track-sc0 src
   acl ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
@@ -92,6 +94,7 @@ listen gitlab_22
   # to also stop forwarding SSH connections to a worker.
   option tcplog
   option httpchk GET /
+  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
   <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
   <% end %>
