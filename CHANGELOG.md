@@ -1,3 +1,7 @@
+# 0.1.19
+
+- Change error in tcp logging flags
+
 # 0.1.18
 
 - Change default logging to include bytes_written
