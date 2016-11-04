@@ -1,3 +1,7 @@
+# 0.1.18
+
+- Change default logging to include bytes_written
+
 # 0.1.17
 
 - Change expiration time for counter from 5m to 1m to better model usage patterns

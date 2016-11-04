@@ -22,7 +22,7 @@ global
 defaults
   log global
   mode http
-  option httplog
+  # option httplog
   option dontlognull
   maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
   timeout connect 5000
@@ -50,6 +50,7 @@ listen stats_7331
 listen pages_80
   mode http
   bind <%= @listen_address %>:80
+  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
   balance roundrobin
   option forwardfor
   acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
@@ -62,6 +63,7 @@ listen pages_443
   mode tcp
   option tcplog
   bind <%= @listen_address %>:443
+  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
   balance source
   stick-table type ip size 5m expire 30s store conn_rate(3s)
   tcp-request connection track-sc1 src
