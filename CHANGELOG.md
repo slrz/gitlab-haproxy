@@ -1,3 +1,7 @@
+# 0.1.20
+
+- increase logging length limit from 1024 (default) to 4096
+
 # 0.1.19
 
 - Change error in tcp logging flags
