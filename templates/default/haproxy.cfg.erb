@@ -52,14 +52,6 @@ listen gitlab_80
   mode http
   bind <%= @listen_address %>:80
   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-  acl ce_gitlab_com hdr_beg(host) -i ce.gitlab.com
-  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ce if ce_gitlab_com
-  acl ee_gitlab_com hdr_beg(host) -i ee.gitlab.com
-  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ee if ee_gitlab_com
-  acl jobs_gitlab_com hdr_beg(host) -i jobs.gitlab.com
-  http-request redirect location https://about.gitlab.com/jobs if jobs_gitlab_com
-  acl feedback_gitlab_com hdr_beg(host) -i feedback.gitlab.com
-  http-request redirect location https://gitlab.uservoice.com if feedback_gitlab_com
   http-request redirect scheme https
 
 listen gitlab_443
@@ -73,12 +65,6 @@ listen gitlab_443
   tcp-request connection track-sc0 src
   acl ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
   http-request set-uri https://gitlab.com/ci%[path]?%[query] if ci_gitlab_com
-  acl ce_gitlab_com hdr_beg(host) -i ce.gitlab.com
-  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ce if ce_gitlab_com
-  acl ee_gitlab_com hdr_beg(host) -i ee.gitlab.com
-  http-request redirect location https://gitlab.com/gitlab-org/gitlab-ee if ee_gitlab_com
-  acl jobs_gitlab_com hdr_beg(host) -i jobs.gitlab.com
-  http-request redirect location https://about.gitlab.com/jobs if jobs_gitlab_com
   http-request set-header X-Forwarded-Proto https
   http-request set-header X-SSL %[ssl_fc]
 <%= @https_custom_config %>
