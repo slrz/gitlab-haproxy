@@ -1,3 +1,7 @@
+# 0.1.21
+
+- Remove redirects since they are on about.gitlab.com
+
 # 0.1.20
 
 - increase logging length limit from 1024 (default) to 4096
