@@ -1,3 +1,7 @@
+# 0.1.22
+
+- Logrotate does not support hourly only daily and so on..
+
 # 0.1.21
 
 - Remove redirects since they are on about.gitlab.com
