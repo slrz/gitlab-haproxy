@@ -42,6 +42,13 @@ service 'haproxy' do
   supports [:reload]
 end
 
+cookbook_file '/etc/cron.hourly/logrotate' do
+  source 'logrotate-cron'
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
+
 cookbook_file '/etc/logrotate.d/haproxy' do
   source 'logrotate-haproxy'
   owner 'root'
