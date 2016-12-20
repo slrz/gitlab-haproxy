@@ -59,7 +59,7 @@ listen gitlab_443
   bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
   balance roundrobin
   option forwardfor
-  option httpchk GET /
+  option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
   stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
   tcp-request connection track-sc0 src
