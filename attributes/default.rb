@@ -6,6 +6,7 @@ default['gitlab-haproxy']['client_timeout'] = '90s'
 default['gitlab-haproxy']['server_timeout'] = '90s'
 default['gitlab-haproxy']['listen_address'] = '0.0.0.0'
 default['gitlab-haproxy']['https_custom_config'] = nil
+default['gitlab-haproxy']['httpchk_host'] = 'gitlab.com'
 
 default['gitlab-haproxy']['ssl'] = {}
 default['gitlab-haproxy']['ssl']['gitlab_crt'] = 'use vault' 
