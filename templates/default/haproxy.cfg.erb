@@ -79,7 +79,7 @@ listen gitlab_22
   # Use a HTTP check so that `gitlab-ctl stop` on the worker will tell HAproxy
   # to also stop forwarding SSH connections to a worker.
   option tcplog
-  option httpchk GET /
+  option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
   <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
