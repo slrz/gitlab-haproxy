@@ -66,7 +66,7 @@ frontend https
     acl is_api path_beg -i /api/ /ci/api/
     acl is_worker hdr_dom(host) -i gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
-    acl is_socket_path path_beg -i /websocket
+    acl is_socket_path path_end -i .ws
     acl is_mash2k3 path_beg -i /mash2k3/mash2k3-repository/raw/
     acl is_kexuejin path_reg ^/kexuejin/[^/]*/raw/
 
