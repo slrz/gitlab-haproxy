@@ -57,6 +57,7 @@ frontend http
 frontend https
     bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
+    timeout client-fin 5s
     stick-table type ip size 5m expire 1m store gpc0
     acl source_is_abuser src_get_gpc0(worker) gt 0
     use_backend ease-up-yo if source_is_abuser
@@ -79,6 +80,7 @@ frontend https
 backend worker
     balance roundrobin
     option forwardfor
+    timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
@@ -94,6 +96,7 @@ backend worker
 backend api
     balance roundrobin
     option forwardfor
+    timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
@@ -106,6 +109,8 @@ backend api
 
 backend sockets
     balance roundrobin
+    option http-server-close
+    timeout tunnel 8s
     cookie _gitlab_session prefix nocache
     <% @socket_servers.each do |name, ip| %>
       server <%= name %> <%= ip %>:443 check cookie <%= name %>
@@ -114,6 +119,7 @@ backend sockets
 backend sshserver
     balance roundrobin
     option tcplog
+    timeout server-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     timeout server 2h
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
