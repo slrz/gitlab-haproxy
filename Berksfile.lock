@@ -1,0 +1,17 @@
+DEPENDENCIES
+  gitlab-haproxy
+    path: .
+    metadata: true
+
+GRAPH
+  chef-vault (2.1.1)
+  compat_resource (12.16.3)
+  gitlab-haproxy (0.1.22)
+    gitlab-vault (>= 0.0.0)
+    openssh (>= 0.0.0)
+  gitlab-vault (0.2.0)
+    chef-vault (>= 0.0.0)
+  iptables (3.0.1)
+    compat_resource (>= 12.14.3)
+  openssh (2.1.0)
+    iptables (>= 1.0)

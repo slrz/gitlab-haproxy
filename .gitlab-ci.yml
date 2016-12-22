@@ -1,5 +1,13 @@
-image: ruby:2.2
+image: jnijhof/kitchen-docker
+
 rspec:
   script:
-    - bundle install
-    - bundle exec rspec -f d
+    - rspec -f d
+
+ubuntu 16.04:
+  script:
+    - kitchen test default-ubuntu-1604
+
+ubuntu 14.04:
+  script:
+    - kitchen test default-ubuntu-1404
