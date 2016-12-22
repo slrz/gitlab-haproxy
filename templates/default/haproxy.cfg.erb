@@ -77,6 +77,11 @@ frontend https
     use_backend bitbucket if is_mash2k3
     use_backend bitbucket if is_kexuejin
 
+frontend ssh
+    bind <%= @listen_address %>:22
+    mode tcp
+    use_backend sshserver
+
 backend worker
     balance roundrobin
     option forwardfor
