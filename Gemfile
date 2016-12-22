@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
 group :test do
-  gem 'chefspec'
   gem 'berkshelf'
+  gem 'chefspec'
+  gem 'test-kitchen'
+  gem 'kitchen-docker'
 end

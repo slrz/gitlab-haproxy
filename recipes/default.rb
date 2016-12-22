@@ -22,6 +22,7 @@ when 'ubuntu'
 end
 
 package 'haproxy'
+package 'logrotate'
 
 directory '/etc/haproxy/ssl' do
   mode '0700'
