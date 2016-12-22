@@ -1,18 +1,10 @@
-*~
-*#
-.#*
-\#*#
-.*.sw[a-z]
-*.un~
-pkg/
-
 # Berkshelf
-.vagrant
 /cookbooks
 
 # Bundler
 bin/*
 .bundle/*
 
+# Kitchen
 .kitchen/
 .kitchen.local.yml

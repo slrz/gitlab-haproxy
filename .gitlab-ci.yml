@@ -4,10 +4,16 @@ rspec:
   script:
     - rspec -f d
 
-ubuntu 16.04:
+haproxy ubuntu 16.04:
   script:
-    - kitchen test default-ubuntu-1604
+    - kitchen test haproxy-gitlab-ubuntu-1604
+pages ubuntu 16.04:
+  script:
+    - kitchen test haproxy-pages-ubuntu-1604
 
-ubuntu 14.04:
+haproxy ubuntu 14.04:
   script:
-    - kitchen test default-ubuntu-1404
+    - kitchen test haproxy-gitlab-ubuntu-1404
+pages ubuntu 14.04:
+  script:
+    - kitchen test haproxy-pages-ubuntu-1404
