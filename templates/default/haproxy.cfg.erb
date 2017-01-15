@@ -58,29 +58,33 @@ frontend https
     bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
     timeout client-fin <%= @timeout_client_fin %>
-    stick-table type ip size 5m expire 1m store gpc0
-    acl source_is_abuser src_get_gpc0(worker) gt 0
-    use_backend ease-up-yo if source_is_abuser
-    tcp-request connection track-sc0 src if ! source_is_abuser
 
     acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
-    acl is_api path_beg -i /api/ /ci/api/
-    acl is_worker hdr_dom(host) -i gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
+    acl is_gitlab_ce_ee path_beg,url_dec -i /gitlab-org/gitlab-ce/ /gitlab-org/gitlab-ee/
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
-    use_backend worker  if is_worker
-    use_backend api     if is_api
     use_backend sockets if is_socket_upg is_socket_path
+    use_backend gitlab_ce_ee if is_gitlab_ce_ee
+    default_backend worker
 
 frontend ssh
     bind <%= @listen_address %>:22
     mode tcp
     use_backend ssh
+
+backend sockets
+    balance roundrobin
+    option http-server-close
+    timeout tunnel <%= @timeout_tunnel %>
+    cookie _gitlab_session prefix nocache
+    <% @socket_servers.each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
+    <% end %>
 
 backend worker
     balance roundrobin
@@ -90,41 +94,25 @@ backend worker
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     <%= @https_custom_config %>
     <% @servers.each do |name, ip| %>
-      server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
-    <% end %>
-
-backend api
-    balance roundrobin
-    option forwardfor
-    timeout server-fin <%= @timeout_server_fin %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-    <%= @https_custom_config %>
-    <% @servers.each do |name, ip| %>
-      server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
-    <% end %>
-
-backend sockets
-    balance roundrobin
-    option http-server-close
-    timeout tunnel <%= @timeout_tunnel %>
-    cookie _gitlab_session prefix nocache
-    <% @socket_servers.each do |name, ip| %>
-      server <%= name %> <%= ip %>:443 check cookie <%= name %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
 
 backend ssh
-    balance roundrobin
+    balance source
+    hash-type consistent
     option tcplog
     timeout server-fin <%= @timeout_server_fin %>
     timeout server <%= @timeout_server_ssh %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     <% @servers.each do |name, ip| %>
-      server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
+    server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
 
-backend deny
-    mode http
-    http-request deny
+backend gitlab_ce_ee
+    option forwardfor
+    timeout server-fin <%= @timeout_server_fin %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    server <%= @servers[19][0] %> <%= @servers[19][1] %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
+    server <%= @servers[0][0] %> <%= @servers[0][0] %>:22 check check-ssl port 443 inter 5000 fall 3 verify none backup

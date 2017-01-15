@@ -62,7 +62,8 @@ frontend https
     use backend https-worker
 
 backend http-worker
-    balance roundrobin
+    balance source
+    hash-type consistent
     option forwardfor
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
@@ -70,8 +71,7 @@ backend http-worker
 
 backend https-worker
     balance source
-    stick-table type ip size 5m expire 30s store conn_rate(3s)
-    tcp-request connection track-sc1 src
+    hash-type consistent
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1443 check inter 5000 fall 3
     <% end %>
