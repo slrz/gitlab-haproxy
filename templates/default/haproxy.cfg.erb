@@ -21,8 +21,6 @@ global
 
 defaults
     log global
-    mode http
-    # option httplog
     option dontlognull
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
@@ -58,6 +56,7 @@ frontend https
     bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
     timeout client-fin <%= @timeout_client_fin %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
 
     acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
@@ -75,9 +74,11 @@ frontend https
 frontend ssh
     bind <%= @listen_address %>:22
     mode tcp
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend ssh
 
 backend sockets
+    mode http
     balance roundrobin
     option http-server-close
     timeout tunnel <%= @timeout_tunnel %>
@@ -87,32 +88,31 @@ backend sockets
     <% end %>
 
 backend worker
+    mode http
     balance roundrobin
     option forwardfor
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     <%= @https_custom_config %>
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
 
 backend ssh
+    mode tcp
     balance source
     hash-type consistent
-    option tcplog
     timeout server-fin <%= @timeout_server_fin %>
     timeout server <%= @timeout_server_ssh %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
 
 backend gitlab_ce_ee
+    mode http
     option forwardfor
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     server <%= @servers.keys.last.to_s %> <%= @servers.values.last %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     server <%= @servers.keys.first.to_s %> <%= @servers.values.first %>:22 check check-ssl port 443 inter 5000 fall 3 verify none backup

@@ -21,8 +21,6 @@ global
 
 defaults
     log global
-    mode http
-    # option httplog
     option dontlognull
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
@@ -62,6 +60,7 @@ frontend https
     use_backend https-worker
 
 backend http-worker
+    mode http
     balance source
     hash-type consistent
     option forwardfor
@@ -70,6 +69,7 @@ backend http-worker
     <% end %>
 
 backend https-worker
+    mode tcp
     balance source
     hash-type consistent
     <% @servers.each do |name, ip| %>
