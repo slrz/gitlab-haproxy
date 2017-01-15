@@ -29,14 +29,6 @@ file '/etc/haproxy/ssl/registry.pem' do
   notifies :reload, 'service[haproxy]'
 end
 
-template '/etc/haproxy/slow-hand.lua' do
-  owner 'root'
-  group 'root'
-  mode '0600'
-  action :create
-  variables(haproxy_conf.to_hash())
-end
-
 template '/etc/haproxy/haproxy.cfg' do
   mode '0600'
   variables(haproxy_conf.to_hash())

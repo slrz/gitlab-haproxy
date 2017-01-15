@@ -1,7 +1,6 @@
 global
     log /dev/log len 4096 local0
     log /dev/log len 4096 local1 notice
-    lua-load /etc/haproxy/slow-hand.lua
     chroot /var/lib/haproxy
     stats socket /run/haproxy/admin.sock mode 660 level admin
     stats timeout 30s
