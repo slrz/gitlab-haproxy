@@ -27,8 +27,8 @@ defaults
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
-    timeout client <%= @client_timeout %>
-    timeout server <%= @server_timeout %>
+    timeout client <%= @timeout_client %>
+    timeout server <%= @timeout_server %>
     errorfile 400 /etc/haproxy/errors/400.http
     errorfile 403 /etc/haproxy/errors/429.http
     errorfile 408 /etc/haproxy/errors/400.http
