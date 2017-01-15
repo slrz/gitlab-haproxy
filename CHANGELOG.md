@@ -1,3 +1,7 @@
+# 0.1.23
+
+- Implement frontend backend with pinning for ce and ee
+
 # 0.1.22
 
 - Logrotate does not support hourly only daily and so on..
