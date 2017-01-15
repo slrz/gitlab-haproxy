@@ -70,6 +70,10 @@ frontend https
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
 
+    http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
+    http-request set-header X-Forwarded-Proto https
+    http-request set-header X-SSL %[ssl_fc]
+
     use_backend worker  if is_worker
     use_backend api     if is_api
     use_backend sockets if is_socket_upg is_socket_path
@@ -85,11 +89,6 @@ backend worker
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-    acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
-    http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
-    http-request set-header X-Forwarded-Proto https
-    http-request set-header X-SSL %[ssl_fc]
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     <%= @https_custom_config %>
     <% @servers.each do |name, ip| %>
       server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
@@ -100,10 +99,8 @@ backend api
     option forwardfor
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
-    http-request set-header X-Forwarded-Proto https
-    http-request set-header X-SSL %[ssl_fc]
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     <%= @https_custom_config %>
     <% @servers.each do |name, ip| %>
       server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
@@ -122,9 +119,9 @@ backend ssh
     balance roundrobin
     option tcplog
     timeout server-fin <%= @timeout_server_fin %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     timeout server <%= @timeout_server_ssh %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     <% @servers.each do |name, ip| %>
       server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
