@@ -14,7 +14,53 @@ suites:
     run_list:
       - recipe[gitlab-haproxy::gitlab]
     attributes:
+      gitlab-haproxy:
+        servers: {
+          "worker1.cluster.gitlab.com": "127.0.0.1",
+          "worker2.cluster.gitlab.com": "127.0.0.1",
+          "worker3.cluster.gitlab.com": "127.0.0.1",
+          "worker4.cluster.gitlab.com": "127.0.0.1",
+          "worker5.cluster.gitlab.com": "127.0.0.1",
+          "worker6.cluster.gitlab.com": "127.0.0.1",
+          "worker7.cluster.gitlab.com": "127.0.0.1",
+          "worker8.cluster.gitlab.com": "127.0.0.1",
+          "worker9.cluster.gitlab.com": "127.0.0.1",
+          "worker10.cluster.gitlab.com": "127.0.0.1",
+          "worker11.cluster.gitlab.com": "127.0.0.1",
+          "worker12.cluster.gitlab.com": "127.0.0.1",
+          "worker13.cluster.gitlab.com": "127.0.0.1",
+          "worker14.cluster.gitlab.com": "127.0.0.1",
+          "worker15.cluster.gitlab.com": "127.0.0.1",
+          "worker16.cluster.gitlab.com": "127.0.0.1",
+          "worker17.cluster.gitlab.com": "127.0.0.1",
+          "worker18.cluster.gitlab.com": "127.0.0.1",
+          "worker19.cluster.gitlab.com": "127.0.0.1",
+          "worker20.cluster.gitlab.com": "127.0.0.1"
+        }
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
     attributes:
+      gitlab-haproxy:
+        servers: {
+          "worker1.cluster.gitlab.com": "127.0.0.1",
+          "worker2.cluster.gitlab.com": "127.0.0.1",
+          "worker3.cluster.gitlab.com": "127.0.0.1",
+          "worker4.cluster.gitlab.com": "127.0.0.1",
+          "worker5.cluster.gitlab.com": "127.0.0.1",
+          "worker6.cluster.gitlab.com": "127.0.0.1",
+          "worker7.cluster.gitlab.com": "127.0.0.1",
+          "worker8.cluster.gitlab.com": "127.0.0.1",
+          "worker9.cluster.gitlab.com": "127.0.0.1",
+          "worker10.cluster.gitlab.com": "127.0.0.1",
+          "worker11.cluster.gitlab.com": "127.0.0.1",
+          "worker12.cluster.gitlab.com": "127.0.0.1",
+          "worker13.cluster.gitlab.com": "127.0.0.1",
+          "worker14.cluster.gitlab.com": "127.0.0.1",
+          "worker15.cluster.gitlab.com": "127.0.0.1",
+          "worker16.cluster.gitlab.com": "127.0.0.1",
+          "worker17.cluster.gitlab.com": "127.0.0.1",
+          "worker18.cluster.gitlab.com": "127.0.0.1",
+          "worker19.cluster.gitlab.com": "127.0.0.1",
+          "worker20.cluster.gitlab.com": "127.0.0.1"
+        }
