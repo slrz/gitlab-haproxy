@@ -74,6 +74,7 @@ frontend https
 frontend ssh
     bind <%= @listen_address %>:22
     mode tcp
+    timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend ssh
 
