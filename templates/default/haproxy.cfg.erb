@@ -28,8 +28,8 @@ defaults
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
-    timeout client <%= @client_timeout %>
-    timeout server <%= @server_timeout %>
+    timeout client <%= @timeout_client %>
+    timeout server <%= @timeout_server %>
     errorfile 400 /etc/haproxy/errors/400.http
     errorfile 403 /etc/haproxy/errors/429.http
     errorfile 408 /etc/haproxy/errors/400.http
@@ -51,13 +51,14 @@ listen stats_7331
 frontend http
     bind <%= @listen_address %>:80
     mode http
+    timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     http-request redirect scheme https
 
 frontend https
     bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
-    timeout client-fin 5s
+    timeout client-fin <%= @timeout_client_fin %>
     stick-table type ip size 5m expire 1m store gpc0
     acl source_is_abuser src_get_gpc0(worker) gt 0
     use_backend ease-up-yo if source_is_abuser
@@ -68,24 +69,20 @@ frontend https
     acl is_worker hdr_dom(host) -i gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
-    acl is_mash2k3 path_beg -i /mash2k3/mash2k3-repository/raw/
-    acl is_kexuejin path_reg ^/kexuejin/[^/]*/raw/
 
-    use_backend worker    if is_worker
-    use_backend api       if is_api
-    use_backend socketes  if is_socket_upg is_socket_path
-    use_backend bitbucket if is_mash2k3
-    use_backend bitbucket if is_kexuejin
+    use_backend worker  if is_worker
+    use_backend api     if is_api
+    use_backend sockets if is_socket_upg is_socket_path
 
 frontend ssh
     bind <%= @listen_address %>:22
     mode tcp
-    use_backend sshserver
+    use_backend ssh
 
 backend worker
     balance roundrobin
     option forwardfor
-    timeout server-fin 5s
+    timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
@@ -101,7 +98,7 @@ backend worker
 backend api
     balance roundrobin
     option forwardfor
-    timeout server-fin 5s
+    timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
@@ -115,23 +112,23 @@ backend api
 backend sockets
     balance roundrobin
     option http-server-close
-    timeout tunnel 8s
+    timeout tunnel <%= @timeout_tunnel %>
     cookie _gitlab_session prefix nocache
     <% @socket_servers.each do |name, ip| %>
       server <%= name %> <%= ip %>:443 check cookie <%= name %>
     <% end %>
 
-backend sshserver
+backend ssh
     balance roundrobin
     option tcplog
-    timeout server-fin 5s
+    timeout server-fin <%= @timeout_server_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
-    timeout server 2h
+    timeout server <%= @timeout_server_ssh %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     <% @servers.each do |name, ip| %>
       server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
 
-backend bitbucket
+backend deny
     mode http
     http-request deny
