@@ -67,6 +67,8 @@ frontend https
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
+    <%= @https_custom_config %>
+
     use_backend sockets if is_socket_upg is_socket_path
     use_backend gitlab_ce_ee if is_gitlab_ce_ee
     default_backend worker
@@ -94,7 +96,6 @@ backend worker
     option forwardfor
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    <%= @https_custom_config %>
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
