@@ -53,13 +53,13 @@ frontend http
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
-    use backend http-worker
+    use_backend http-worker
 
 frontend https
     bind <%= @listen_address %>:443
     mode tcp
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
-    use backend https-worker
+    use_backend https-worker
 
 backend http-worker
     balance source
