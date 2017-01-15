@@ -114,5 +114,5 @@ backend gitlab_ce_ee
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-    server <%= @servers[19][0] %> <%= @servers[19][1] %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
-    server <%= @servers[0][0] %> <%= @servers[0][0] %>:22 check check-ssl port 443 inter 5000 fall 3 verify none backup
+    server <%= @servers.keys.last.to_s %> <%= @servers.values.last %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
+    server <%= @servers.keys.first.to_s %> <%= @servers.values.first %>:22 check check-ssl port 443 inter 5000 fall 3 verify none backup
