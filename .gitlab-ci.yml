@@ -1,5 +1,19 @@
-image: ruby:2.2
+image: jnijhof/kitchen-docker
+
 rspec:
   script:
-    - bundle install
-    - bundle exec rspec -f d
+    - rspec -f d
+
+haproxy ubuntu 16.04:
+  script:
+    - kitchen test haproxy-gitlab-ubuntu-1604
+pages ubuntu 16.04:
+  script:
+    - kitchen test haproxy-pages-ubuntu-1604
+
+haproxy ubuntu 14.04:
+  script:
+    - kitchen test haproxy-gitlab-ubuntu-1404
+pages ubuntu 14.04:
+  script:
+    - kitchen test haproxy-pages-ubuntu-1404
