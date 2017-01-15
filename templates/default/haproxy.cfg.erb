@@ -1,86 +1,118 @@
 global
-  log /dev/log len 4096 local0
-  log /dev/log len 4096 local1 notice
-  lua-load /etc/haproxy/slow-hand.lua
-  chroot /var/lib/haproxy
-  stats socket /run/haproxy/admin.sock mode 660 level admin
-  stats timeout 30s
-  user haproxy
-  group haproxy
-  daemon
-  maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+    log /dev/log len 4096 local0
+    log /dev/log len 4096 local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
 
-  # Default SSL material locations
-  ca-base /etc/ssl/certs
-  crt-base /etc/ssl/private
+    # Default SSL material locations
+    ca-base /etc/ssl/certs
+    crt-base /etc/ssl/private
 
-  # Default ciphers to use on SSL-enabled listening sockets.
-  # For more information, see ciphers(1SSL).
-  ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
-  # Keep DH params size at 1024 for Java 6 HTTPS clients
-  tune.ssl.default-dh-param 1024
+    # Default ciphers to use on SSL-enabled listening sockets.
+    # For more information, see ciphers(1SSL).
+    ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
+    # Keep DH params size at 1024 for Java 6 HTTPS clients
+    tune.ssl.default-dh-param 1024
 
 defaults
-  log global
-  mode http
-  # option httplog
-  option dontlognull
-  maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
-  timeout connect 5000
-  timeout check 30000
-  timeout client <%= @client_timeout %>
-  timeout server <%= @server_timeout %>
-  errorfile 400 /etc/haproxy/errors/400.http
-  errorfile 403 /etc/haproxy/errors/429.http
-  errorfile 408 /etc/haproxy/errors/400.http
-  errorfile 500 /etc/haproxy/errors/500.http
-  errorfile 502 /etc/haproxy/errors/500.http
-  errorfile 503 /etc/haproxy/errors/500.http
-  errorfile 504 /etc/haproxy/errors/500.http
+    log global
+    mode http
+    # option httplog
+    option dontlognull
+    maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+    timeout connect 5000
+    timeout check 30000
+    timeout client <%= @timeout_client %>
+    timeout server <%= @timeout_server %>
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/429.http
+    errorfile 408 /etc/haproxy/errors/400.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/500.http
+    errorfile 503 /etc/haproxy/errors/500.http
+    errorfile 504 /etc/haproxy/errors/500.http
 
 listen stats_7331
-  bind 127.0.0.1:7331
-  mode http
-  stats enable
-  stats hide-version
-  stats realm Haproxy\ Statistics
-  stats uri /
-  stats auth admin:<%= @admin_password %>
-  stats admin if TRUE
+    bind 127.0.0.1:7331
+    mode http
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+    stats auth admin:<%= @admin_password %>
+    stats admin if TRUE
 
-listen gitlab_80
-  mode http
-  bind <%= @listen_address %>:80
-  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-  http-request redirect scheme https
+frontend http
+    bind <%= @listen_address %>:80
+    mode http
+    timeout client-fin <%= @timeout_client_fin %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    http-request redirect scheme https
 
-listen gitlab_443
-  mode http
-  bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
-  balance roundrobin
-  option forwardfor
-  option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-  stick-table type ip size 5m expire 1m store conn_rate(30s),http_req_rate(30s)
-  tcp-request connection track-sc0 src
-  acl ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
-  http-request set-uri https://gitlab.com/ci%[path]?%[query] if ci_gitlab_com
-  http-request set-header X-Forwarded-Proto https
-  http-request set-header X-SSL %[ssl_fc]
-<%= @https_custom_config %>
-  <% @servers.each do |name, ip| %>
+frontend https
+    bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
+    mode http
+    timeout client-fin <%= @timeout_client_fin %>
+
+    acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
+    acl is_socket_upg hdr(Upgrade) -i WebSocket
+    acl is_socket_path path_end -i .ws
+    acl is_gitlab_ce_ee path_beg,url_dec -i /gitlab-org/gitlab-ce/ /gitlab-org/gitlab-ee/
+
+    http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
+    http-request set-header X-Forwarded-Proto https
+    http-request set-header X-SSL %[ssl_fc]
+
+    use_backend sockets if is_socket_upg is_socket_path
+    use_backend gitlab_ce_ee if is_gitlab_ce_ee
+    default_backend worker
+
+frontend ssh
+    bind <%= @listen_address %>:22
+    mode tcp
+    use_backend ssh
+
+backend sockets
+    balance roundrobin
+    option http-server-close
+    timeout tunnel <%= @timeout_tunnel %>
+    cookie _gitlab_session prefix nocache
+    <% @socket_servers.each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
+    <% end %>
+
+backend worker
+    balance roundrobin
+    option forwardfor
+    timeout server-fin <%= @timeout_server_fin %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    <%= @https_custom_config %>
+    <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
-  <% end %>
+    <% end %>
 
-listen gitlab_22
-  mode tcp
-  bind <%= @listen_address %>:22
-  balance roundrobin
-  # Use a HTTP check so that `gitlab-ctl stop` on the worker will tell HAproxy
-  # to also stop forwarding SSH connections to a worker.
-  option tcplog
-  option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-  log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
-  <% @servers.each do |name, ip| %>
+backend ssh
+    balance source
+    hash-type consistent
+    option tcplog
+    timeout server-fin <%= @timeout_server_fin %>
+    timeout server <%= @timeout_server_ssh %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+    <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
-  <% end %>
+    <% end %>
+
+backend gitlab_ce_ee
+    option forwardfor
+    timeout server-fin <%= @timeout_server_fin %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    server <%= @servers.keys.last.to_s %> <%= @servers.values.last %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
+    server <%= @servers.keys.first.to_s %> <%= @servers.values.first %>:22 check check-ssl port 443 inter 5000 fall 3 verify none backup
