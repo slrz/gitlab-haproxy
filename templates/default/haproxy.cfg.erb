@@ -61,7 +61,7 @@ frontend https
     acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
-    acl is_gitlab_ce_ee path_beg,url_dec -i /gitlab-org/gitlab-ce/ /gitlab-org/gitlab-ee/
+    acl is_gitlab_ce_ee path_beg -i /gitlab-org/gitlab-ce /gitlab-org/gitlab-ee
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request set-header X-Forwarded-Proto https
