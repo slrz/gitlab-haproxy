@@ -14,7 +14,7 @@ suites:
     run_list:
       - recipe[gitlab-haproxy::gitlab]
     attributes:
-      gitlab-haproxy:
+      gitlab-haproxy: {
         servers: {
           "worker1.cluster.gitlab.com": "127.0.0.1",
           "worker2.cluster.gitlab.com": "127.0.0.1",
@@ -44,12 +44,12 @@ suites:
         pinned_servers: {
           "worker1.cluster.gitlab.com": "127.0.0.1",
           "worker2.cluster.gitlab.com": "127.0.0.1"
-        }
+        }}
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
     attributes:
-      gitlab-haproxy:
+      gitlab-haproxy: {
         servers: {
           "worker1.cluster.gitlab.com": "127.0.0.1",
           "worker2.cluster.gitlab.com": "127.0.0.1",
@@ -79,4 +79,4 @@ suites:
         pinned_servers: {
           "worker1.cluster.gitlab.com": "127.0.0.1",
           "worker2.cluster.gitlab.com": "127.0.0.1"
-        }
+        }}
