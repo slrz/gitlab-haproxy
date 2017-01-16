@@ -1,3 +1,7 @@
+# 0.1.24
+
+- Isolate pinned servers
+
 # 0.1.23
 
 - Implement frontend backend with pinning for ce and ee

@@ -70,8 +70,8 @@ frontend https
     <%= @https_custom_config %>
 
     use_backend sockets if is_socket_upg is_socket_path
-    use_backend gitlab_ce_ee if is_gitlab_ce_ee
-    default_backend worker
+    use_backend pinned if is_gitlab_ce_ee
+    default_backend workers
 
 frontend ssh
     bind <%= @listen_address %>:22
@@ -90,7 +90,7 @@ backend sockets
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
     <% end %>
 
-backend worker
+backend workers
     mode http
     balance roundrobin
     option forwardfor
@@ -111,10 +111,10 @@ backend ssh
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
 
-backend gitlab_ce_ee
+backend pinned
     mode http
     option forwardfor
     timeout server-fin <%= @timeout_server_fin %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    server <%= @servers.keys.last.to_s %> <%= @servers.values.last %>:443 check check-ssl inter 5000 fall 3 ssl verify none
-    server <%= @servers.keys.first.to_s %> <%= @servers.values.first %>:443 check check-ssl inter 5000 fall 3 ssl verify none backup
+    server <%= @pinned_servers.keys.last.to_s %> <%= @pinned_servers.values.last %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+    server <%= @pinned_servers.keys.first.to_s %> <%= @pinned_servers.values.first %>:443 check check-ssl inter 5000 fall 3 ssl verify none backup
