@@ -109,7 +109,7 @@ backend csptest
     option forwardfor
     timeout server-fin <%= @timeout_server_fin %>
     acl csp_exists res.hdr_cnt(Content-Security-Policy-Report-Only) gt 0
-    rspadd Content-Security-Policy-Report-Only:\ object-src\ 'none';\ script-src\ 'self'\ 'unsafe-inline'\ 'unsafe-eval'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ 'self'\ 'unsafe-inline';\ img-src\ *\ data:;\ frame-src\ 'self'\ https://www.google.com/recaptcha/;\ frame-ancestors\ 'none';\ connect-src\ 'self';\ report-uri\ https://d673473fbd4f2fc08daefad64164de31.report-uri.io/r/default/csp/reportOnly if ! csp_exists
+    rspadd Content-Security-Policy-Report-Only:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'none\';\ connect-src\ \'self\';\ report-uri\ https://d673473fbd4f2fc08daefad64164de31.report-uri.io/r/default/csp/reportOnly if ! csp_exists
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
