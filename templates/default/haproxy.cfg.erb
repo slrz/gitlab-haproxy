@@ -63,6 +63,8 @@ frontend https
     acl is_socket_path path_end -i .ws
     acl is_gitlab_ce_ee path_beg -i /gitlab-org/gitlab-ce /gitlab-org/gitlab-ee
 
+    acl is_csptest src 100.15.76.124
+
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
@@ -71,6 +73,7 @@ frontend https
 
     use_backend sockets if is_socket_upg is_socket_path
     use_backend pinned if is_gitlab_ce_ee
+    use_backend csptest if is_csptest
     default_backend workers
 
 frontend ssh
@@ -99,6 +102,19 @@ backend workers
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
+
+backend csptest
+    mode http
+    balance roundrobin
+    option forwardfor
+    timeout server-fin <%= @timeout_server_fin %>
+    acl csp_exists res.hdr_cnt(Content-Security-Policy-Report-Only) gt 0
+    rspadd Content-Security-Policy-Report-Only:\ object-src\ 'none';\ script-src\ 'self'\ 'unsafe-inline'\ 'unsafe-eval'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ 'self'\ 'unsafe-inline';\ img-src\ *\ data:;\ frame-src\ 'self'\ https://www.google.com/recaptcha/;\ frame-ancestors\ 'none';\ connect-src\ 'self';\ report-uri\ https://d673473fbd4f2fc08daefad64164de31.report-uri.io/r/default/csp/reportOnly if ! csp_exists
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    <% @servers.each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+    <% end %>
+
 
 backend ssh
     mode tcp
