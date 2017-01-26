@@ -125,6 +125,7 @@ backend csptest2
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
     <% @servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+    <% end %>
 
 backend ssh
     mode tcp
