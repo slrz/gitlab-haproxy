@@ -26,6 +26,5 @@ default['gitlab-haproxy']['servers'] = {}
 # default['gitlab-haproxy']['servers']['server1'] = '192.168.1.10'
 # default['gitlab-haproxy']['servers']['server2'] = '192.168.1.11'
 default['gitlab-haproxy']['socket_servers'] = {}
-default['gitlab-haproxy']['pinned_servers'] = {}
 
 default['openssh']['server']['listen_address'] = [ "0.0.0.0:2222" ]
