@@ -61,6 +61,7 @@ frontend https
     acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
+    acl is_gitlab_com_api path_beg /api/ /ci/
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request set-header X-Forwarded-Proto https
@@ -68,6 +69,7 @@ frontend https
 
     <%= @https_custom_config %>
 
+    use_backend api if is_gitlab_com_api
     use_backend sockets if is_socket_upg is_socket_path
     default_backend workers
 
@@ -86,6 +88,16 @@ backend sockets
     cookie _gitlab_session prefix nocache
     <% @socket_servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
+    <% end %>
+
+backend api
+    mode http
+    balance roundrobin
+    option forwardfor
+    timeout server-fin <%= @timeout_server_fin %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
+    <% @api_servers.each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
 
 backend workers
