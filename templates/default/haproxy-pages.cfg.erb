@@ -64,7 +64,7 @@ backend http-worker
     balance source
     hash-type consistent
     option forwardfor
-    <% @servers.each do |name, ip| %>
+    <% @web_servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
     <% end %>
 
@@ -72,6 +72,6 @@ backend https-worker
     mode tcp
     balance source
     hash-type consistent
-    <% @servers.each do |name, ip| %>
+    <% @web_servers.each do |name, ip| %>
     server <%= name %> <%= ip %>:1443 check inter 5000 fall 3
     <% end %>

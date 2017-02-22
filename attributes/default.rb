@@ -26,7 +26,7 @@ default['gitlab-haproxy']['ssl']['pages_key'] = 'use vault'
 # default['gitlab-haproxy']['servers']['server2'] = '192.168.1.11'
 default['gitlab-haproxy']['ssh_servers'] = {}
 default['gitlab-haproxy']['socket_servers'] = {}
-default['gitlab-haproxy']['servers'] = {}
+default['gitlab-haproxy']['web_servers'] = {}
 default['gitlab-haproxy']['api_servers'] = {}
 default['gitlab-haproxy']['https_git_servers'] = {}
 
