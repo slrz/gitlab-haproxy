@@ -50,7 +50,9 @@ frontend http
     mode http
     timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-    http-request redirect scheme https
+    acl is_www_gitlab_com hdr(host) -i www.gitlab.com
+    http-request redirect code 301 location https://gitlab.com/%[req.uri] if is_www_gitlab_com]
+    http-request redirect scheme https code 301
 
 frontend https
     bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
@@ -58,15 +60,15 @@ frontend https
     timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
 
-    acl is_ci_gitlab_com hdr_beg(host) -i ci.gitlab.com
-    acl is_www_gitlab_com hdr_beg(host) -i www.gitlab.com
+    acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
+    acl is_www_gitlab_com hdr_host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
     acl is_gitlab_com_api path_beg -i /api/ /ci/
     acl is_gitlab_com_https_git path_reg -i ^/[^/]+/[^/]+\.git[$/]
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
-    http-request set-uri https://gitlab.com/%[path]?%[query] if is_www_gitlab_com
+    http-request redirect code 308 location https://gitlab.com/%[req.uri] if is_www_gitlab_com
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
