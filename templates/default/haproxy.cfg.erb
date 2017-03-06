@@ -51,7 +51,7 @@ frontend http
     timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
-    http-request redirect code 301 location https://gitlab.com/%[req.uri] if is_www_gitlab_com]
+    http-request redirect code 301 location https://gitlab.com/%[req.uri] if is_www_gitlab_com
     http-request redirect scheme https code 301
 
 frontend https
@@ -61,7 +61,7 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
 
     acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
-    acl is_www_gitlab_com hdr_host) -i www.gitlab.com
+    acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
     acl is_gitlab_com_api path_beg -i /api/ /ci/
