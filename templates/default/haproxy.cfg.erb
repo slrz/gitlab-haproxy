@@ -51,7 +51,7 @@ frontend http
     timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
-    http-request redirect code 301 location https://gitlab.com/%[capture.req.uri] if is_www_gitlab_com
+    http-request redirect code 301 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect scheme https code 301
 
 frontend https
@@ -68,7 +68,7 @@ frontend https
     acl is_gitlab_com_https_git path_reg -i ^/[^/]+/[^/]+\.git[$/]
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
-    http-request redirect code 308 location https://gitlab.com/%[capture.req.uri] if is_www_gitlab_com
+    http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
