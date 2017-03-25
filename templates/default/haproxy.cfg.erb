@@ -66,7 +66,7 @@ frontend https
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
     acl is_gitlab_com_api path_beg -i /api/ /ci/
-    acl is_gitlab_com_https_git path_reg -i ^/[^/]+/[^/]+\.git[$/]
+    acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
