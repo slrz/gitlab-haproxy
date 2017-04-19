@@ -24,12 +24,8 @@ default['gitlab-haproxy']['ssl']['registry_key'] = 'use vault'
 default['gitlab-haproxy']['ssl']['pages_crt'] = 'use vault'
 default['gitlab-haproxy']['ssl']['pages_key'] = 'use vault'
 
-# default['gitlab-haproxy']['servers']['server1'] = '192.168.1.10'
-# default['gitlab-haproxy']['servers']['server2'] = '192.168.1.11'
 default['gitlab-haproxy']['ssh_servers'] = {}
 default['gitlab-haproxy']['socket_servers'] = {}
 default['gitlab-haproxy']['web_servers'] = {}
 default['gitlab-haproxy']['api_servers'] = {}
 default['gitlab-haproxy']['https_git_servers'] = {}
-
-default['openssh']['server']['listen_address'] = [ "0.0.0.0:2222" ]
