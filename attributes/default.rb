@@ -11,6 +11,8 @@ default['gitlab-haproxy']['timeout_tunnel'] = '8s'
 default['gitlab-haproxy']['listen_address'] = '0.0.0.0'
 default['gitlab-haproxy']['https_custom_config'] = nil
 default['gitlab-haproxy']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['rate_limit_requests_per_second'] = '10'
+default['gitlab-haproxy']['rate_limit_whitelist'] = '127.0.0.1'
 
 default['gitlab-haproxy']['ssl'] = {}
 default['gitlab-haproxy']['ssl']['gitlab_crt'] = 'use vault'
