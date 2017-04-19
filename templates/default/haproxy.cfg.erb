@@ -30,6 +30,7 @@ defaults
     errorfile 400 /etc/haproxy/errors/400.http
     errorfile 403 /etc/haproxy/errors/429.http
     errorfile 408 /etc/haproxy/errors/400.http
+    errorfile 429 /etc/haproxy/errors/429.http
     errorfile 500 /etc/haproxy/errors/500.http
     errorfile 502 /etc/haproxy/errors/500.http
     errorfile 503 /etc/haproxy/errors/500.http
@@ -67,6 +68,15 @@ frontend https
     acl is_socket_path path_end -i .ws
     acl is_gitlab_com_api path_beg -i /api/ /ci/
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
+
+    # Use gpc0 in sc1 as a global rate limiting counter
+    stick-table type ip size 1m expire 1m store gpc0,http_req_rate(1s)
+    tcp-request connection track-sc1 src
+    acl too_many_requests src_http_req_rate(https) ge <%= @rate_limit_requests_per_second %>
+    acl rate_limit_whitelist src <%= @rate_limit_whitelist %>
+    http-request allow if rate_limit_whitelist
+    http-request allow if is_gitlab_com_api !too_many_requests
+    http-request deny deny_status 429 if is_gitlab_com_api too_many_requests
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com

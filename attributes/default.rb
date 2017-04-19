@@ -11,6 +11,8 @@ default['gitlab-haproxy']['timeout_tunnel'] = '8s'
 default['gitlab-haproxy']['listen_address'] = '0.0.0.0'
 default['gitlab-haproxy']['https_custom_config'] = nil
 default['gitlab-haproxy']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['rate_limit_requests_per_second'] = '10'
+default['gitlab-haproxy']['rate_limit_whitelist'] = '127.0.0.1'
 
 default['gitlab-haproxy']['ssl'] = {}
 default['gitlab-haproxy']['ssl']['gitlab_crt'] = 'use vault'
@@ -22,12 +24,8 @@ default['gitlab-haproxy']['ssl']['registry_key'] = 'use vault'
 default['gitlab-haproxy']['ssl']['pages_crt'] = 'use vault'
 default['gitlab-haproxy']['ssl']['pages_key'] = 'use vault'
 
-# default['gitlab-haproxy']['servers']['server1'] = '192.168.1.10'
-# default['gitlab-haproxy']['servers']['server2'] = '192.168.1.11'
 default['gitlab-haproxy']['ssh_servers'] = {}
 default['gitlab-haproxy']['socket_servers'] = {}
 default['gitlab-haproxy']['web_servers'] = {}
 default['gitlab-haproxy']['api_servers'] = {}
 default['gitlab-haproxy']['https_git_servers'] = {}
-
-default['openssh']['server']['listen_address'] = [ "0.0.0.0:2222" ]
