@@ -85,7 +85,7 @@ frontend https
 
 frontend api_rate_limit
    bind 127.0.0.1:<%= @rate_limit_frontend_port %> accept-proxy
-   rate-limit sessions <%= @rate_limit_requests_per_second %>
+   rate-limit sessions <%= @rate_limit_sessions_per_second %>
    default_backend api
 
 frontend ssh
