@@ -68,15 +68,6 @@ frontend https
     acl is_gitlab_com_api path_beg -i /api/ /ci/
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
 
-    # Use gpc0 in sc1 as a global rate limiting counter
-    stick-table type ip size 1m expire 1m store gpc0,http_req_rate(1s)
-    tcp-request connection track-sc1 src
-    acl too_many_requests src_http_req_rate(https) ge <%= @rate_limit_requests_per_second %>
-    acl rate_limit_whitelist src <%= @rate_limit_whitelist %>
-    http-request allow if rate_limit_whitelist
-    http-request allow if is_gitlab_com_api !too_many_requests
-    http-request deny deny_status 429 if is_gitlab_com_api too_many_requests
-
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request set-header X-Forwarded-Proto https
@@ -84,10 +75,18 @@ frontend https
 
     <%= @https_custom_config %>
 
-    use_backend api if is_gitlab_com_api
+    acl api_rate_limit_whitelist src <%= @rate_limit_whitelist %>
+
+    use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
     use_backend sockets if is_socket_upg is_socket_path
     default_backend web
+
+frontend api_rate_limit
+   bind 127.0.0.1:<%= @rate_limit_frontend_port %> accept-proxy
+   rate-limit sessions <%= @rate_limit_requests_per_second %>
+   default_backend api
 
 frontend ssh
     bind <%= @listen_address %>:22
@@ -95,6 +94,10 @@ frontend ssh
     timeout client-fin <%= @timeout_client_fin %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend ssh
+
+backend api_rate_limit
+  mode http
+  server localhost 127.0.0.1:<%= @rate_limit_frontend_port %> send-proxy
 
 backend sockets
     mode http
