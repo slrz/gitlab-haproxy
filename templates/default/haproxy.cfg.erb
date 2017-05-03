@@ -78,16 +78,16 @@ frontend https
 
     acl api_rate_limit_whitelist src <%= @rate_limit_whitelist %>
 
-    use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api and api_rate_limit_whitelist
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
-    use_backend sockets if is_socket_upg is_socket_path
+    use_backend sockets if is_socket_upg or is_socket_path
     default_backend web
 
 frontend api_rate_limit
-   bind 127.0.0.1:<%= @rate_limit_frontend_port %> accept-proxy
-   rate-limit sessions <%= @rate_limit_sessions_per_second %>
-   default_backend api
+    bind 127.0.0.1:<%= @rate_limit_frontend_port %> accept-proxy
+    rate-limit sessions <%= @rate_limit_sessions_per_second %>
+    default_backend api
 
 frontend ssh
     bind <%= @listen_address %>:22
@@ -97,8 +97,8 @@ frontend ssh
     use_backend ssh
 
 backend api_rate_limit
-  mode http
-  server localhost 127.0.0.1:<%= @rate_limit_frontend_port %> send-proxy
+    mode http
+    server localhost 127.0.0.1:<%= @rate_limit_frontend_port %> send-proxy
 
 backend sockets
     mode http
