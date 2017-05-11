@@ -78,7 +78,7 @@ frontend https
 
     acl api_rate_limit_whitelist src <%= @rate_limit_whitelist %>
 
-    use_backend api if is_gitlab_com_api and api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api api_rate_limit_whitelist
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
     use_backend sockets if is_socket_upg or is_socket_path
