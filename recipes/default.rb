@@ -43,6 +43,12 @@ service 'haproxy' do
   supports [:reload]
 end
 
+execute "test-haproxy-config" do
+  command "haproxy -c -f /etc/haproxy/haproxy.cfg"
+  notifies :reload, "service[haproxy]", :delayed
+  action :nothing
+end
+
 cookbook_file '/etc/cron.hourly/logrotate' do
   source 'logrotate-cron'
   owner 'root'
