@@ -30,3 +30,6 @@ default['gitlab-haproxy']['socket_servers'] = {}
 default['gitlab-haproxy']['web_servers'] = {}
 default['gitlab-haproxy']['api_servers'] = {}
 default['gitlab-haproxy']['https_git_servers'] = {}
+
+default['gitlab-haproxy']['altssh_custom_config'] = nil
+default['gitlab-haproxy']['altssh_servers'] = {}
