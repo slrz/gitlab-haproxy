@@ -1,5 +1,5 @@
-default['gitlab-haproxy']['chef_vault'] = nil
-default['gitlab-haproxy']['chef_vault_item'] = nil
+default['gitlab-haproxy']['chef_vault'] = 'secrets'
+default['gitlab-haproxy']['chef_vault_item'] = 'certs'
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
