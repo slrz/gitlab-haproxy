@@ -1,13 +1,31 @@
-image: jnijhof/kitchen-docker
+image: ruby:2.3
 
-rspec:
-  script:
-    - rspec -f d
+variables:
+  DEBIAN_FRONTEND: "noninteractive"
+  KITCHEN_YAML: ".kitchen.ci.yml"
+  BUNDLE_PATH: "$CI_PROJECT_DIR/.bundle"
+  DIGITALOCEAN_TESTBOX_FQDN: "template.${CI_PROJECT_NAMESPACE}.ci.gitlab.test"
 
-haproxy ubuntu 16.04:
-  script:
-    - kitchen test haproxy-gitlab-ubuntu-1604
-pages ubuntu 16.04:
-  script:
-    - kitchen test haproxy-pages-ubuntu-1604
+stages:
+  - unit
+  - integration
 
+before_script:
+    - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq
+    - make gems
+
+rspec-test-job:
+  stage: unit
+  cache:
+    paths:
+      - $BUNDLE_PATH
+  script:
+    - make rspec
+
+kitchen-test-job:
+  stage: integration
+  cache:
+    paths:
+      - $BUNDLE_PATH
+  script:
+    - make kitchen

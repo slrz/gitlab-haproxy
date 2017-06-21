@@ -1,0 +1,86 @@
+---
+driver:
+  name: digitalocean
+  private_networking: false
+  ipv6: false
+  region: <%= ENV['GITLAB_DO_REGION'] || "nyc3" %>
+
+provisioner:
+  name: chef_zero
+  data_bags_path: "test/data_bags"
+
+platforms:
+  - name: ubuntu-16-04-x64
+    driver_config:
+      server_name: <%= ENV['USER'] || 'iamgroot' %>-kitchen-test-1604.template.gitlab-cookbooks.ci.gitlab.test
+
+verifier:
+  name: inspec
+
+transport:
+  name: rsync
+  ssh_key: <%= ENV['GITLAB_DO_SSH_KEY'] || "~/.ssh/id_rsa" %>
+  username: root
+
+suites:
+  - name: haproxy-frontend
+    run_list:
+      - recipe[gitlab-haproxy::frontend]
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        frontend:
+          web:
+            servers:
+              web01.stg.gitlab.com: 127.0.0.1
+          ssh:
+            port: 2222
+            servers:
+              git01.stg.gitlab.com: 127.0.0.1
+          https_git:
+            servers:
+              git01.stg.gitlab.com: 127.0.0.1
+          websockets:
+            servers:
+              web01.stg.gitlab.com: 127.0.0.1
+          api:
+            servers:
+              api01.stg.gitlab.com: 127.0.0.1
+
+  - name: haproxy-backend
+    run_list:
+      - recipe[gitlab-haproxy::backend]
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        backend:
+          rails:
+            servers:
+              rails01.be.gitlab.com: 127.0.0.1
+          registry:
+            servers:
+              registry01.be.gitlab.com: 127.0.0.1
+
+  - name: haproxy-pages
+    run_list:
+      - recipe[gitlab-haproxy::pages]
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        pages:
+          servers:
+            web01.stg.gitlab.com: 127.0.0.1
+
+  - name: haproxy-altssh
+    run_list:
+      - recipe[gitlab-haproxy::altssh]
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        altssh:
+          servers:
+            ssh01.stg.gitlab.com: 127.0.0.1
