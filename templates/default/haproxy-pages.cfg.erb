@@ -66,7 +66,7 @@ backend pages_http
     balance source
     hash-type consistent
     option forwardfor
-    <% node['pages']['pages_servers'].each do |name, ip| %>
+    <% node['pages']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
     <% end %>
 
