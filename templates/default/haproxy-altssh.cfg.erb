@@ -25,8 +25,8 @@ defaults
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
-    timeout client <%= @timeout_client %>
-    timeout server <%= @timeout_server %>
+    timeout client <%= node['gitlab-haproxy']['timeout_client'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server'] %>
     errorfile 400 /etc/haproxy/errors/400.http
     errorfile 403 /etc/haproxy/errors/429.http
     errorfile 408 /etc/haproxy/errors/400.http
@@ -36,7 +36,7 @@ defaults
     errorfile 503 /etc/haproxy/errors/500.http
     errorfile 504 /etc/haproxy/errors/500.http
 
-listen stats_7331
+listen stats
     bind 127.0.0.1:7331
     mode http
     stats enable
@@ -47,12 +47,12 @@ listen stats_7331
     stats admin if TRUE
 
 frontend altssh
-    bind <%= @listen_address %>:443
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:443
     mode tcp
-    timeout client-fin <%= @timeout_client_fin %>
+    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 
-    <%= @altssh_custom_config %>
+    <%= node['gitlab-haproxy']['altssh']['custom_config'] %>
 
     default_backend altssh
 
@@ -60,8 +60,8 @@ backend altssh
     mode tcp
     balance source
     hash-type consistent
-    timeout server-fin <%= @timeout_server_fin %>
-    timeout server <%= @timeout_server_ssh %>
-    <% @altssh_servers.each do |name, ip| %>
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
+    <% node['gitlab-haproxy']['altssh']['altssh_servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check port 22 inter 5000 fall 3 verify none
     <% end %>

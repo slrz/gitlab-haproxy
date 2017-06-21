@@ -4,5 +4,5 @@ group :test do
   gem 'berkshelf'
   gem 'chefspec'
   gem 'test-kitchen'
-  gem 'kitchen-docker'
+  gem 'kitchen-vagrant'
 end

@@ -11,9 +11,3 @@ pages ubuntu 16.04:
   script:
     - kitchen test haproxy-pages-ubuntu-1604
 
-haproxy ubuntu 14.04:
-  script:
-    - kitchen test haproxy-gitlab-ubuntu-1404
-pages ubuntu 14.04:
-  script:
-    - kitchen test haproxy-pages-ubuntu-1404
