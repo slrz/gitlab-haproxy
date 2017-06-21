@@ -6,21 +6,6 @@
 #
 # License: MIT
 #
-case node['platform']
-when 'ubuntu'
-  case node['platform_version']
-  when /^14\.04/
-    # We want HAProxy 1.5 with better SSL support, which is not in Ubuntu 14.04
-    template '/etc/apt/sources.list.d/haproxy.list' do
-      notifies :run, 'execute[apt-get update]', :immediately
-    end
-
-    execute 'apt-get update' do
-      action :nothing
-    end
-  end
-end
-
 package 'haproxy'
 package 'logrotate'
 

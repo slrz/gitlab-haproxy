@@ -100,8 +100,8 @@ GEM
     iniparse (1.4.2)
     ipaddress (0.8.3)
     json (2.0.2)
-    kitchen-docker (2.6.0)
-      test-kitchen (>= 1.0.0)
+    kitchen-vagrant (1.1.0)
+      test-kitchen (~> 1.4)
     libyajl2 (1.2.0)
     minitar (0.5.4)
     mixlib-archive (0.2.0)
@@ -233,8 +233,8 @@ PLATFORMS
 DEPENDENCIES
   berkshelf
   chefspec
-  kitchen-docker
+  kitchen-vagrant
   test-kitchen
 
 BUNDLED WITH
-   1.11.2
+   1.14.6

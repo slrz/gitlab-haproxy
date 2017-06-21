@@ -25,8 +25,8 @@ defaults
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
-    timeout client <%= @timeout_client %>
-    timeout server <%= @timeout_server %>
+    timeout client <%= node['gitlab-haproxy']['timeout_client'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server'] %>
     errorfile 400 /etc/haproxy/errors/400.http
     errorfile 403 /etc/haproxy/errors/429.http
     errorfile 408 /etc/haproxy/errors/400.http
@@ -36,7 +36,7 @@ defaults
     errorfile 503 /etc/haproxy/errors/500.http
     errorfile 504 /etc/haproxy/errors/500.http
 
-listen stats_7331
+listen stats
     bind 127.0.0.1:7331
     mode http
     stats enable
@@ -47,18 +47,18 @@ listen stats_7331
     stats admin if TRUE
 
 frontend http
-    bind <%= @listen_address %>:80
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http
-    timeout client-fin <%= @timeout_client_fin %>
+    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     http-request redirect code 301 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect scheme https code 301
 
 frontend https
-    bind <%= @listen_address %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
-    timeout client-fin <%= @timeout_client_fin %>
+    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
@@ -74,39 +74,39 @@ frontend https
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
-    <%= @https_custom_config %>
+    <%= node['gitlab-haproxy']['frontend']['https']['custom_config'] %>
 
-    acl api_rate_limit_whitelist src <%= @rate_limit_whitelist %>
+    acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
 
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
-    use_backend sockets if is_socket_upg or is_socket_path
+    use_backend websockets if is_socket_upg or is_socket_path
     default_backend web
 
 frontend api_rate_limit
-    bind 127.0.0.1:<%= @rate_limit_frontend_port %> accept-proxy
-    rate-limit sessions <%= @rate_limit_sessions_per_second %>
+    bind 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> accept-proxy
+    rate-limit sessions <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] %>
     default_backend api
 
 frontend ssh
-    bind <%= @listen_address %>:22
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['ssh']['port'] %>
     mode tcp
-    timeout client-fin <%= @timeout_client_fin %>
+    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend ssh
 
 backend api_rate_limit
     mode http
-    server localhost 127.0.0.1:<%= @rate_limit_frontend_port %> send-proxy
+    server localhost 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> send-proxy
 
-backend sockets
+backend websockets
     mode http
     balance roundrobin
     option http-server-close
-    timeout tunnel <%= @timeout_tunnel %>
+    timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
     cookie _gitlab_session prefix nocache
-    <% @socket_servers.each do |name, ip| %>
+    <% node['gitlab-haproxy']['frontend']['websockets']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
     <% end %>
 
@@ -114,9 +114,9 @@ backend api
     mode http
     balance roundrobin
     option forwardfor
-    timeout server-fin <%= @timeout_server_fin %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    <% @api_servers.each do |name, ip| %>
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['frontend']['api']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
 
@@ -124,10 +124,10 @@ backend web
     mode http
     balance roundrobin
     option forwardfor
-    timeout server-fin <%= @timeout_server_fin %>
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    <% @web_servers.each do |name, ip| %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
 
@@ -135,10 +135,13 @@ backend ssh
     mode tcp
     balance source
     hash-type consistent
-    timeout server-fin <%= @timeout_server_fin %>
-    timeout server <%= @timeout_server_ssh %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    <% @ssh_servers.each do |name, ip| %>
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
+    # We need to check port 443 and not 22. The assumption here is that ssh won't work
+    # if rails isn't running and they're both running on the same host.
+    # We need to change this when we split rails to a separate cluster.
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['frontend']['ssh']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
 
@@ -146,9 +149,9 @@ backend https_git
     mode http
     balance roundrobin
     option forwardfor
-    timeout server-fin <%= @timeout_server_fin %>
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= @httpchk_host %>
-    <% @https_git_servers.each do |name, ip| %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>

@@ -17,12 +17,6 @@ file '/etc/haproxy/ssl/gitlab.pem' do
   notifies :run, "execute[test-haproxy-config]", :delayed
 end
 
-file '/etc/haproxy/ssl/ci.pem' do
-  mode '0600'
-  content "#{haproxy_conf['ssl']['ci_crt']}\n#{haproxy_conf['ssl']['ci_key']}\n"
-  notifies :reload, 'service[haproxy]'
-end
-
 file '/etc/haproxy/ssl/registry.pem' do
   mode '0600'
   content "#{haproxy_conf['ssl']['registry_crt']}\n#{haproxy_conf['ssl']['registry_key']}\n"
@@ -30,6 +24,7 @@ file '/etc/haproxy/ssl/registry.pem' do
 end
 
 template '/etc/haproxy/haproxy.cfg' do
+  source 'haproxy-backend.cfg.erb'
   mode '0600'
   variables(haproxy_conf.to_hash())
   notifies :run, "execute[test-haproxy-config]", :delayed
