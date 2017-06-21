@@ -6,7 +6,7 @@ DEPENDENCIES
 GRAPH
   chef-vault (2.1.1)
   compat_resource (12.16.3)
-  gitlab-haproxy (0.1.55)
+  gitlab-haproxy (0.1.59)
     gitlab-vault (>= 0.0.0)
     openssh (>= 0.0.0)
   gitlab-vault (0.2.0)

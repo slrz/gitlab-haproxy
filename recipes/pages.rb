@@ -13,13 +13,13 @@ include_recipe 'gitlab-haproxy::default'
 
 file '/etc/haproxy/ssl/pages.pem' do
   mode '0600'
-  content "#{haproxy_conf['ssl']['pages_crt']}\n#{haproxy_conf['ssl']['pages_key']}\n"
+  content "#{haproxy_secrets['ssl']['pages_crt']}\n#{haproxy_secrets['ssl']['pages_key']}\n"
   notifies :run, "execute[test-haproxy-config]", :delayed
 end
 
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-pages.cfg.erb'
   mode '0600'
-  variables(haproxy_conf.to_hash())
+  variables(haproxy_secrets.to_hash())
   notifies :run, "execute[test-haproxy-config]", :delayed
 end

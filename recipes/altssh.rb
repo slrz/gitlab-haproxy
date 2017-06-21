@@ -14,6 +14,6 @@ include_recipe 'gitlab-haproxy::default'
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-altssh.cfg.erb'
   mode '0600'
-  variables(haproxy_conf.to_hash())
+  variables(haproxy_secrets.to_hash())
   notifies :run, "execute[test-haproxy-config]", :delayed
 end
