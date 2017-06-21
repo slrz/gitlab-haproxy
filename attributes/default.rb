@@ -36,11 +36,11 @@ default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
-default['gitlab-haproxy']['altssh']['altssh_servers'] = {}
+default['gitlab-haproxy']['altssh']['servers'] = {}
 
-default['gitlab-haproxy']['pages']['servers'] = {}
 default['gitlab-haproxy']['pages']['http_custom_config'] = nil
 default['gitlab-haproxy']['pages']['https_custom_config'] = nil
+default['gitlab-haproxy']['pages']['servers'] = {}
 
 default['gitlab-haproxy']['backend']['rails']['custom_config'] = nil
 default['gitlab-haproxy']['backend']['rails']['httpchk_host'] = 'gitlab.com'

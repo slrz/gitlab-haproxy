@@ -62,6 +62,6 @@ backend altssh
     hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
-    <% node['gitlab-haproxy']['altssh']['altssh_servers'].each do |name, ip| %>
+    <% node['gitlab-haproxy']['altssh']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check port 22 inter 5000 fall 3 verify none
     <% end %>
