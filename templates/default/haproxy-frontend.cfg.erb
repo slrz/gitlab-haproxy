@@ -99,6 +99,7 @@ frontend ssh
     use_backend ssh
 
 backend bad_ref
+    mode http
     errorfile 503 /etc/haproxy/errors/bad_ref.http
 
 backend api_rate_limit
