@@ -46,15 +46,6 @@ listen stats
     stats auth admin:<%= @admin_password %>
     stats admin if TRUE
 
-frontend http
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:80
-    mode http
-    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
-    acl is_www_gitlab_com hdr(host) -i www.gitlab.com
-    http-request redirect code 301 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
-    http-request redirect scheme https code 301
-
 frontend rails
     bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3
     mode http
