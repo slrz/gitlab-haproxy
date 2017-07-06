@@ -26,6 +26,10 @@ suites:
   - name: haproxy-frontend
     run_list:
       - recipe[gitlab-haproxy::frontend]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/frontend
     attributes:
       gitlab-haproxy:
         chef_vault: secrets
@@ -51,6 +55,10 @@ suites:
   - name: haproxy-backend
     run_list:
       - recipe[gitlab-haproxy::backend]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/backend
     attributes:
       gitlab-haproxy:
         chef_vault: secrets
@@ -66,6 +74,10 @@ suites:
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/pages
     attributes:
       gitlab-haproxy:
         chef_vault: secrets
@@ -77,6 +89,10 @@ suites:
   - name: haproxy-altssh
     run_list:
       - recipe[gitlab-haproxy::altssh]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/altssh
     attributes:
       gitlab-haproxy:
         chef_vault: secrets
