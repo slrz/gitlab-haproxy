@@ -24,6 +24,10 @@ cookbook_file '/etc/haproxy/errors/500.http' do
   source 'haproxy-errors-500.http'
 end
 
+cookbook_file '/etc/haproxy/errors/bad_ref.http' do
+  source 'haproxy-errors-bad-ref.http'
+end
+
 service 'haproxy' do
   supports [:reload]
 end

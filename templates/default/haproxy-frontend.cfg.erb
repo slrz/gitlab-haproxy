@@ -46,6 +46,11 @@ listen stats
     stats auth admin:<%= @admin_password %>
     stats admin if TRUE
 
+frontend api_rate_limit
+    bind 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> accept-proxy
+    rate-limit sessions <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] %>
+    default_backend api
+
 frontend http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http
@@ -62,7 +67,9 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
+    acl is_bad_ref hdr_sub(referer) -i gitlab-enterprise.com
     acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
+    acl is_registry_gitlab_com hdr(host) -i <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -78,16 +85,13 @@ frontend https
 
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
 
+    use_backend bad_ref if is_bad_ref
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
+    use_backend registry if is_registry_gitlab_com
     use_backend websockets if is_socket_upg or is_socket_path
     default_backend web
-
-frontend api_rate_limit
-    bind 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> accept-proxy
-    rate-limit sessions <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] %>
-    default_backend api
 
 frontend ssh
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['ssh']['port'] %>
@@ -95,20 +99,6 @@ frontend ssh
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend ssh
-
-backend api_rate_limit
-    mode http
-    server localhost 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> send-proxy
-
-backend websockets
-    mode http
-    balance roundrobin
-    option http-server-close
-    timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
-    cookie _gitlab_session prefix nocache
-    <% node['gitlab-haproxy']['frontend']['websockets']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
-    <% end %>
 
 backend api
     mode http
@@ -120,15 +110,44 @@ backend api
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>
 
+backend api_rate_limit
+    mode http
+    server localhost 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> send-proxy
+
+backend bad_ref
+    mode http
+    errorfile 503 /etc/haproxy/errors/bad_ref.http
+
+backend https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com\ https://customers.gitlab.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+    <% end %>
+
 backend web
     mode http
     balance roundrobin
     option forwardfor
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
+    rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com\ https://customers.gitlab.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+    <% end %>
+
+backend registry
+    mode http
+    balance roundrobin
+    option forwardfor
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
+    <% node['gitlab-haproxy']['frontend']['registry']['servers'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['registry']['backend_port'] %> check inter 5000 fall 3
     <% end %>
 
 backend ssh
@@ -145,13 +164,12 @@ backend ssh
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
     <% end %>
 
-backend https_git
+backend websockets
     mode http
     balance roundrobin
-    option forwardfor
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
-    <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
+    option http-server-close
+    timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
+    cookie _gitlab_session prefix nocache
+    <% node['gitlab-haproxy']['frontend']['websockets']['servers'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none cookie <%= name %>
     <% end %>

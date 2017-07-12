@@ -1,10 +1,10 @@
 name             'gitlab-haproxy'
 maintainer       'GitLab Inc.'
-maintainer_email 'jeroen@gitlab.com'
+maintainer_email 'ops-contact@gitlab.com'
 license          'All rights reserved'
 description      'Manage HAProxy server'
 long_description 'Recipes used to manage a HAProxy server at GitLab Inc.'
-version          '0.1.59'
+version          '0.1.63'
 
 depends 'gitlab-vault'
 depends 'openssh'
