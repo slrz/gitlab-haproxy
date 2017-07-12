@@ -20,7 +20,7 @@ end
 file '/etc/haproxy/ssl/ci.pem' do
   mode '0600'
   content "#{haproxy_secrets['ssl']['ci_crt']}\n#{haproxy_secrets['ssl']['ci_key']}\n"
-  notifies :reload, 'service[haproxy]'
+  notifies :run, "execute[test-haproxy-config]", :delayed
 end
 
 file '/etc/haproxy/ssl/registry.pem' do
@@ -33,6 +33,8 @@ end
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
   mode '0600'
-  variables(haproxy_secrets.to_hash())
+  variables({
+    admin_password: haproxy_secrets['admin_password']
+  })
   notifies :run, "execute[test-haproxy-config]", :delayed
 end
