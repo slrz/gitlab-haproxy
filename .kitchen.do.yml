@@ -35,22 +35,26 @@ suites:
         chef_vault: secrets
         chef_vault_item: certs
         frontend:
-          web:
+          api:
             servers:
-              web01.stg.gitlab.com: 127.0.0.1
+              api01.stg.gitlab.com: 127.0.0.1
+          https_git:
+            servers:
+              git01.stg.gitlab.com: 127.0.0.1
+          registry:
+            servers:
+              registry01.be.gitlab.com: 127.0.0.1
           ssh:
             port: 2222
             servers:
               git01.stg.gitlab.com: 127.0.0.1
-          https_git:
+          web:
             servers:
-              git01.stg.gitlab.com: 127.0.0.1
+              web01.stg.gitlab.com: 127.0.0.1
           websockets:
             servers:
               web01.stg.gitlab.com: 127.0.0.1
-          api:
-            servers:
-              api01.stg.gitlab.com: 127.0.0.1
+
 
   - name: haproxy-backend
     run_list:

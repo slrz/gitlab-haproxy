@@ -37,6 +37,7 @@ suites:
             servers:
               web01.stg.gitlab.com: 127.0.0.1
 
+
   - name: haproxy-backend
     run_list:
       - recipe[gitlab-haproxy::backend]
