@@ -16,6 +16,17 @@ describe "gitlab-haproxy::default" do
       expect(chef_run).to install_package("logrotate")
     end
 
+    it "creates folders" do
+      expect(chef_run).to create_directory('/etc/haproxy/ssl').with(
+        mode: '0700',
+        recursive: true
+      )
+      expect(chef_run).to create_directory('/etc/haproxy/errors').with(
+        mode: '0700',
+        recursive: true
+      )
+    end
+
     it "creates lots of cookbook files" do
       expect(chef_run).to create_cookbook_file("/etc/haproxy/errors/400.http").with(
         source: "haproxy-errors-400.http"
