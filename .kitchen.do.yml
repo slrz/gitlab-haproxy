@@ -67,9 +67,6 @@ suites:
           rails:
             servers:
               rails01.be.gitlab.com: 127.0.0.1
-          registry:
-            servers:
-              registry01.be.gitlab.com: 127.0.0.1
 
   - name: haproxy-pages
     run_list:

@@ -18,13 +18,6 @@ control 'haproxy-config-checks' do
     its('protocols') { should eq ['tcp'] }
   end
 
-  #http
-  describe port(80) do
-    its('processes') { should eq ['haproxy'] }
-    its('addresses') { should eq ['0.0.0.0'] }
-    its('protocols') { should eq ['tcp'] }
-  end
-
   #https
   describe port(443) do
     its('processes') { should eq ['haproxy'] }
@@ -39,11 +32,5 @@ control 'haproxy-config-checks' do
     its('protocols') { should eq ['tcp'] }
   end
 
-  #registry
-  describe port(7002) do
-    its('processes') { should eq ['haproxy'] }
-    its('addresses') { should eq ['127.0.0.1'] }
-    its('protocols') { should eq ['tcp'] }
-  end
 end
 
