@@ -24,5 +24,10 @@ control 'haproxy-config-checks' do
     its('addresses') { should eq ['0.0.0.0'] }
     its('protocols') { should eq ['tcp'] }
   end
+
+  describe file('/etc/haproxy/haproxy.cfg') do
+    its('md5sum') { should eq '886f2178a4ccc8ed624ec7acd7600fdc' }
+    its('mode') { should cmp '0600'}
+  end
 end
 
