@@ -14,6 +14,11 @@ directory '/etc/haproxy/ssl' do
   recursive true
 end
 
+directory '/etc/haproxy/errors' do
+  mode '0700'
+  recursive true
+end
+
 cookbook_file '/etc/haproxy/errors/400.http' do
   source 'haproxy-errors-400.http'
 end
