@@ -54,7 +54,7 @@ gems:	### Install latest versions of all gems
 
 .PHONY: check
 check:	### Check style of all ruby files
-	find $(ROOT_DIR) -type f -name \*.rb -not -path "$(BUNDLE_PATH)/*" -exec bundle exec rubocop -S Gemfile Berksfile {} +
+	find $(ROOT_DIR) -type f -name \*.rb -not -path "$(BUNDLE_PATH)/*" -exec bundle exec cookstyle Gemfile Berksfile {} +
 
 .PHONY: rspec
 rspec:	### Run rspec tests
