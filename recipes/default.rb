@@ -14,6 +14,11 @@ directory '/etc/haproxy/ssl' do
   recursive true
 end
 
+directory '/etc/haproxy/errors' do
+  mode '0700'
+  recursive true
+end
+
 cookbook_file '/etc/haproxy/errors/400.http' do
   source 'haproxy-errors-400.http'
 end
@@ -32,9 +37,9 @@ service 'haproxy' do
   supports [:reload]
 end
 
-execute "test-haproxy-config" do
-  command "haproxy -c -f /etc/haproxy/haproxy.cfg"
-  notifies :reload, "service[haproxy]", :delayed
+execute 'test-haproxy-config' do
+  command 'haproxy -c -f /etc/haproxy/haproxy.cfg'
+  notifies :reload, 'service[haproxy]', :delayed
   action :nothing
 end
 
