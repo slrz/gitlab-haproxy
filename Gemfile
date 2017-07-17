@@ -1,18 +1,17 @@
 source 'https://rubygems.org'
 
-
 group :test do
-  gem 'rubocop'
+  gem 'berkshelf', '~> 4.3'
+  gem 'chef-vault', '~> 3.0'
+  gem 'chef-vault-testfixtures', '~> 3.0'
+  gem 'chefspec', '~> 4.7'
+  gem 'cookstyle', '~> 2.0'
   gem 'kitchen-digitalocean'
   gem 'kitchen-inspec'
-  gem "kitchen-vagrant", "~> 0.20"
   gem 'kitchen-transport-rsync'
-  gem "chef-vault-testfixtures", "~> 3.0"
-  gem "chefspec", "~> 4.7"
-  gem "berkshelf", "~> 4.3"
-  gem "test-kitchen", "~> 1.4"
-  gem "chef-vault", "~> 3.0"
-  gem "cookstyle", "~> 2.0"
+  gem 'kitchen-vagrant', '~> 0.20'
+  gem 'rubocop'
+  gem 'test-kitchen', '~> 1.4'
 end
 
 group :ed25519 do
