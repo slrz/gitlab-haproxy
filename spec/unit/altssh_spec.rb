@@ -1,10 +1,10 @@
-require "spec_helper"
+require 'spec_helper'
 require 'chef-vault/test_fixtures'
 
-describe "gitlab-haproxy::altssh" do
+describe 'gitlab-haproxy::altssh' do
   include ChefVault::TestFixtures.rspec_shared_context
 
-  context "backend execution" do
+  context 'backend execution' do
     cached(:chef_run) do
       ChefSpec::SoloRunner.new { |node|
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
@@ -14,18 +14,18 @@ describe "gitlab-haproxy::altssh" do
     end
 
     it 'converges successfully' do
-      expect{ chef_run }.to_not raise_error
+      expect { chef_run }.to_not raise_error
     end
 
-    it "Includes default recipe" do
+    it 'Includes default recipe' do
       expect(chef_run).to include_recipe('gitlab-haproxy::default')
     end
 
-    it "creates the template and runs correct notifications" do
+    it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
         source: 'haproxy-altssh.cfg.erb',
         mode: '0600',
-        variables: {:admin_password=>"this-is-a-test-password"}
+        variables: { admin_password: 'this-is-a-test-password' }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to eq(IO.read('spec/fixtures/altssh.template'))
