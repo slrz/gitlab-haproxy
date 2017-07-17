@@ -7,21 +7,19 @@
 # License: MIT
 #
 include_recipe 'chef-vault'
-haproxy_secrets = chef_vault_item(node['gitlab-haproxy']['chef_vault'],node['gitlab-haproxy']['chef_vault_item'])['gitlab-haproxy']
+haproxy_secrets = chef_vault_item(node['gitlab-haproxy']['chef_vault'], node['gitlab-haproxy']['chef_vault_item'])['gitlab-haproxy']
 
 include_recipe 'gitlab-haproxy::default'
 
 file '/etc/haproxy/ssl/gitlab.pem' do
   mode '0600'
   content "#{haproxy_secrets['ssl']['gitlab_crt']}\n#{haproxy_secrets['ssl']['gitlab_key']}\n"
-  notifies :run, "execute[test-haproxy-config]", :delayed
+  notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-backend.cfg.erb'
   mode '0600'
-  variables({
-    admin_password: haproxy_secrets['admin_password']
-  })
-  notifies :run, "execute[test-haproxy-config]", :delayed
+  variables(admin_password: haproxy_secrets['admin_password'])
+  notifies :run, 'execute[test-haproxy-config]', :delayed
 end

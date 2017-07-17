@@ -37,9 +37,9 @@ service 'haproxy' do
   supports [:reload]
 end
 
-execute "test-haproxy-config" do
-  command "haproxy -c -f /etc/haproxy/haproxy.cfg"
-  notifies :reload, "service[haproxy]", :delayed
+execute 'test-haproxy-config' do
+  command 'haproxy -c -f /etc/haproxy/haproxy.cfg'
+  notifies :reload, 'service[haproxy]', :delayed
   action :nothing
 end
 
