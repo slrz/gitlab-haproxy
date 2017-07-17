@@ -11,44 +11,42 @@ control 'haproxy-config-checks' do
       * correct ports are used
       * correct frontend is used
       * correct backends are used'
-  #stats
+  # stats
   describe port(7331) do
-    its('processes') { should eq ['haproxy'] }
-    its('addresses') { should eq ['127.0.0.1'] }
+    its('processes') do should eq ['haproxy'] end
+    its('addresses') do should eq ['127.0.0.1'] end
     its('protocols') { should eq ['tcp'] }
   end
 
-  #http
+  # http
   describe port(80) do
-    its('processes') { should eq ['haproxy'] }
-    its('addresses') { should eq ['0.0.0.0'] }
+    its('processes') do should eq ['haproxy'] end
+    its('addresses') do should eq ['0.0.0.0'] end
     its('protocols') { should eq ['tcp'] }
   end
 
-  #https
+  # https
   describe port(443) do
-    its('processes') { should eq ['haproxy'] }
-    its('addresses') { should eq ['0.0.0.0'] }
+    its('processes') do should eq ['haproxy'] end
+    its('addresses') do should eq ['0.0.0.0'] end
     its('protocols') { should eq ['tcp'] }
   end
 
-  #api_rate_limit_proxy
+  # api_rate_limit_proxy
   describe port(4444) do
-    its('processes') { should eq ['haproxy'] }
+    its('processes') do should eq ['haproxy'] end
     its('addresses') { should eq ['127.0.0.1'] }
   end
 
-  #ssh
+  # ssh
   describe port(2222) do
-    its('processes') { should eq ['haproxy'] }
-    its('addresses') { should eq ['0.0.0.0'] }
+    its('processes') do should eq ['haproxy'] end
+    its('addresses') do should eq ['0.0.0.0'] end
     its('protocols') { should eq ['tcp'] }
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('md5sum') { should eq '9420aaca185c9e5faabf64ba3ff10834' }
-    its('mode') { should cmp '0600'}
+    its('md5sum') do should eq '9420aaca185c9e5faabf64ba3ff10834' end
+    its('mode') { should cmp '0600' }
   end
-
 end
-
