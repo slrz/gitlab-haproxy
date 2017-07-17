@@ -58,7 +58,7 @@ check:	### Check style of all ruby files
 
 .PHONY: rspec
 rspec:	### Run rspec tests
-# TODO: rspec:	check
+rspec:	check
 	bundle exec rspec -f d
 
 .PHONY: kitchen
