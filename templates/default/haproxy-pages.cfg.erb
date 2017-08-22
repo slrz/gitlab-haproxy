@@ -36,7 +36,7 @@ defaults
     errorfile 504 /etc/haproxy/errors/500.http
 
 listen stats
-    bind 127.0.0.1:7331
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:7331
     mode http
     stats enable
     stats hide-version
