@@ -14,7 +14,7 @@ control 'haproxy-config-checks' do
   # stats
   describe port(7331) do
     its('processes') do should eq ['haproxy'] end
-    its('addresses') do should eq ['127.0.0.1'] end
+    its('addresses') do should eq ['0.0.0.0'] end
     its('protocols') { should eq ['tcp'] }
   end
 
