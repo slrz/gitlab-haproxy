@@ -14,7 +14,7 @@ control 'haproxy-config-checks' do
   # stats
   describe port(7331) do
     its('processes') do should eq ['haproxy'] end
-    its('addresses') do should eq ['127.0.0.1'] end
+    its('addresses') do should eq ['0.0.0.0'] end
     its('protocols') { should eq ['tcp'] }
   end
 
@@ -33,7 +33,7 @@ control 'haproxy-config-checks' do
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('md5sum') do should eq '5be2323c043134d105fc26262d94a672' end
+    its('md5sum') do should eq '4d3a2e604240503de887eda644ac4baa' end
     its('mode') { should cmp '0600' }
   end
 end
