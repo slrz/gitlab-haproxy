@@ -124,7 +124,7 @@ backend api
     mode http
     balance roundrobin
     option forwardfor
-    timeout client-fin 5s
+    timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m)
     server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
