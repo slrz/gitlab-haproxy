@@ -24,7 +24,7 @@ global
 defaults
     log global
     option dontlognull
-    maxconn 50000 
+    maxconn 50000
     timeout connect 5000
     timeout check 30000
     timeout client <%= node['gitlab-haproxy']['timeout_client'] %>
