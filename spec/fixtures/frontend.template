@@ -51,13 +51,13 @@ listen stats
 #---------------------------------------------------------------------
 # Sync data between the frontend nodes
 #---------------------------------------------------------------------
-peers frontend-peers enable 
-        peer fe01 10.65.1.101:32768
-        peer fe02 10.65.1.102:32768
-        peer fe03 10.65.1.103:32768
-        peer fe04 10.65.1.104:32768
-        peer fe05 10.65.1.105:32768
-        peer fe06 10.65.1.106:32768
+peers frontend-peers
+    peer fe01 10.65.1.101:32768
+    peer fe02 10.65.1.102:32768
+    peer fe03 10.65.1.103:32768
+    peer fe04 10.65.1.104:32768
+    peer fe05 10.65.1.105:32768
+    peer fe06 10.65.1.106:32768
 
 #---------------------------------------------------------------------
 # Frontend configuration
@@ -83,7 +83,7 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m)
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
 
     acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
     acl is_registry_gitlab_com hdr(host) -i registry.gitlab.com
@@ -114,7 +114,7 @@ frontend ssh
     mode tcp
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m)
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     use_backend ssh
 
 #---------------------------------------------------------------------
@@ -126,7 +126,7 @@ backend api
     option forwardfor
     timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m)
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend api_rate_limit
