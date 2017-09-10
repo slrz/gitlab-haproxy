@@ -40,6 +40,7 @@ end
 execute 'test-haproxy-config' do
   command 'haproxy -c -L fe01 -f /etc/haproxy/haproxy.cfg'
   notifies :reload, 'service[haproxy]', :delayed
+  command 'journalctl -xe'
   action :nothing
 end
 
