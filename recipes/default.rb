@@ -10,7 +10,7 @@ package 'haproxy'
 package 'logrotate'
 
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
-node.default['gitlab-haproxy']['bind_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
+node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
 
 directory '/etc/haproxy/ssl' do
   mode '0700'
