@@ -180,7 +180,7 @@ backend ssh
     # We need to change this when we split rails to a separate cluster.
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['ssh']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 5000 fall 3 verify none
+    server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 2s fastinter 1s downinter 5s fall 3 verify none
     <% end %>
 
 backend websockets
