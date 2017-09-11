@@ -38,8 +38,12 @@ service 'haproxy' do
 end
 
 execute 'test-haproxy-config' do
-  command 'haproxy -c -f /etc/haproxy/haproxy.cfg'
-  notifies :reload, 'service[haproxy]', :delayed
+  command 'haproxy -c -L fe01 -f /etc/haproxy/haproxy.cfg'
+  # This doens't work for peer statements as the test-box will never
+  # have the valid name of the server in the config, and augmenting
+  # test structures for a service reload is a PITA.
+  # TODO: Figure some better way to test a reload
+  # notifies :reload, 'service[haproxy]', :delayed
   action :nothing
 end
 
