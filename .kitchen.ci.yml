@@ -39,6 +39,7 @@ suites:
         - test/integration/frontend
     attributes:
       gitlab-haproxy:
+        api_address: 0.0.0.0  # for integration tests
         chef_vault: secrets
         chef_vault_item: certs
         frontend:

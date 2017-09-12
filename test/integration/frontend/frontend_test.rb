@@ -46,7 +46,8 @@ control 'haproxy-config-checks' do
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('md5sum') do should eq '1c7c946fe76d7943bea501a9e93ef4d7' end
+    # NOTE: d9c2437530e8eb4a684025529df49eb7 assumes api_address of 0.0.0.0
+    its('md5sum') do should eq 'd9c2437530e8eb4a684025529df49eb7' end
     its('mode') { should cmp '0600' }
   end
 end
