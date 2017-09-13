@@ -127,8 +127,13 @@ backend api
     option forwardfor
     timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
+    acl has_no_user-agent hdr_cnt(User-Agent) eq 0
+    stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) peers frontend-peers
     tcp-request content track-sc2 src
+    http-request set-var(txn.src_conn_cnt) src_conn_cnt
+    http-response set-header RateLimit-Limit 600
+    http-response set-header RateLimit-Observed %[src_conn_cnt]
+    http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_conn_cnt)]
     server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend api_rate_limit

@@ -23,6 +23,7 @@ default['gitlab-haproxy']['ssl']['pages_key'] = 'use vault'
 
 default['gitlab-haproxy']['frontend']['api']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['api']['servers'] = {}
+default['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] = '600'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
