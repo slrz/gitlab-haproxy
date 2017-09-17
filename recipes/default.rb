@@ -41,7 +41,8 @@ service 'haproxy' do
 end
 
 execute 'test-haproxy-config' do
-  command 'ifconfig eth0:1 $(grep "peer fe01" /etc/haproxy/haproxy.cfg  | sed "s/.* //;s/:.*//") up; haproxy -L fe01 -f /etc/haproxy/haproxy.cfg'
+  # command 'ifconfig eth0:1 $(grep "peer fe01" /etc/haproxy/haproxy.cfg  | sed "s/.* //;s/:.*//") up; haproxy -L fe01 -f /etc/haproxy/haproxy.cfg'
+  command 'haproxy -c -L fe01 -f /etc/haproxy/haproxy.cfg'
   # This doens't work for peer statements as the test-box will never
   # have the valid name of the server in the config, and augmenting
   # test structures for a service reload is a PITA.
