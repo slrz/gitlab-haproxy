@@ -149,7 +149,6 @@ backend https_git
     balance roundrobin
     option forwardfor
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com\ https://customers.gitlab.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
@@ -160,7 +159,7 @@ backend web
     balance roundrobin
     option forwardfor
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    rspadd Content-Security-Policy:\ object-src\ \'none\';\ script-src\ \'self\'\ \'unsafe-inline\'\ \'unsafe-eval\'\ piwik.gitlab.com\ https://www.google.com/recaptcha/\ https://www.gstatic.com/recaptcha/;\ style-src\ \'self\'\ \'unsafe-inline\';\ img-src\ *\ data:\ blob:;\ frame-src\ \'self\'\ https://www.google.com/recaptcha/;\ frame-ancestors\ \'self\';\ connect-src\ \'self\'\ wss://gitlab.com\ https://sentry.gitlap.com\ https://customers.gitlab.com;\ report-uri\ https://sentry-infra.gitlap.com/api/3/csp-report/?sentry_key=a664fdde83424b43a991f25fa7c78987
+    rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none

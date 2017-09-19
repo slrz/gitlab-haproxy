@@ -17,6 +17,7 @@ describe 'gitlab-haproxy::frontend' do
         node.normal['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
         node.normal['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
         node.normal['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
+        node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
       }.converge(described_recipe)
     end
 
