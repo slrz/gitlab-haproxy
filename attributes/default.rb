@@ -38,6 +38,7 @@ default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['ssh']['port'] = '22'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 
