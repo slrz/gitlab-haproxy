@@ -94,10 +94,13 @@ frontend https
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
-    acl is_gitlab_com_api path_beg -i /api/ /ci/
+    acl is_gitlab_com_api path_beg -i /api/
+    acl ancient_ci_runners path_beg -i /ci/api/
+
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
 
+    http-request deny if ancient_ci_runners
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request set-header X-Forwarded-Proto https
