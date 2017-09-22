@@ -96,7 +96,6 @@ frontend https
     acl is_socket_path path_end -i .ws
     acl is_gitlab_com_api path_beg -i /api/
     acl ancient_ci_runners path_beg -i /ci/api/
-
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
 
