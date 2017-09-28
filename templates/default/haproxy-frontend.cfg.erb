@@ -89,9 +89,6 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     tcp-request connection track-sc1 src
 
-    compression algo gzip
-    compression type text/html text/plain
-
     acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
     acl is_registry_gitlab_com hdr(host) -i <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
