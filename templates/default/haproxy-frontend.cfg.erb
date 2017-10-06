@@ -51,16 +51,12 @@ listen stats
 #---------------------------------------------------------------------
 # Sync data between the frontend nodes
 #---------------------------------------------------------------------
+<% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>
 peers frontend-peers
-    peer fe01 10.65.1.101:32768
-    peer fe02 10.65.1.102:32768
-    peer fe03 10.65.1.103:32768
-    peer fe04 10.65.1.104:32768
-    peer fe05 10.65.1.105:32768
-    peer fe06 10.65.1.106:32768
-    peer fe07 10.65.1.107:32768
-    peer fe08 10.65.1.108:32768
-    peer fe09 10.65.1.109:32768
+    <% node['gitlab-haproxy']['frontend']['peers']['servers'].each do |name, ip, port| %>
+    peer <%= name %> <%= ip %>:<%= port %>
+    <% end %>
+<% end -%>
 
 #---------------------------------------------------------------------
 # Frontend configuration
