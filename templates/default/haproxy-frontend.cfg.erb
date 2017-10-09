@@ -53,8 +53,8 @@ listen stats
 #---------------------------------------------------------------------
 <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>
 peers frontend-peers
-    <% node['gitlab-haproxy']['frontend']['peers']['servers'].each do |name, ip, port| %>
-    peer <%= name %> <%= ip %>:<%= port %>
+    <% node['gitlab-haproxy']['frontend']['peers']['servers'].each do |name, network| %>
+    peer <%= name %> <%= network[0] %>:<%= network[1] %>
     <% end %>
 <% end -%>
 
