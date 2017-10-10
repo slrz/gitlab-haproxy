@@ -51,16 +51,12 @@ listen stats
 #---------------------------------------------------------------------
 # Sync data between the frontend nodes
 #---------------------------------------------------------------------
+<% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>
 peers frontend-peers
-    peer fe01 10.65.1.101:32768
-    peer fe02 10.65.1.102:32768
-    peer fe03 10.65.1.103:32768
-    peer fe04 10.65.1.104:32768
-    peer fe05 10.65.1.105:32768
-    peer fe06 10.65.1.106:32768
-    peer fe07 10.65.1.107:32768
-    peer fe08 10.65.1.108:32768
-    peer fe09 10.65.1.109:32768
+    <% node['gitlab-haproxy']['frontend']['peers']['servers'].each do |name, network| %>
+    peer <%= name %> <%= network[0] %>:<%= network[1] %>
+    <% end %>
+<% end -%>
 
 #---------------------------------------------------------------------
 # Frontend configuration
@@ -86,7 +82,7 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request connection track-sc1 src
 
     acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
@@ -124,7 +120,7 @@ frontend ssh
     mode tcp
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     use_backend ssh
 
 #---------------------------------------------------------------------
@@ -137,7 +133,7 @@ backend api
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
     acl has_no_user-agent hdr_cnt(User-Agent) eq 0
-    stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) peers frontend-peers
+    stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request content track-sc2 src
     http-request set-var(txn.src_conn_cnt) src_conn_cnt
     http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] %>
