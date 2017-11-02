@@ -29,6 +29,13 @@ file '/etc/haproxy/ssl/registry.pem' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
+# White list for API
+template '/etc/haproxy/api-whitelist' do
+  source 'api-whitelist.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
+
 # we are only passing in the secrets as variables
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
