@@ -2,7 +2,8 @@
 # Whitelisted IP Address Blocks for Intenral GitLlab Servers API Usage
 #---------------------------------------------------------------------
 <% if node['gitlab-haproxy']['frontend']['whitelist']['internal'].any? -%>
-    <% node['gitlab-haproxy']['frontend']['whitelist']['internal'].each do |network| %>
+    <% node['gitlab-haproxy']['frontend']['whitelist']['internal'].each do |comment, network| %>
+        # <%= comment %>
         <%= network %>
     <% end %>
 <% end -%>

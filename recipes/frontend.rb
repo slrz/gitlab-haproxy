@@ -30,8 +30,15 @@ file '/etc/haproxy/ssl/registry.pem' do
 end
 
 # White list for API
-template '/etc/haproxy/api-whitelist' do
-  source 'api-whitelist.erb'
+template '/etc/haproxy/whitelist-api' do
+  source 'whitelist-api.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
+
+# White list for Internal Nodes
+template '/etc/haproxy/whitelist-internal' do
+  source 'whitelist-internal.erb'
   mode '0600'
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
