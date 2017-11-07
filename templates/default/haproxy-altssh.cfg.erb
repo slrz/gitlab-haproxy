@@ -49,6 +49,7 @@ listen stats
 frontend altssh
     bind <%= node['gitlab-haproxy']['listen_address'] %>:443
     mode tcp
+    option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 
@@ -59,6 +60,7 @@ frontend altssh
 backend altssh
     mode tcp
     balance source
+    option splice-auto
     hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>

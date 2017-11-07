@@ -65,6 +65,7 @@ frontend api_rate_limit
 frontend http
     bind 0.0.0.0:80
     mode http
+    option splice-auto
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
@@ -74,6 +75,7 @@ frontend http
 frontend https
     bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
+    option splice-auto
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
@@ -114,6 +116,7 @@ frontend https
 frontend ssh
     bind 0.0.0.0:2222
     mode tcp
+    option splice-auto
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
@@ -126,6 +129,7 @@ backend api
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
     acl has_no_user-agent hdr_cnt(User-Agent) eq 0
@@ -145,6 +149,7 @@ backend https_git
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
     server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
@@ -153,6 +158,7 @@ backend web
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
@@ -162,6 +168,7 @@ backend registry
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ registry.gitlab.com
     server registry01.be.gitlab.com 127.0.0.1:5000 check inter 2s fastinter 1s downinter 5s fall 3
@@ -169,6 +176,7 @@ backend registry
 backend ssh
     mode tcp
     balance source
+    option splice-auto
     hash-type consistent
     timeout server-fin 5s
     timeout server 2h
@@ -181,6 +189,7 @@ backend ssh
 backend websockets
     mode http
     balance roundrobin
+    option splice-auto
     option http-server-close
     timeout tunnel 8s
     cookie _gitlab_session prefix nocache
