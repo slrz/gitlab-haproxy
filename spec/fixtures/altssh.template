@@ -49,6 +49,7 @@ listen stats
 frontend altssh
     bind 0.0.0.0:443
     mode tcp
+    option splice-auto
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 
@@ -59,6 +60,7 @@ frontend altssh
 backend altssh
     mode tcp
     balance source
+    option splice-auto
     hash-type consistent
     timeout server-fin 5s
     timeout server 2h

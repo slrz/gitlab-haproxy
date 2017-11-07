@@ -48,6 +48,7 @@ listen stats
 frontend pages_http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http
+    option splice-auto
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
@@ -57,6 +58,7 @@ frontend pages_http
 frontend pages_https
     bind <%= node['gitlab-haproxy']['listen_address'] %>:443
     mode tcp
+    option splice-auto
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
     <%= node['gitlab-haproxy']['pages']['https_custom_config'] %>
@@ -66,12 +68,14 @@ backend pages_http
     balance source
     hash-type consistent
     option forwardfor
+    option splice-auto
     <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
     <% end %>
 
 backend pages_https
     mode tcp
+    option splice-auto
     balance source
     hash-type consistent
     <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>

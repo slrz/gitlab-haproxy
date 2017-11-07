@@ -69,6 +69,7 @@ frontend api_rate_limit
 frontend http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http
+    option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
@@ -78,6 +79,7 @@ frontend http
 frontend https
     bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
+    option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
@@ -118,6 +120,7 @@ frontend https
 frontend ssh
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['ssh']['port'] %>
     mode tcp
+    option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
@@ -130,6 +133,7 @@ backend api
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
     acl has_no_user-agent hdr_cnt(User-Agent) eq 0
@@ -151,6 +155,7 @@ backend https_git
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
@@ -161,6 +166,7 @@ backend web
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
@@ -172,6 +178,7 @@ backend registry
     mode http
     balance roundrobin
     option forwardfor
+    option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
     <% node['gitlab-haproxy']['frontend']['registry']['servers'].each do |name, ip| %>
@@ -181,6 +188,7 @@ backend registry
 backend ssh
     mode tcp
     balance source
+    option splice-auto
     hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
@@ -195,6 +203,7 @@ backend ssh
 backend websockets
     mode http
     balance roundrobin
+    option splice-auto
     option http-server-close
     timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
     cookie _gitlab_session prefix nocache
