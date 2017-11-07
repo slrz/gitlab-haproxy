@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------
 <% if node['gitlab-haproxy']['frontend']['whitelist']['internal'].any? -%>
     <% node['gitlab-haproxy']['frontend']['whitelist']['internal'].each do |network, comment| %>
-        # <%= comment %>
-        <%= network %>
+# <%= comment %>
+<%= network %>
     <% end %>
 <% end -%>

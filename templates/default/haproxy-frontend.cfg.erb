@@ -106,11 +106,17 @@ frontend https
     http-request deny deny_status 400 if is_legacy_ci_runner
     http-request deny deny_status 400 if is_ancient_ci_runner
 
+    acl whitelist_internal src -f /etc/haproxy/whitelist-internal.lst
+    http-request allow if whitelist_internal
+
+    acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
+
     <%= node['gitlab-haproxy']['frontend']['https']['custom_config'] %>
 
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
 
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api whitelist_api
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
     use_backend registry if is_registry_gitlab_com
