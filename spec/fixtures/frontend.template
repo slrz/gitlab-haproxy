@@ -126,6 +126,7 @@ frontend ssh
 
 frontend api_rate_limit
     bind 127.0.0.1:4444 accept-proxy
+    mode http
     option splice-auto
     stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) peers frontend-peers
     tcp-request content track-sc1 src
