@@ -111,6 +111,7 @@ frontend https
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
 
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
@@ -140,7 +141,6 @@ frontend api_rate_limit
     http-response set-header RateLimit-Observed %[src_conn_cnt]
     http-response set-header RateLimit-Rate %[src_conn_rate]
     http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] %>),sub(txn.src_conn_cnt)]
-    rate-limit sessions <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] %>
     use_backend 429_slow_down if is_rate_abuse
     default_backend api
 
