@@ -209,6 +209,7 @@ backend websockets
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
 
 backend 429_slow_down
+    mode http
     timeout tarpit 2s
     errorfile 500 /etc/haproxy/errors/429.http
     errorfile 503 /etc/haproxy/errors/429.http
