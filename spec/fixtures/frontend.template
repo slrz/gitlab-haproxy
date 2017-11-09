@@ -57,11 +57,6 @@ peers frontend-peers
 #---------------------------------------------------------------------
 # Frontend configuration
 #---------------------------------------------------------------------
-frontend api_rate_limit
-    bind 127.0.0.1:4444 accept-proxy
-    rate-limit sessions 10
-    default_backend api
-
 frontend http
     bind 0.0.0.0:80
     mode http
@@ -112,6 +107,7 @@ frontend https
     acl api_rate_limit_whitelist src 127.0.0.1
 
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
@@ -128,6 +124,22 @@ frontend ssh
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     use_backend ssh
 
+frontend api_rate_limit
+    bind 127.0.0.1:4444 accept-proxy
+    option splice-auto
+    stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) peers frontend-peers
+    tcp-request content track-sc1 src
+    acl has_no_user-agent hdr_cnt(User-Agent) eq 0
+    acl is_rate_abuse src_conn_cnt gt 600
+    http-request deny deny_status 400 if has_no_user-agent
+    http-request set-var(txn.src_conn_cnt) src_conn_cnt
+    http-response set-header RateLimit-Limit 600
+    http-response set-header RateLimit-Observed %[src_conn_cnt]
+    http-response set-header RateLimit-Rate %[src_conn_rate]
+    http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_conn_cnt)]
+    use_backend 429_slow_down if is_rate_abuse
+    default_backend api
+
 #---------------------------------------------------------------------
 # Backend configuration
 #---------------------------------------------------------------------
@@ -138,16 +150,10 @@ backend api
     option splice-auto
     timeout server-fin 5s
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
-    acl has_no_user-agent hdr_cnt(User-Agent) eq 0
-    stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) peers frontend-peers
-    tcp-request content track-sc2 src
-    http-request set-var(txn.src_conn_cnt) src_conn_cnt
-    http-response set-header RateLimit-Limit 600
-    http-response set-header RateLimit-Observed %[src_conn_cnt]
-    http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_conn_cnt)]
     server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend api_rate_limit
+    option splice-auto
     mode http
     server localhost 127.0.0.1:4444 send-proxy
 
@@ -200,3 +206,9 @@ backend websockets
     timeout tunnel 8s
     cookie _gitlab_session prefix nocache
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
+
+backend 429_slow_down
+    timeout tarpit 2s
+    errorfile 500 /etc/haproxy/errors/429.http
+    errorfile 503 /etc/haproxy/errors/429.http
+    http-request tarpit
