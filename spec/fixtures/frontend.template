@@ -128,7 +128,7 @@ frontend api_rate_limit
     bind 127.0.0.1:4444 accept-proxy
     mode http
     option splice-auto
-    stick-table type ip size 1m expire 5m store gpc0,conn_cnt,conn_rate(1m) peers frontend-peers
+    stick-table type ip size 1m expire 1m store gpc0,conn_cnt,conn_rate(1m),http_req_cnt,http_req_rate(1m) peers frontend-peers
     tcp-request content track-sc1 src
     acl has_no_user-agent hdr_cnt(User-Agent) eq 0
     acl is_rate_abuse src_conn_cnt gt 600
