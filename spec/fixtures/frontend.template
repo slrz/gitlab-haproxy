@@ -134,10 +134,14 @@ frontend api_rate_limit
     acl is_rate_abuse src_conn_cnt gt 600
     http-request deny deny_status 400 if has_no_user-agent
     http-request set-var(txn.src_conn_cnt) src_conn_cnt
+    http-request set-var(txn.src_http_req_cnt) src_http_req_cnt
     http-response set-header RateLimit-Limit 600
     http-response set-header RateLimit-Observed %[src_conn_cnt]
+    http-response set-header RateLimit-HTTP-Observed %[src_http_req_cnt]
     http-response set-header RateLimit-Rate %[src_conn_rate]
+    http-response set-header RateLimit-HTTP-Rate %[src_http_req_rate]
     http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_conn_cnt)]
+    http-response set-header RateLimit-HTTP-Remaining %[int(600),sub(txn.src_http_req_cnt)]
     use_backend 429_slow_down if is_rate_abuse
     default_backend api
 
