@@ -131,7 +131,7 @@ frontend api_rate_limit
     stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) peers frontend-peers
     tcp-request content track-sc1 src
     acl has_no_user-agent hdr_cnt(User-Agent) eq 0
-    acl is_rate_abuse src_conn_cnt gt 600
+    acl is_rate_abuse src_http_req_rate gt 600
     http-request deny deny_status 400 if has_no_user-agent
     http-request set-var(txn.src_http_req_rate) src_http_req_rate
     http-response set-header RateLimit-Limit 600
