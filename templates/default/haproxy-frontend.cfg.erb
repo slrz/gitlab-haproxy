@@ -132,20 +132,17 @@ frontend api_rate_limit
     bind 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> accept-proxy
     mode http
     option splice-auto
-    stick-table type ip size 1m expire 1m store gpc0,conn_cnt,conn_rate(1m),http_req_cnt,http_req_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
+    stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request content track-sc1 src
     acl has_no_user-agent hdr_cnt(User-Agent) eq 0
-    acl is_rate_abuse src_conn_cnt gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] %>
+    acl is_rate_abuse src_conn_cnt gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
     http-request deny deny_status 400 if has_no_user-agent
-    http-request set-var(txn.src_conn_cnt) src_conn_cnt
-    http-request set-var(txn.src_http_req_cnt) src_http_req_cnt
-    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] %>
-    http-response set-header RateLimit-Observed %[src_conn_cnt]
-    http-response set-header RateLimit-HTTP-Observed %[src_http_req_cnt]
-    http-response set-header RateLimit-Rate %[src_conn_rate]
-    http-response set-header RateLimit-HTTP-Rate %[src_http_req_rate]
-    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] %>),sub(txn.src_conn_cnt)]
-    http-response set-header RateLimit-HTTP-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_conn_cnt_per_minute'] %>),sub(txn.src_http_req_cnt)]
+    http-request set-var(txn.src_http_req_rate) src_http_req_rate
+    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
+    http-response set-header RateLimit-Observed %[src_http_req_rate]
+    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>),sub(txn.src_http_req_rate)]
+    http-response set-header RateLimit-Reset %[date(60)]
+    http-response set-header RateLimit-ResetTime %[date(60),http_date]
     use_backend 429_slow_down if is_rate_abuse
     default_backend api
 
