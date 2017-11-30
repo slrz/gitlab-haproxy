@@ -48,7 +48,7 @@ execute 'test-haproxy-config' do
   # test structures for a service reload is a PITA.
   # TODO: Figure some better way to test a reload
   notifies :reload, 'service[haproxy]', :delayed
-  # action :nothing
+  action :nothing
 end
 
 cookbook_file '/etc/cron.hourly/logrotate' do
