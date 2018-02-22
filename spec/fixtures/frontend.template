@@ -130,6 +130,15 @@ frontend ssh
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     use_backend ssh
 
+frontend check_ssh
+    bind 0.0.0.0:422 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3
+    mode http
+    option splice-auto
+
+    acl no_be_srvs nbsrv(ssh) lt 1
+    monitor-uri /-/availed
+    monitor fail if no_be_srvs
+
 frontend api_rate_limit
     bind 127.0.0.1:4444 accept-proxy
     mode http
