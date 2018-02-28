@@ -59,6 +59,12 @@ frontend pages_https
     bind <%= node['gitlab-haproxy']['listen_address'] %>:443
     mode tcp
     option splice-auto
+
+    acl no_be_srvs nbsrv(pages_http) lt 1
+    acl no_be_srvs nbsrv(pages_https) lt 1
+    monitor-uri /-/availed
+    monitor fail if no_be_srvs
+
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
     <%= node['gitlab-haproxy']['pages']['https_custom_config'] %>

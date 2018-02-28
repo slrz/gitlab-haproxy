@@ -7,7 +7,7 @@ group :test do
   gem 'chefspec', '~> 4.7'
   gem 'cookstyle', '~> 2.0'
   gem 'kitchen-digitalocean'
-  gem 'kitchen-inspec'
+  gem 'kitchen-inspec', '0.20.0'
   gem 'kitchen-transport-rsync'
   gem 'kitchen-vagrant', '~> 0.20'
   gem 'rubocop'

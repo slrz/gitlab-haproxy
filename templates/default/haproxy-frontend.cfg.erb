@@ -79,6 +79,12 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
+    acl no_be_srvs nbsrv(web) lt 1
+    acl no_be_srvs nbsrv(api) lt 1
+    acl no_be_srvs nbsrv(websockets) lt 1
+    monitor-uri /-/availed
+    monitor fail if no_be_srvs
+
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request connection track-sc1 src
 
@@ -127,6 +133,15 @@ frontend ssh
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     use_backend ssh
+
+frontend check_ssh
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:422 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3
+    mode http
+    option splice-auto
+
+    acl no_be_srvs nbsrv(ssh) lt 1
+    monitor-uri /-/availed
+    monitor fail if no_be_srvs
 
 frontend api_rate_limit
     bind 127.0.0.1:<%= node['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] %> accept-proxy

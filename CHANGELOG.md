@@ -1,3 +1,7 @@
+# 0.1.90
+
+- expose a URL for health checking the HAProxy for traffic
+
 # 0.1.24
 
 - Isolate pinned servers
