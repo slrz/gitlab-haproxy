@@ -1,4 +1,4 @@
-# encoding: utf-8
+#b9 encoding: utf-8
 # frozen_string_literal: true
 
 # InSpec tests for recipe gitlab-haproxy::default
@@ -46,7 +46,7 @@ control 'haproxy-config-checks' do
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('md5sum') do should eq 'ab9522ce749305bb3a15a2e55a969476' end
+    its('md5sum') do should eq '47b727fd7a914c7e3b46917962ea7ae9' end
     its('mode') { should cmp '0600' }
   end
 end
