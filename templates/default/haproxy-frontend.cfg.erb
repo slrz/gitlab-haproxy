@@ -82,7 +82,7 @@ frontend https
     acl no_be_srvs nbsrv(web) lt 1
     acl no_be_srvs nbsrv(api) lt 1
     acl no_be_srvs nbsrv(websockets) lt 1
-    monitor-uri /-/availed
+    monitor-uri /-/available
     monitor fail if no_be_srvs
 
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
@@ -140,7 +140,7 @@ frontend check_ssh
     option splice-auto
 
     acl no_be_srvs nbsrv(ssh) lt 1
-    monitor-uri /-/availed
+    monitor-uri /-/available
     monitor fail if no_be_srvs
 
 frontend api_rate_limit
