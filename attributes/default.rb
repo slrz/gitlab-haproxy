@@ -44,6 +44,9 @@ default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
+default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
+default['gitlab-haproxy']['frontend']['canary_web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
