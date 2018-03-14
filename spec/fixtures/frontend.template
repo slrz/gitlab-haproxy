@@ -94,6 +94,7 @@ frontend https
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
     acl has_multiple_slash path_reg /{2,}
+    acl is_canary req.cook(gitlab_canary) -m str -i true
 
     http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
@@ -119,6 +120,7 @@ frontend https
     use_backend https_git if is_gitlab_com_https_git
     use_backend registry if is_registry_gitlab_com
     use_backend websockets if is_socket_upg or is_socket_path
+    use_backend canary_web if is_canary
     default_backend web
 
 frontend ssh
@@ -182,6 +184,16 @@ backend https_git
     server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend web
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    rspadd Content-Security-Policy:\ default-src\ \'self\';
+    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+
+backend canary_web
     mode http
     balance roundrobin
     option forwardfor
