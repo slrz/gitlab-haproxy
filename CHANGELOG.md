@@ -1,3 +1,7 @@
+# 0.1.91
+
+- canary testing for GitLab.com
+
 # 0.1.90
 
 - expose a URL for health checking the HAProxy for traffic

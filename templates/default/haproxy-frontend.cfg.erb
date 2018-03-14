@@ -124,6 +124,7 @@ frontend https
     use_backend https_git if is_gitlab_com_https_git
     use_backend registry if is_registry_gitlab_com
     use_backend websockets if is_socket_upg or is_socket_path
+    use_backend canary_web if is_canary
     default_backend web
 
 frontend ssh
@@ -199,6 +200,18 @@ backend web
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    <% end %>
+
+backend canary_web
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['frontend']['canary_web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
     <% end %>
 
