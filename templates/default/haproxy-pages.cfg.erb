@@ -60,14 +60,25 @@ frontend pages_https
     mode tcp
     option splice-auto
 
-    acl no_be_srvs nbsrv(pages_http) lt 1
-    acl no_be_srvs nbsrv(pages_https) lt 1
-    monitor-uri /-/available
-    monitor fail if no_be_srvs
-
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
     <%= node['gitlab-haproxy']['pages']['https_custom_config'] %>
+
+frontend check_http
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:8001
+    mode http
+    option splice-auto
+    acl no_be_srvs_http nbsrv(pages_http) lt 1
+    monitor-uri /-/available-http
+    monitor fail if no_be_srvs_http
+
+frontend check_https
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:8002
+    mode http
+    option splice-auto
+    acl no_be_srvs_https nbsrv(pages_https) lt 1
+    monitor-uri /-/available-https
+    monitor fail if no_be_srvs_https
 
 backend pages_http
     mode http
