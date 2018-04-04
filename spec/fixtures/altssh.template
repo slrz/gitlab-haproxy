@@ -57,6 +57,14 @@ frontend altssh
 
     default_backend altssh
 
+frontend check_ssh
+    bind 0.0.0.0:8003
+    mode http
+    option splice-auto
+    acl no_be_srvs_ssh nbsrv(altssh) lt 1
+    monitor-uri /-/available-ssh
+    monitor fail if no_be_srvs_ssh
+
 backend altssh
     mode tcp
     balance source
