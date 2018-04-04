@@ -75,12 +75,6 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
-    acl no_be_srvs nbsrv(web) lt 1
-    acl no_be_srvs nbsrv(api) lt 1
-    acl no_be_srvs nbsrv(websockets) lt 1
-    monitor-uri /-/available
-    monitor fail if no_be_srvs
-
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     tcp-request connection track-sc1 src
 
@@ -132,14 +126,31 @@ frontend ssh
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     use_backend ssh
 
-frontend check_ssh
-    bind 0.0.0.0:422 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3
+frontend check_http
+    bind 0.0.0.0:8001
     mode http
     option splice-auto
+    acl no_be_srvs_web nbsrv(web) lt 1
+    monitor-uri /-/available-http
+    monitor fail if no_be_srvs_web
 
-    acl no_be_srvs nbsrv(ssh) lt 1
-    monitor-uri /-/available
-    monitor fail if no_be_srvs
+frontend check_https
+    bind 0.0.0.0:8002
+    mode http
+    option splice-auto
+    acl no_be_srvs_web nbsrv(web) lt 1
+    acl no_be_srvs_api nbsrv(api) lt 1
+    acl no_be_srvs_reg nbsrv(registry) lt 1
+    monitor-uri /-/available-https
+    monitor fail if no_be_srvs_web || no_be_srvs_api || no_be_srvs_reg
+
+frontend check_ssh
+    bind 0.0.0.0:8003
+    mode http
+    option splice-auto
+    acl no_be_srvs_ssh nbsrv(ssh) lt 1
+    monitor-uri /-/available-ssh
+    monitor fail if no_be_srvs_ssh
 
 frontend api_rate_limit
     bind 127.0.0.1:4444 accept-proxy
