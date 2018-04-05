@@ -6,8 +6,7 @@
 #
 # License: MIT
 #
-include_recipe 'chef-vault'
-haproxy_secrets = chef_vault_item(node['gitlab-haproxy']['chef_vault'], node['gitlab-haproxy']['chef_vault_item'])['gitlab-haproxy']
+haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 include_recipe 'gitlab-haproxy::default'
 
