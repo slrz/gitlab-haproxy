@@ -1,5 +1,7 @@
-default['gitlab-haproxy']['chef_vault'] = nil
-default['gitlab-haproxy']['chef_vault_item'] = nil
+default['gitlab-haproxy']['secrets']['backend'] = 'chef_vault'
+default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'
+default['gitlab-haproxy']['secrets']['key'] = '_default'
+
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
@@ -10,16 +12,6 @@ default['gitlab-haproxy']['timeout_client'] = '90s'
 default['gitlab-haproxy']['timeout_server'] = '90s'
 default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
-
-default['gitlab-haproxy']['ssl'] = {}
-default['gitlab-haproxy']['ssl']['gitlab_crt'] = 'use vault'
-default['gitlab-haproxy']['ssl']['gitlab_key'] = 'use vault'
-default['gitlab-haproxy']['ssl']['ci_crt'] = 'use vault'
-default['gitlab-haproxy']['ssl']['ci_key'] = 'use vault'
-default['gitlab-haproxy']['ssl']['registry_crt'] = 'use vault'
-default['gitlab-haproxy']['ssl']['registry_key'] = 'use vault'
-default['gitlab-haproxy']['ssl']['pages_crt'] = 'use vault'
-default['gitlab-haproxy']['ssl']['pages_key'] = 'use vault'
 
 default['gitlab-haproxy']['frontend']['whitelist']['internal'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['api'] = {}
