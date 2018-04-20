@@ -1,3 +1,9 @@
+# 0.1.96
+
+- add remote management of pages
+
+# 0.1.90
+
 # 0.1.91
 
 - canary testing for GitLab.com
