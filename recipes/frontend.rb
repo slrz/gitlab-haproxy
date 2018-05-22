@@ -7,6 +7,7 @@
 # License: MIT
 #
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
+use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
 
 include_recipe 'gitlab-haproxy::default'
 
@@ -28,6 +29,13 @@ file '/etc/haproxy/ssl/registry.pem' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
+file '/etc/haproxy/ssl/internal.pem' do
+  mode '0600'
+  content "#{haproxy_secrets['ssl']['internal_crt']}\n#{haproxy_secrets['ssl']['internal_key']}\n"
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  only_if { use_internal }
+end
+
 # White list for API
 template '/etc/haproxy/whitelist-api.lst' do
   source 'whitelist-api.lst.erb'
@@ -46,6 +54,6 @@ end
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
   mode '0600'
-  variables(admin_password: haproxy_secrets['admin_password'])
+  variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
