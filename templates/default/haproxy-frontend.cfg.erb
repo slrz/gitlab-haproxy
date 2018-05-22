@@ -72,7 +72,7 @@ frontend http
     http-request redirect scheme https code 301
 
 frontend https
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %> no-sslv3
     mode http
     option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
