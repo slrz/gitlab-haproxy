@@ -6,7 +6,16 @@
 #
 # License: MIT
 #
-package 'haproxy'
+
+service 'rsyslog' do
+  supports [:restart]
+end
+
+package 'haproxy' do
+  # We restart rsyslog in order to create the socket HAProxy logs to
+  notifies :restart, 'service[rsyslog]', :delayed
+end
+
 package 'logrotate'
 
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
