@@ -55,5 +55,6 @@ template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
   mode '0600'
   variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal)
+  helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end

@@ -107,7 +107,7 @@ frontend https
 
     acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
 
-    <%= node['gitlab-haproxy']['frontend']['https']['custom_config'] %>
+<%= formatted_custom_config(node['gitlab-haproxy']['frontend']['https']['custom_config']) %>
 
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
 

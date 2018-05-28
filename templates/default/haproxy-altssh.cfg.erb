@@ -53,7 +53,7 @@ frontend altssh
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 
-    <%= node['gitlab-haproxy']['altssh']['custom_config'] %>
+<%= formatted_custom_config(node['gitlab-haproxy']['altssh']['custom_config']) %>
 
     default_backend altssh
 
