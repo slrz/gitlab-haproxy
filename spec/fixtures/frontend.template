@@ -103,7 +103,8 @@ frontend https
 
     acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
 
-    
+    acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$
+    http-request deny deny_status 400 if is_download
 
     acl api_rate_limit_whitelist src 127.0.0.1
 
@@ -124,6 +125,9 @@ frontend ssh
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
+
+    tcp-request connection deny
+
     use_backend ssh
 
 frontend check_http
@@ -166,6 +170,9 @@ frontend api_rate_limit
     http-response set-header RateLimit-Reset %[date(60)]
     http-response set-header RateLimit-ResetTime %[date(60),http_date]
     use_backend 429_slow_down if is_rate_abuse
+
+    http-request deny deny_status 400 if is_download
+
     default_backend api
 
 #---------------------------------------------------------------------

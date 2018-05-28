@@ -67,5 +67,8 @@ describe 'gitlab-haproxy::altssh' do
 
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['altssh']['servers']['ssh01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['altssh']['custom_config'] = [
+      'http-request deny deny_status 400 if is_download',
+    ]
   end
 end
