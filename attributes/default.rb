@@ -33,6 +33,7 @@ default['gitlab-haproxy']['frontend']['registry']['servers'] = {}
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['ssh']['port'] = '22'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
+default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
@@ -40,6 +41,7 @@ default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = 'gitlab.co
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['canary_web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
+default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
 
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}

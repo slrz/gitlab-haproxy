@@ -128,6 +128,9 @@ frontend ssh
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
+
+<%= formatted_custom_config(node['gitlab-haproxy']['frontend']['ssh']['custom_config']) %>
+
     use_backend ssh
 
 frontend check_http
@@ -170,6 +173,9 @@ frontend api_rate_limit
     http-response set-header RateLimit-Reset %[date(60)]
     http-response set-header RateLimit-ResetTime %[date(60),http_date]
     use_backend 429_slow_down if is_rate_abuse
+
+<%= formatted_custom_config(node['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config']) %>
+
     default_backend api
 
 #---------------------------------------------------------------------
