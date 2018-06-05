@@ -101,5 +101,15 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['canary_web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
+    node.normal['gitlab-haproxy']['frontend']['https']['custom_config'] = [
+      'acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$',
+      'http-request deny deny_status 400 if is_download',
+    ]
+    node.normal['gitlab-haproxy']['frontend']['ssh']['custom_config'] = [
+      'tcp-request connection deny',
+    ]
+    node.normal['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = [
+      'http-request deny deny_status 400 if is_download',
+    ]
   end
 end

@@ -54,7 +54,7 @@ frontend pages_http
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
     use_backend pages_http
-    
+    http-request deny deny_status 400 if is_download
 
 frontend pages_https
     bind 0.0.0.0:443
@@ -63,7 +63,7 @@ frontend pages_https
 
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
-    
+    http-request deny deny_status 500 if is_download
 
 frontend check_http
     bind 0.0.0.0:8001

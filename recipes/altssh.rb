@@ -14,5 +14,6 @@ template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-altssh.cfg.erb'
   mode '0600'
   variables(admin_password: haproxy_secrets['admin_password'])
+  helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end

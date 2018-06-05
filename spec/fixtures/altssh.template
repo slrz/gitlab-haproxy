@@ -53,7 +53,7 @@ frontend altssh
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 
-    
+    http-request deny deny_status 400 if is_download
 
     default_backend altssh
 

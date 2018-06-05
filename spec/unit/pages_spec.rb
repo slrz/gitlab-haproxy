@@ -75,5 +75,11 @@ describe 'gitlab-haproxy::pages' do
 
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['pages']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['pages']['http_custom_config'] = [
+      'http-request deny deny_status 400 if is_download',
+    ]
+    node.normal['gitlab-haproxy']['pages']['https_custom_config'] = [
+      'http-request deny deny_status 500 if is_download',
+    ]
   end
 end

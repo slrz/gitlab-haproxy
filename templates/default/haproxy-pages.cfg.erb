@@ -54,7 +54,7 @@ frontend pages_http
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
     use_backend pages_http
-    <%= node['gitlab-haproxy']['pages']['http_custom_config'] %>
+<%= formatted_custom_config(node['gitlab-haproxy']['pages']['http_custom_config']) %>
 
 frontend pages_https
     bind <%= node['gitlab-haproxy']['listen_address'] %>:443
@@ -63,7 +63,7 @@ frontend pages_https
 
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
-    <%= node['gitlab-haproxy']['pages']['https_custom_config'] %>
+<%= formatted_custom_config(node['gitlab-haproxy']['pages']['https_custom_config']) %>
 
 frontend check_http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:8001
