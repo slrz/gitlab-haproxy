@@ -76,7 +76,7 @@ backend rails
     balance roundrobin
     option forwardfor
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['backend']['rails']['httpchk_host'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['backend']['rails']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['backend']['rails']['httpchk_host'] %>
     <% node['gitlab-haproxy']['backend']['rails']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 5000 fall 3 ssl verify none
     <% end %>

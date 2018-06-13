@@ -187,7 +187,7 @@ backend api
     option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['api']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['api']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
     <% end %>
@@ -203,7 +203,7 @@ backend https_git
     option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
     <% end %>
@@ -215,7 +215,7 @@ backend web
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
     <% end %>
@@ -227,7 +227,7 @@ backend canary_web
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['canary_web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['canary_web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
     <% end %>
@@ -238,7 +238,7 @@ backend registry
     option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['registry']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['registry']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['registry']['backend_port'] %> check inter 2s fastinter 1s downinter 5s fall 3
     <% end %>
@@ -253,7 +253,7 @@ backend ssh
     # We need to check port 443 and not 22. The assumption here is that ssh won't work
     # if rails isn't running and they're both running on the same host.
     # We need to change this when we split rails to a separate cluster.
-    option httpchk GET / HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['ssh']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:22 check check-ssl port 443 inter 2s fastinter 1s downinter 5s fall 3 verify none
     <% end %>
