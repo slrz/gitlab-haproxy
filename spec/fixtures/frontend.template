@@ -103,6 +103,9 @@ frontend https
 
     acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
 
+    acl require_captcha src -f /etc/haproxy/recaptcha/require-captcha.lst
+    http-request set-header X-GitLab-Show-Login-Captcha 1 if require_captcha
+
     acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$
     http-request deny deny_status 400 if is_download
 

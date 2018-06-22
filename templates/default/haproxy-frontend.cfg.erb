@@ -107,6 +107,9 @@ frontend https
 
     acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
 
+    acl require_captcha src -f /etc/haproxy/recaptcha/require-captcha.lst
+    http-request set-header X-GitLab-Show-Login-Captcha 1 if require_captcha
+
 <%= formatted_custom_config(node['gitlab-haproxy']['frontend']['https']['custom_config']) %>
 
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>

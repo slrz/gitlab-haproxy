@@ -50,6 +50,13 @@ template '/etc/haproxy/whitelist-internal.lst' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
+# IPs that require captcha
+git '/etc/haproxy/recaptcha' do
+  repository haproxy_secrets['recaptcha']['git_https']
+  action :sync
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
+
 # we are only passing in the secrets as variables
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
