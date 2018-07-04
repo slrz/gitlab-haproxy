@@ -243,7 +243,7 @@ backend registry
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['registry']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['registry']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['registry_check_opts_extra'] %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= node['gitlab-haproxy']['frontend']['registry_check_opts_extra'] ? " " + node['gitlab-haproxy']['frontend']['registry_check_opts_extra'] : "" %>
     <% end %>
 
 backend ssh
