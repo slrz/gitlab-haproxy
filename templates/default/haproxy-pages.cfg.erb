@@ -87,8 +87,9 @@ backend pages_http
     hash-type consistent
     option forwardfor
     option splice-auto
+    option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:1080 check inter 5000 fall 3
+    server <%= name %> <%= ip %>:1080 check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
     <% end %>
 
 backend pages_https
@@ -96,6 +97,7 @@ backend pages_https
     option splice-auto
     balance source
     hash-type consistent
+    option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:1443 check inter 5000 fall 3
+    server <%= name %> <%= ip %>:1443 check check-ssl <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
