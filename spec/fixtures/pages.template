@@ -87,13 +87,11 @@ backend pages_http
     hash-type consistent
     option forwardfor
     option splice-auto
-    option httpchk GET /-/readiness HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:1080 check inter 2s fastinter 1s downinter 5s fall 3
+    server web01.stg.gitlab.com 127.0.0.1:1080 check inter 5000 fall 3
 
 backend pages_https
     mode tcp
     option splice-auto
     balance source
     hash-type consistent
-    option httpchk GET /-/readiness HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:1443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web01.stg.gitlab.com 127.0.0.1:1443 check inter 5000 fall 3
