@@ -55,6 +55,8 @@ default['gitlab-haproxy']['frontend']['registry_check_opts_extra'] = nil
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}
 
+default['gitlab-haproxy']['pages']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
 default['gitlab-haproxy']['pages']['http_custom_config'] = nil
 default['gitlab-haproxy']['pages']['https_custom_config'] = nil
 default['gitlab-haproxy']['pages']['servers'] = {}
