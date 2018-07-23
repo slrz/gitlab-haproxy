@@ -55,6 +55,8 @@ git '/etc/haproxy/recaptcha' do
   repository haproxy_secrets['recaptcha']['git_https']
   action :sync
   notifies :run, 'execute[test-haproxy-config]', :delayed
+  timeout 15
+  ignore_failure true
 end
 
 # we are only passing in the secrets as variables
