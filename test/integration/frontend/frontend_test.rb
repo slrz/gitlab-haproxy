@@ -46,7 +46,7 @@ control 'haproxy-config-checks' do
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('md5sum') do should eq '0bc8d13493982080dfe722345544a491' end
+    its('md5sum') do should eq '9f31d713b91093aa4966b46a14fe4b5a' end
     its('mode') { should cmp '0600' }
   end
 end
