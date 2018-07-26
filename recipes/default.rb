@@ -45,6 +45,10 @@ cookbook_file '/etc/haproxy/errors/bad_ref.http' do
   source 'haproxy-errors-bad-ref.http'
 end
 
+template '/etc/haproxy/errors/503.http' do
+  source 'haproxy-errors-503.http.erb'
+end
+
 service 'haproxy' do
   supports [:reload]
 end

@@ -2,6 +2,9 @@ default['gitlab-haproxy']['secrets']['backend'] = 'chef_vault'
 default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'
 default['gitlab-haproxy']['secrets']['key'] = '_default'
 
+default['gitlab-haproxy']['errors']['503']['title'] = 'An internal server error occured.'
+default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please contact your GitLab administrator.'
+
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
