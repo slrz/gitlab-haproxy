@@ -11,8 +11,12 @@ stages:
   - integration
 
 before_script:
-    - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq
-    - make gems
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo $CI_PRIVATE_KEY |base64 -d)
+  - mkdir -p ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq
+  - make gems
 
 rspec-test-job:
   stage: unit
@@ -21,6 +25,9 @@ rspec-test-job:
       - $BUNDLE_PATH
   script:
     - make rspec
+  only:
+    variables:
+      - $CI_PRIVATE_KEY
 
 kitchen-test-job:
   stage: integration
@@ -29,3 +36,6 @@ kitchen-test-job:
       - $BUNDLE_PATH
   script:
     - make kitchen
+  only:
+    variables:
+      - $CI_PRIVATE_KEY
