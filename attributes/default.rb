@@ -60,6 +60,8 @@ default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
 default['gitlab-haproxy']['pages']['http_custom_config'] = nil
 default['gitlab-haproxy']['pages']['https_custom_config'] = nil
 default['gitlab-haproxy']['pages']['servers'] = {}
+default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
+default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 
 default['gitlab-haproxy']['backend']['rails']['custom_config'] = nil
 default['gitlab-haproxy']['backend']['rails']['httpchk_host'] = 'gitlab.com'
