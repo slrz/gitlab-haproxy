@@ -22,13 +22,6 @@ describe 'gitlab-haproxy::frontend' do
         )
         expect(chef_run.file('/etc/haproxy/ssl/gitlab.pem')).to notify('execute[test-haproxy-config]').to(:run).delayed
 
-        # ci
-        expect(chef_run).to create_file('/etc/haproxy/ssl/ci.pem').with(
-          mode: '0600',
-          content: /^MIICZTCCAc4C/
-        )
-        expect(chef_run.file('/etc/haproxy/ssl/ci.pem')).to notify('execute[test-haproxy-config]').to(:run).delayed
-
         # registry
         expect(chef_run).to create_file('/etc/haproxy/ssl/registry.pem').with(
           mode: '0600',

@@ -72,7 +72,7 @@ frontend http
     http-request redirect scheme https code 301
 
 frontend https
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/ci.pem crt /etc/haproxy/ssl/registry.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %> no-sslv3
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/registry.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %> no-sslv3
     mode http
     option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
@@ -82,7 +82,6 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request connection track-sc1 src
 
-    acl is_ci_gitlab_com hdr(host) -i ci.gitlab.com
     acl is_registry_gitlab_com hdr(host) -i <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
@@ -94,7 +93,6 @@ frontend https
     acl has_multiple_slash path_reg /{2,}
     acl is_canary req.cook(gitlab_canary) -m str -i true
 
-    http-request set-uri https://gitlab.com/ci%[path]?%[query] if is_ci_gitlab_com
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
     http-request set-header X-Forwarded-Proto https
