@@ -72,7 +72,7 @@ frontend http
     http-request redirect scheme https code 301
 
 frontend https
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/registry.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %> no-sslv3
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %> no-sslv3
     mode http
     option splice-auto
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
@@ -82,7 +82,6 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request connection track-sc1 src
 
-    acl is_registry_gitlab_com hdr(host) -i <%= node['gitlab-haproxy']['frontend']['registry']['hostname'] %>
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -120,7 +119,6 @@ frontend https
     use_backend api if is_gitlab_com_api whitelist_api
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
-    use_backend registry if is_registry_gitlab_com
     use_backend websockets if is_socket_upg or is_socket_path
     use_backend canary_web if is_canary
     default_backend web
@@ -151,9 +149,8 @@ frontend check_https
     option splice-auto
     acl no_be_srvs_web nbsrv(web) lt 1
     acl no_be_srvs_api nbsrv(api) lt 1
-    acl no_be_srvs_reg nbsrv(registry) lt 1
     monitor-uri /-/available-https
-    monitor fail if no_be_srvs_web || no_be_srvs_api || no_be_srvs_reg
+    monitor fail if no_be_srvs_web || no_be_srvs_api
 
 frontend check_ssh
     bind <%= node['gitlab-haproxy']['listen_address'] %>:8003
@@ -234,17 +231,6 @@ backend canary_web
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['canary_web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['canary_web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 check check-ssl <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
-    <% end %>
-
-backend registry
-    mode http
-    balance roundrobin
-    option forwardfor
-    option splice-auto
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    option httpchk GET <%= node['gitlab-haproxy']['frontend']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['registry']['httpchk_host'] %>
-    <% node['gitlab-haproxy']['frontend']['registry']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= node['gitlab-haproxy']['frontend']['registry_check_opts_extra'] ? " " + node['gitlab-haproxy']['frontend']['registry_check_opts_extra'] : "" %>
     <% end %>
 
 backend ssh

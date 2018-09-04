@@ -68,7 +68,7 @@ frontend http
     http-request redirect scheme https code 301
 
 frontend https
-    bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/gitlab.pem crt /etc/haproxy/ssl/registry.pem no-sslv3
+    bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3
     mode http
     option splice-auto
     timeout client-fin 5s
@@ -78,7 +78,6 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     tcp-request connection track-sc1 src
 
-    acl is_registry_gitlab_com hdr(host) -i registry.gitlab.com
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -117,7 +116,6 @@ frontend https
     use_backend api if is_gitlab_com_api whitelist_api
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
-    use_backend registry if is_registry_gitlab_com
     use_backend websockets if is_socket_upg or is_socket_path
     use_backend canary_web if is_canary
     default_backend web
@@ -148,9 +146,8 @@ frontend check_https
     option splice-auto
     acl no_be_srvs_web nbsrv(web) lt 1
     acl no_be_srvs_api nbsrv(api) lt 1
-    acl no_be_srvs_reg nbsrv(registry) lt 1
     monitor-uri /-/available-https
-    monitor fail if no_be_srvs_web || no_be_srvs_api || no_be_srvs_reg
+    monitor fail if no_be_srvs_web || no_be_srvs_api
 
 frontend check_ssh
     bind 0.0.0.0:8003
@@ -224,15 +221,6 @@ backend canary_web
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-
-backend registry
-    mode http
-    balance roundrobin
-    option forwardfor
-    option splice-auto
-    timeout server-fin 5s
-    option httpchk GET / HTTP/1.1\r\nHost:\ registry.gitlab.com
-    server registry01.be.gitlab.com 127.0.0.1:5000 check inter 2s fastinter 1s downinter 5s fall 3
 
 backend ssh
     mode tcp
