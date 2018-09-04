@@ -20,6 +20,9 @@ suites:
           api:
             servers:
               api01.stg.gitlab.com: 127.0.0.1
+          blacklist:
+            uri:
+              "/blacklist/test": "Testing"
           https_git:
             servers:
               git01.stg.gitlab.com: 127.0.0.1

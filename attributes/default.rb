@@ -16,6 +16,7 @@ default['gitlab-haproxy']['timeout_server'] = '90s'
 default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
 
+default['gitlab-haproxy']['frontend']['blacklist']['uri'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['internal'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['api'] = {}
 
