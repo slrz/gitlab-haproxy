@@ -30,6 +30,13 @@ file '/etc/haproxy/ssl/internal.pem' do
   only_if { use_internal }
 end
 
+# blacklist for incoming requests
+template '/etc/haproxy/blacklist-uri.lst' do
+  source 'blacklist-uri.lst.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
+
 # White list for API
 template '/etc/haproxy/whitelist-api.lst' do
   source 'whitelist-api.lst.erb'

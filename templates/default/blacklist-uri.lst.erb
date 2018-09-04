@@ -1,0 +1,9 @@
+#---------------------------------------------------------------------
+# Blacklisted URI paths
+#---------------------------------------------------------------------
+<% if node['gitlab-haproxy']['frontend']['blacklist']['uri'].any? -%>
+    <% node['gitlab-haproxy']['frontend']['blacklist']['uri'].each do |network, comment| %>
+# <%= comment %>
+<%= network %>
+    <% end %>
+<% end -%>
