@@ -21,13 +21,6 @@ describe 'gitlab-haproxy::frontend' do
           content: /^MIICZTCCAc4C/
         )
         expect(chef_run.file('/etc/haproxy/ssl/gitlab.pem')).to notify('execute[test-haproxy-config]').to(:run).delayed
-
-        # registry
-        expect(chef_run).to create_file('/etc/haproxy/ssl/registry.pem').with(
-          mode: '0600',
-          content: /^MIICZTCCAc4C/
-        )
-        expect(chef_run.file('/etc/haproxy/ssl/registry.pem')).to notify('execute[test-haproxy-config]').to(:run).delayed
       end
 
       it 'creates the template and runs correct notifications' do
