@@ -27,7 +27,7 @@ describe 'gitlab-haproxy::frontend' do
         expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
           source: 'haproxy-frontend.cfg.erb',
           mode: '0600',
-          variables: { admin_password: 'this-is-a-test-password', use_internal: nil }
+          variables: { admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil }
         )
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
           expect(content).to eq(IO.read('spec/fixtures/frontend.template'))
