@@ -87,6 +87,7 @@ frontend https
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
     acl has_multiple_slash path_reg /{2,}
     acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl is_canary_host hdr_beg(host) -i canary
 
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
@@ -117,7 +118,7 @@ frontend https
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
     use_backend websockets if is_socket_upg or is_socket_path
-    use_backend canary_web if is_canary
+    use_backend canary_web if is_canary or is_canary_host
     default_backend web
 
 frontend ssh

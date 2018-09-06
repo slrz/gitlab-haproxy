@@ -8,6 +8,7 @@
 #
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
+use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['canary_crt']
 
 include_recipe 'gitlab-haproxy::default'
 
@@ -22,6 +23,13 @@ file '/etc/haproxy/ssl/internal.pem' do
   content "#{haproxy_secrets['ssl']['internal_crt']}\n#{haproxy_secrets['ssl']['internal_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed
   only_if { use_internal }
+end
+
+file '/etc/haproxy/ssl/canary.pem' do
+  mode '0600'
+  content "#{haproxy_secrets['ssl']['canary_crt']}\n#{haproxy_secrets['ssl']['canary_key']}\n"
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  only_if { use_canary }
 end
 
 # blacklist for incoming requests
@@ -58,7 +66,7 @@ end
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
   mode '0600'
-  variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal)
+  variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal, use_canary: use_canary)
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
