@@ -34,43 +34,6 @@ describe 'gitlab-haproxy::backend' do
         expect(chef_run.template('/etc/haproxy/haproxy.cfg')).to notify('execute[test-haproxy-config]').to(:run).delayed
       end
     end
-
-    context 'secrets in Chef vault' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new do |node|
-          populate_node_properties(node)
-
-          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'configuring pages haproxy'
-    end
-
-    context 'secrets in a backend specified by attribute' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new do |node|
-          populate_node_properties(node)
-
-          node.normal['gitlab-haproxy']['secrets'] = {
-            'backend' => 'gkms',
-            'path' => 'secrets',
-            'key' => 'certs',
-          }
-        end.converge(described_recipe)
-      end
-
-      before do
-        mock_secrets_path = 'test/integration/data_bags/secrets/certs.json'
-        secrets = JSON.parse(File.read(mock_secrets_path))
-
-        expect_any_instance_of(Chef::Recipe).to receive(:get_secrets)
-          .with('gkms', 'secrets', 'certs').and_return(secrets)
-      end
-
-      it_behaves_like 'configuring pages haproxy'
-    end
   end
 
   def populate_node_properties(node)

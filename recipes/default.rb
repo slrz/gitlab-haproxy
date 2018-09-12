@@ -7,6 +7,8 @@
 # License: MIT
 #
 
+haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
+
 service 'rsyslog' do
   supports [:restart]
 end
@@ -47,6 +49,15 @@ end
 
 template '/etc/haproxy/errors/503.http' do
   source 'haproxy-errors-503.http.erb'
+end
+
+# blacklist for incoming requests
+git '/etc/haproxy/front-end-security' do
+  repository haproxy_secrets['front-end-security']['git_https']
+  action :sync
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  timeout 15
+  ignore_failure true
 end
 
 service 'haproxy' do
