@@ -65,6 +65,10 @@ frontend http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http
     option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
@@ -108,8 +112,11 @@ frontend https
     acl require_captcha src -f /etc/haproxy/recaptcha/require-captcha.lst
     http-request set-header X-GitLab-Show-Login-Captcha 1 if require_captcha
 
-    acl blacklist_uri path_beg -i -f /etc/haproxy/blacklist-uri.lst
-    http-request deny if blacklist_uri
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
+    acl blacklist-uri path_beg -i -f /etc/haproxy/blacklist-uris.lst
+    http-request deny if blacklist-uri
 
 <%= formatted_custom_config(node['gitlab-haproxy']['frontend']['https']['custom_config']) %>
 
@@ -128,6 +135,10 @@ frontend ssh
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['ssh']['port'] %>
     mode tcp
     option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    tcp-request connection reject if deny-403-ip
+
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>

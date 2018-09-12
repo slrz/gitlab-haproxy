@@ -6,9 +6,10 @@
 #
 # License: MIT
 #
-haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 include_recipe 'gitlab-haproxy::default'
+
+haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 file '/etc/haproxy/ssl/pages.pem' do
   mode '0600'

@@ -50,6 +50,10 @@ frontend pages_http
     bind 0.0.0.0:80
     mode http
     option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
@@ -60,6 +64,9 @@ frontend pages_https
     bind 0.0.0.0:443
     mode tcp
     option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
 
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https

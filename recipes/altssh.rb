@@ -6,9 +6,10 @@
 #
 # License: MIT
 #
-haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 include_recipe 'gitlab-haproxy::default'
+
+haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-altssh.cfg.erb'

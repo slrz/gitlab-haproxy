@@ -2,8 +2,20 @@ require 'spec_helper'
 
 describe 'gitlab-haproxy::default' do
   context 'default execution' do
-    cached(:chef_run) do
+    before do
+      mock_secrets_path = 'test/integration/data_bags/secrets/certs.json'
+      secrets = JSON.parse(File.read(mock_secrets_path))
+
+      expect_any_instance_of(Chef::Recipe).to receive(:get_secrets)
+        .with('gkms', 'secrets', 'certs').and_return(secrets)
+    end
+    let(:chef_run) do
       ChefSpec::SoloRunner.new { |node|
+        node.normal['gitlab-haproxy']['secrets'] = {
+          'backend' => 'gkms',
+          'path' => 'secrets',
+          'key' => 'certs',
+        }
       }.converge(described_recipe)
     end
 

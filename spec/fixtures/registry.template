@@ -61,6 +61,10 @@ frontend http
     bind 0.0.0.0:80
     mode http
     option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     http-request redirect scheme https code 301
@@ -69,6 +73,10 @@ frontend https
     bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/registry.pem no-sslv3
     mode http
     option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64

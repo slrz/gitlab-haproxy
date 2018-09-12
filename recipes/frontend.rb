@@ -6,11 +6,13 @@
 #
 # License: MIT
 #
-haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
-use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
-use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['canary_crt']
 
 include_recipe 'gitlab-haproxy::default'
+
+haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
+
+use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
+use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['canary_crt']
 
 file '/etc/haproxy/ssl/gitlab.pem' do
   mode '0600'
@@ -32,9 +34,8 @@ file '/etc/haproxy/ssl/canary.pem' do
   only_if { use_canary }
 end
 
-# blacklist for incoming requests
-template '/etc/haproxy/blacklist-uri.lst' do
-  source 'blacklist-uri.lst.erb'
+template '/etc/haproxy/blacklist-uris.lst' do
+  source 'blacklist-uris.lst.erb'
   mode '0600'
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end

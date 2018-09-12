@@ -48,4 +48,8 @@ control 'haproxy-config-checks' do
   describe file('/etc/haproxy/haproxy.cfg') do
     its('mode') { should cmp '0600' }
   end
+
+  describe file('/etc/haproxy/blacklist-uris.lst') do
+    it { should exist }
+  end
 end
