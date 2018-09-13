@@ -26,9 +26,6 @@ suites:
           https_git:
             servers:
               git01.stg.gitlab.com: 127.0.0.1
-          registry:
-            servers:
-              registry01.be.gitlab.com: 127.0.0.1
           ssh:
             port: 2222
             servers:
@@ -74,3 +71,14 @@ suites:
         altssh:
           servers:
             ssh01.stg.gitlab.com: 127.0.0.1
+
+  - name: registry
+    run_list:
+      - recipe[gitlab-haproxy::registry]
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        registry:
+          servers:
+            registry01.be.gitlab.com: 127.0.0.1

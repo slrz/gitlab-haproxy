@@ -9,6 +9,8 @@
 
 include_recipe 'gitlab-haproxy::default'
 
+haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
+
 use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
 
 file '/etc/haproxy/ssl/registry.pem' do
