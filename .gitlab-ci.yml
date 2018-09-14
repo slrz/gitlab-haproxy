@@ -9,6 +9,7 @@ variables:
 stages:
   - unit
   - integration
+  - publish
 
 before_script:
   - eval $(ssh-agent -s)
@@ -39,3 +40,16 @@ kitchen-test-job:
   only:
     variables:
       - $CI_PRIVATE_KEY
+
+push-cookbook:
+  stage: publish
+  only:
+    refs:
+      - master
+    variables:
+      - $OPS_CLONE_USERNAME
+      - $OPS_CLONE_PASSWORD
+  script:
+    - git clone https://$OPS_CLONE_USERNAME:$OPS_CLONE_PASSWORD@ops.gitlab.net/gitlab-cookbooks/cookbook-publisher.git /tmp/cookbook-publisher
+    - cp /tmp/cookbook-publisher/publisher.rb .
+    - ruby publisher.rb
