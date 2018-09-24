@@ -44,10 +44,29 @@ default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['canary_web']['httpchk_path'] = '/'
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
-default['gitlab-haproxy']['frontend']['canary_web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3'
+
+default['gitlab-haproxy']['frontend']['use_weights'] = false
+
+default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
+
+default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '0'
+
+default['gitlab-haproxy']['frontend']['canary_web']['servers'] = {}
+default['gitlab-haproxy']['frontend']['canary_api']['servers'] = {}
+default['gitlab-haproxy']['frontend']['canary_ssh']['servers'] = {}
+default['gitlab-haproxy']['frontend']['canary_https_git']['servers'] = {}
+default['gitlab-haproxy']['frontend']['canary_websockets']['servers'] = {}
 
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}

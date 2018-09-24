@@ -232,7 +232,7 @@ backend canary_web
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend ssh
     mode tcp
