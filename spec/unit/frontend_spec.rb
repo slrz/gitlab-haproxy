@@ -3,6 +3,21 @@ require 'chef-vault/test_fixtures'
 
 describe 'gitlab-haproxy::frontend' do
   include ChefVault::TestFixtures.rspec_shared_context
+  context 'using weights with canaries' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties_with_weights(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'creates the frontend template correctly with weights.' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to eq(IO.read('spec/fixtures/frontend-weights.template'))
+      }
+    end
+  end
 
   context 'backend execution' do
     shared_examples 'configuring frontend haproxy' do
@@ -51,6 +66,21 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  def populate_node_properties_with_weights(node)
+    populate_node_properties(node)
+    node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
+    node.normal['gitlab-haproxy']['frontend']['web']['default_weight'] = '10'
+    node.normal['gitlab-haproxy']['frontend']['api']['default_weight'] = '20'
+    node.normal['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '30'
+    node.normal['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '40'
+    node.normal['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '50'
+    node.normal['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '1'
+    node.normal['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '2'
+    node.normal['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '3'
+    node.normal['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '4'
+    node.normal['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '5'
+  end
+
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['peers']['servers']['fe01.sv.gitlab.com'] = ['10.65.1.101', '32768']
@@ -60,7 +90,6 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['ssh']['port'] = '2222'
     node.normal['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['canary_web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
     node.normal['gitlab-haproxy']['frontend']['https']['custom_config'] = [
@@ -73,5 +102,10 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = [
       'http-request deny deny_status 400 if is_download',
     ]
+    node.normal['gitlab-haproxy']['frontend']['canary_web']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['frontend']['canary_api']['servers']['api-cny-01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['frontend']['canary_ssh']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['frontend']['canary_https_git']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['frontend']['canary_websockets']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
   end
 end
