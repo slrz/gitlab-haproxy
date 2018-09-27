@@ -64,7 +64,7 @@ Content-Type: text/html
   <div class="container">
     <h3>An internal server error occured.</h3>
     <hr />
-    <p>Please contact your GitLab administrator.</p>
+    <p>Please see our <a href="https://status.gitlab.com">status page</a> for more information.</p>
   </div>
 </body>
 </html>
