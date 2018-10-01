@@ -55,7 +55,7 @@ frontend altssh
     http-request deny if deny-403-ip
 
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
-    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 
 <%= formatted_custom_config(node['gitlab-haproxy']['altssh']['custom_config']) %>
 
