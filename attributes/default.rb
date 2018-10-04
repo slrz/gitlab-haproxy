@@ -53,6 +53,7 @@ default['gitlab-haproxy']['frontend']['use_weights'] = false
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['ssh']['server_port'] = '22'
 default['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
 
