@@ -17,7 +17,10 @@ global
 
     # Default ciphers to use on SSL-enabled listening sockets.
     # For more information, see ciphers(1SSL).
-    ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES
+    ssl-default-bind-ciphers <%= node['gitlab-haproxy']['global']['ssl-default-bind-ciphers'] %>
+<% unless node['gitlab-haproxy']['global']['ssl-default-bind-options'].nil? %>
+    ssl-default-bind-options <%= node['gitlab-haproxy']['global']['ssl-default-bind-options'] %>
+<% end %>
     # Keep DH params size at 1024 for Java 6 HTTPS clients
     tune.ssl.default-dh-param 1024
 
@@ -128,7 +131,9 @@ frontend https
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
     use_backend websockets if is_socket_upg or is_socket_path
-    <% if node['gitlab-haproxy']['frontend']['canary_web']['enable'] %>use_backend canary_web if is_canary or is_canary_host<% end %>
+<% if node['gitlab-haproxy']['frontend']['canary_web']['enable'] %>
+    use_backend canary_web if is_canary or is_canary_host
+<% end %>
     default_backend web
 
 frontend ssh

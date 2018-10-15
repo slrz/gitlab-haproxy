@@ -4,6 +4,8 @@ default['gitlab-haproxy']['secrets']['key'] = '_default'
 
 default['gitlab-haproxy']['errors']['503']['title'] = 'An internal server error occured.'
 default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please contact your GitLab administrator.'
+default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'] = 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES'
+default['gitlab-haproxy']['global']['ssl-default-bind-options'] = nil
 
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
