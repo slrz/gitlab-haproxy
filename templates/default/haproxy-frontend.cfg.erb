@@ -128,7 +128,7 @@ frontend https
     use_backend api_rate_limit if is_gitlab_com_api
     use_backend https_git if is_gitlab_com_https_git
     use_backend websockets if is_socket_upg or is_socket_path
-    use_backend canary_web if is_canary or is_canary_host
+    <% if node['gitlab-haproxy']['frontend']['canary_web']['enable'] %>use_backend canary_web if is_canary or is_canary_host<% end %>
     default_backend web
 
 frontend ssh
