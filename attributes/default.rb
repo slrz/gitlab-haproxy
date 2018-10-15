@@ -57,6 +57,7 @@ default['gitlab-haproxy']['frontend']['ssh']['server_port'] = '22'
 default['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
 
+default['gitlab-haproxy']['frontend']['canary_web']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
