@@ -43,6 +43,7 @@ default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/'
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
+default['gitlab-haproxy']['frontend']['web_runoff']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['canary_web']['httpchk_path'] = '/'
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
@@ -53,6 +54,7 @@ default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 2s fastinte
 default['gitlab-haproxy']['frontend']['use_weights'] = false
 
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['ssh']['server_port'] = '22'

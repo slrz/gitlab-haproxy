@@ -227,6 +227,16 @@ backend web
     server web01.stg.gitlab.com 127.0.0.1:443 weight 10 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 1 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
+backend web_runoff
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    rspadd Content-Security-Policy:\ default-src\ \'self\';
+    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    server web01.stg.gitlab.com 127.0.0.1:443 weight 10 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+
 backend canary_web
     mode http
     balance roundrobin
