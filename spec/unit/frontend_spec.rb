@@ -87,6 +87,7 @@ describe 'gitlab-haproxy::frontend' do
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
     node.normal['gitlab-haproxy']['frontend']['web']['default_weight'] = '10'
+    node.normal['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] = '10'
     node.normal['gitlab-haproxy']['frontend']['api']['default_weight'] = '20'
     node.normal['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '30'
     node.normal['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '40'
@@ -107,6 +108,7 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['ssh']['port'] = '2222'
     node.normal['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
+    node.normal['gitlab-haproxy']['frontend']['web_runoff']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
     node.normal['gitlab-haproxy']['frontend']['https']['custom_config'] = [
