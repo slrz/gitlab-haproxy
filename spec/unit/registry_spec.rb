@@ -25,6 +25,7 @@ describe 'gitlab-haproxy::registry' do
         expect(content).to include('acl is_canary_host hdr_beg(host) -i canary')
         expect(content).to include('acl is_canary req.cook(gitlab_canary) -m str -i true')
         expect(content).to include('acl canary_disabled req.cook(gitlab_canary) -m str -i false')
+        expect(content).to include('acl no_be_srvs_canary_registry nbsrv(canary_registry) lt 1')
       }
     end
     it 'creates the request path regex lst file' do

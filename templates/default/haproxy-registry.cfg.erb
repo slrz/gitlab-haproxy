@@ -98,6 +98,7 @@ frontend https
     acl is_canary_host hdr_beg(host) -i canary
     acl is_canary req.cook(gitlab_canary) -m str -i true
     acl canary_disabled req.cook(gitlab_canary) -m str -i false
+    acl no_be_srvs_canary_registry nbsrv(canary_registry) lt 1
 
 <%= formatted_custom_config(node['gitlab-haproxy']['registry']['custom_config']) %>
 
