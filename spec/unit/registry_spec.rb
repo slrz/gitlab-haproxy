@@ -4,6 +4,36 @@ require 'chef-vault/test_fixtures'
 describe 'gitlab-haproxy::registry' do
   include ChefVault::TestFixtures.rspec_shared_context
 
+  context 'with internal request routing' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'] = ['\/gitlab-com']
+      end.converge(described_recipe)
+    end
+
+    it 'creates the frontend template correctly with internal request routing' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('use_backend canary_registry if is_canary_path !canary_disabled')
+      }
+    end
+    it 'creates registry acls' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst')
+        expect(content).to include('acl is_canary_host hdr_beg(host) -i canary')
+        expect(content).to include('acl is_canary req.cook(gitlab_canary) -m str -i true')
+        expect(content).to include('acl canary_disabled req.cook(gitlab_canary) -m str -i false')
+      }
+    end
+    it 'creates the request path regex lst file' do
+      expect(chef_run).to render_file('/etc/haproxy/canary-request-regex-paths.lst').with_content { |content|
+        expect(content).to include('\/gitlab-com')
+      }
+    end
+  end
+
   context 'backend execution' do
     shared_examples 'configuring registry haproxy' do
       it 'converges successfully' do

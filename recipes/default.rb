@@ -6,6 +6,7 @@
 #
 # License: MIT
 #
+include_recipe 'apt'
 
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 

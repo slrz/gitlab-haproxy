@@ -40,6 +40,12 @@ template '/etc/haproxy/blacklist-uris.lst' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
+template '/etc/haproxy/canary-request-regex-paths.lst' do
+  source 'canary-request-regex-paths.lst.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
+
 # White list for API
 template '/etc/haproxy/whitelist-api.lst' do
   source 'whitelist-api.lst.erb'

@@ -7,8 +7,7 @@ variables:
   DIGITALOCEAN_TESTBOX_FQDN: "template.${CI_PROJECT_NAMESPACE}.ci.gitlab.test"
 
 stages:
-  - unit
-  - integration
+  - tests
   - publish
 
 before_script:
@@ -20,7 +19,7 @@ before_script:
   - make gems
 
 rspec-test-job:
-  stage: unit
+  stage: tests
   cache:
     paths:
       - $BUNDLE_PATH
@@ -31,7 +30,7 @@ rspec-test-job:
       - $CI_PRIVATE_KEY
 
 kitchen-test-job:
-  stage: integration
+  stage: tests
   cache:
     paths:
       - $BUNDLE_PATH

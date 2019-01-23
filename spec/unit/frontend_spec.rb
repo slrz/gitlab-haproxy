@@ -14,7 +14,9 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the frontend template correctly with weights.' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to eq(IO.read('spec/fixtures/frontend-weights.template'))
+        expect(content).to include('server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 5 check')
+        expect(content).to include('server api01.stg.gitlab.com 127.0.0.1:443 weight 20')
+        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 30')
       }
     end
   end
@@ -31,7 +33,32 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the frontend template correctly with global bind options.' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to eq(IO.read('spec/fixtures/frontend-bind-options.template'))
+        expect(content).to include('ssl-default-bind-options no-tlsv10 no-tlsv11')
+      }
+    end
+  end
+
+  context 'with internal request routing' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'] = ['\/gitlab-com']
+      end.converge(described_recipe)
+    end
+
+    it 'creates the frontend template correctly with internal request routing' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('use_backend canary_api if is_canary_path !canary_disabled')
+        expect(content).to include('use_backend canary_web if is_canary_path !canary_disabled')
+        expect(content).to include('use_backend canary_api if is_canary_path !canary_disabled')
+      }
+    end
+
+    it 'creates the request path regex lst file' do
+      expect(chef_run).to render_file('/etc/haproxy/canary-request-regex-paths.lst').with_content { |content|
+        expect(content).to include('\/gitlab-com')
       }
     end
   end

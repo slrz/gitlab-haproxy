@@ -24,28 +24,29 @@ default['gitlab-haproxy']['frontend']['whitelist']['api'] = {}
 
 default['gitlab-haproxy']['frontend']['peers']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['frontend']['api']['httpchk_path'] = '/'
+default['gitlab-haproxy']['frontend']['api']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] = '600'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] = '/'
+default['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] = '4444'
 default['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] = '10'
 default['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] = '127.0.0.1'
+
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/'
+default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['ssh']['port'] = '22'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
+
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/'
+default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['web_runoff']['servers'] = {}
-default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['frontend']['canary_web']['httpchk_path'] = '/'
+
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
@@ -62,6 +63,9 @@ default['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
 
 default['gitlab-haproxy']['frontend']['canary_web']['enable'] = true
+default['gitlab-haproxy']['frontend']['canary_api']['enable'] = true
+default['gitlab-haproxy']['frontend']['canary_https_git']['enable'] = true
+default['gitlab-haproxy']['frontend']['canary_registry']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
@@ -73,6 +77,8 @@ default['gitlab-haproxy']['frontend']['canary_api']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_websockets']['servers'] = {}
+
+default['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'] = []
 
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}
@@ -94,9 +100,10 @@ default['gitlab-haproxy']['backend']['rails']['rate_limit_whitelist'] = '127.0.0
 default['gitlab-haproxy']['backend']['rails']['servers'] = {}
 
 default['gitlab-haproxy']['registry']['servers'] = {}
+default['gitlab-haproxy']['canary_registry']['servers'] = {}
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
 default['gitlab-haproxy']['registry']['custom_config'] = nil
 default['gitlab-haproxy']['registry']['backend_port'] = '5000'
 default['gitlab-haproxy']['registry']['httpchk_host'] = 'registry.gitlab.com'
-default['gitlab-haproxy']['registry']['httpchk_path'] = '/'
+default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
