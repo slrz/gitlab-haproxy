@@ -34,3 +34,9 @@ template '/etc/haproxy/haproxy.cfg' do
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
+
+template '/etc/haproxy/canary-request-regex-paths.lst' do
+  source 'canary-request-regex-paths.lst.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end

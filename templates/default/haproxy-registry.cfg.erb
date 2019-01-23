@@ -94,9 +94,27 @@ frontend https
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
+    acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst
+    acl is_canary_host hdr_beg(host) -i canary
+    acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
+
 <%= formatted_custom_config(node['gitlab-haproxy']['registry']['custom_config']) %>
 
+    ###############################################################
+    # Registry routing
+    <% if node['gitlab-haproxy']['frontend']['canary_registry']['enable'] %>
+    # If there are no healthy canary servers default to the web backend
+    use_backend registry if no_be_srvs_canary_registry
+    # Use the canary for internal request paths like /gitlab-com/
+    use_backend canary_registry if is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true or if the
+    # request is sent to canary.gitlab.com
+    use_backend canary_registry if is_canary or is_canary_host
+    # Finally, if no other rules match, send the request to the registry backend
+    <% end %>
     default_backend registry
+    ###############################################################
 
 frontend check_http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:8001
@@ -125,5 +143,16 @@ backend registry
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>
     <% node['gitlab-haproxy']['registry']['servers'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
+    <% end %>
+
+backend canary_registry
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>
+    <% node['gitlab-haproxy']['canary_registry']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
     <% end %>

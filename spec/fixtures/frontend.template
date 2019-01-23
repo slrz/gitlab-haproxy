@@ -91,7 +91,11 @@ frontend https
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
     acl has_multiple_slash path_reg /{2,}
     acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
     acl is_canary_host hdr_beg(host) -i canary
+    acl no_be_srvs_canary_web nbsrv(canary_web) lt 1
+    acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
+    acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst
 
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
@@ -119,14 +123,54 @@ frontend https
 
     acl api_rate_limit_whitelist src 127.0.0.1
 
+    ###############################################################
+    # API routing rules for whitlisted hosts that
+    # bypass rate limiting
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
     use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
+    # API routing rules for rate limiting, canary
+    # routing is handled in the api_rate_limit frontend
+    # This backend is a proxy for the api_rate_limit frontend
     use_backend api_rate_limit if is_gitlab_com_api
+    ###############################################################
+
+    ###############################################################
+    # HTTPS GIT routing rules
+    # If it is an https git request and there are no healthy canary
+    # servers, route request to the https_git backend
+    use_backend https_git if is_gitlab_com_https_git no_be_srvs_canary_https_git
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_https_git if is_gitlab_com_https_git is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true is set or if the request
+    # is sent to canary.gitlab.com
+    use_backend canary_https_git if is_gitlab_com_https_git is_canary
+    use_backend canary_https_git if is_gitlab_com_https_git is_canary_host
+    # Finally, if no canary rules match, route requests to the normal
+    # https_git backend
     use_backend https_git if is_gitlab_com_https_git
+    ###############################################################
+
+    ###############################################################
+    # Websockets routing rules
     use_backend websockets if is_socket_upg or is_socket_path
+    ###############################################################
+
+    ###############################################################
+    # Web routing rules, if we have gotten this far we use the default
+    # web or canary_web backend
+    # If there are no healthy canary servers default to the web backend
+    use_backend web if no_be_srvs_canary_web
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_web if is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true or if the
+    # request is sent to canary.gitlab.com
     use_backend canary_web if is_canary or is_canary_host
+    # Finally, if no other rules match, send the request to the web backend
     default_backend web
+    ###############################################################
 
 frontend ssh
     bind 0.0.0.0:2222
@@ -184,9 +228,28 @@ frontend api_rate_limit
     http-response set-header RateLimit-ResetTime %[date(60),http_date]
     use_backend 429_slow_down if is_rate_abuse
 
+    acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
+    acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst
+    acl is_canary_host hdr_beg(host) -i canary
+    acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
+
     http-request deny deny_status 400 if is_download
 
+    ###############################################################
+    # API routing rules
+    # If there are no healthy canary servers default to the api backend
+    use_backend api if no_be_srvs_canary_api
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_api if is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true or if the
+    # request is sent to canary.gitlab.com
+    use_backend api if is_canary or is_canary_host
+    # Finally, if no canary rules match, route requests to the normal
+    # api backend
     default_backend api
+    ###############################################################
 
 #---------------------------------------------------------------------
 # Backend configuration
@@ -197,7 +260,7 @@ backend api
     option forwardfor
     option splice-auto
     timeout server-fin 5s
-    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend api_rate_limit
@@ -211,7 +274,7 @@ backend https_git
     option forwardfor
     option splice-auto
     timeout server-fin 5s
-    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend web
@@ -221,7 +284,7 @@ backend web
     option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
-    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend web_runoff
@@ -231,7 +294,7 @@ backend web_runoff
     option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
-    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend canary_web
@@ -242,8 +305,26 @@ backend canary_web
     timeout server-fin 5s
     http-response set-header X-Robots-Tag noindex
     rspadd Content-Security-Policy:\ default-src\ \'self\';
-    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+
+backend canary_https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server git-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+
+backend canary_api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend ssh
     mode tcp
@@ -255,7 +336,7 @@ backend ssh
     # We need to check port 443 and not 22. The assumption here is that ssh won't work
     # if rails isn't running and they're both running on the same host.
     # We need to change this when we split rails to a separate cluster.
-    option httpchk GET / HTTP/1.1\r\nHost:\ gitlab.com
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 inter 2s fastinter 1s downinter 5s fall 3 verify none
 
 backend websockets
