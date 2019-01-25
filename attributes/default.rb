@@ -78,7 +78,7 @@ default['gitlab-haproxy']['frontend']['canary_ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['canary_websockets']['servers'] = {}
 
-default['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'] = []
+default['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = []
 
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}

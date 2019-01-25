@@ -94,7 +94,7 @@ frontend https
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
-    acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     acl is_canary_host hdr_beg(host) -i canary
     acl is_canary req.cook(gitlab_canary) -m str -i true
     acl canary_disabled req.cook(gitlab_canary) -m str -i false
