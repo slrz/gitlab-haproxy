@@ -102,7 +102,7 @@ frontend https
     acl is_canary_host hdr_beg(host) -i canary
     acl no_be_srvs_canary_web nbsrv(canary_web) lt 1
     acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
-    acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
 
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
@@ -239,7 +239,7 @@ frontend api_rate_limit
     use_backend 429_slow_down if is_rate_abuse
 
     acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
-    acl is_canary_path path_reg -f /etc/haproxy/canary-request-regex-paths.lst
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     acl is_canary_host hdr_beg(host) -i canary
     acl is_canary req.cook(gitlab_canary) -m str -i true
     acl canary_disabled req.cook(gitlab_canary) -m str -i false
@@ -256,7 +256,7 @@ frontend api_rate_limit
     use_backend canary_api if is_canary_path !canary_disabled
     # Use the canary backend if the cookie gitlab_canary=true or if the
     # request is sent to canary.gitlab.com
-    use_backend api if is_canary or is_canary_host
+    use_backend canary_api if is_canary or is_canary_host
     # Finally, if no canary rules match, route requests to the normal
     # api backend
     <% end %>

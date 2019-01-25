@@ -44,7 +44,7 @@ describe 'gitlab-haproxy::frontend' do
         populate_node_properties(node)
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
         node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'] = ['\/gitlab-com']
+        node.normal['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = ['\/gitlab-com']
       end.converge(described_recipe)
     end
 
@@ -57,7 +57,7 @@ describe 'gitlab-haproxy::frontend' do
     end
 
     it 'creates the request path regex lst file' do
-      expect(chef_run).to render_file('/etc/haproxy/canary-request-regex-paths.lst').with_content { |content|
+      expect(chef_run).to render_file('/etc/haproxy/canary-request-paths.lst').with_content { |content|
         expect(content).to include('\/gitlab-com')
       }
     end

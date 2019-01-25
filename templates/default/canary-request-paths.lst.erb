@@ -1,8 +1,8 @@
 #---------------------------------------------------------------------
 # Canary request regex paths for routing traffic to the canary
 #---------------------------------------------------------------------
-<% if node['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'].any? -%>
-    <% node['gitlab-haproxy']['frontend']['canary_request_path']['regex_list'].each do |regex| %>
+<% if node['gitlab-haproxy']['frontend']['canary_request_path']['path_list'].any? -%>
+    <% node['gitlab-haproxy']['frontend']['canary_request_path']['path_list'].each do |regex| %>
 <%= regex %>
     <% end %>
 <% end -%>
