@@ -97,6 +97,7 @@ frontend https
     acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
 
+    http-request set-var(txn.host) hdr(Host)
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
     http-request set-header X-Forwarded-Proto https
@@ -304,7 +305,7 @@ backend canary_web
     option splice-auto
     timeout server-fin 5s
     acl is_canary_host hdr_beg(host) -i canary
-    http-response set-header X-Robots-Tag noindex if is_canary_host
+    http-response set-header X-Robots-Tag noindex if { var(txn.host) -m beg canary }
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
