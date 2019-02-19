@@ -338,7 +338,8 @@ backend canary_web
     option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    http-response set-header X-Robots-Tag noindex
+    acl is_canary_host hdr_beg(host) -i canary
+    http-response set-header X-Robots-Tag noindex if is_canary_host
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['canary_web']['servers'].each do |name, ip| %>
