@@ -80,6 +80,11 @@ default['gitlab-haproxy']['frontend']['canary_websockets']['servers'] = {}
 
 default['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = []
 
+default['gitlab-haproxy']['frontend']['root_page_redirect']['enable'] = false
+default['gitlab-haproxy']['frontend']['root_page_redirect']['url'] = 'https://about.gitlab.com'
+default['gitlab-haproxy']['frontend']['root_page_redirect']['session_cookie'] = '_gitlab_session'
+default['gitlab-haproxy']['frontend']['root_page_redirect']['status_code'] = '301'
+
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}
 
