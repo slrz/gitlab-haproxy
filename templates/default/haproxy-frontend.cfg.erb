@@ -311,11 +311,6 @@ backend web
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
-    <% if node['gitlab-haproxy']['frontend']['root_page_redirect']['enable'] %>
-    acl redirect_request_path path /
-    acl has_session_cookie req.cook(<%= node['gitlab-haproxy']['frontend']['root_page_redirect']['session_cookie'] %>) -m found
-    redirect location <%= node['gitlab-haproxy']['frontend']['root_page_redirect']['url'] %> code <%= node['gitlab-haproxy']['frontend']['root_page_redirect']['status_code'] %> if redirect_request_path !has_session_cookie
-    <% end %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['web']['default_weight'] %> <% end %>check check-ssl <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
