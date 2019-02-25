@@ -38,26 +38,6 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
-  context 'using root redirect option' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['frontend']['root_page_redirect']['enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['root_page_redirect']['url'] = 'https://example.com'
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
-
-    it 'creates the redirect for requests without the _gitlab_session cookie' do
-      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('acl redirect_request_path path /')
-        expect(content).to include('acl has_session_cookie req.cook(_gitlab_session) -m found')
-        expect(content).to include('redirect location https://example.com code 301 if redirect_request_path !has_session_cookie')
-      }
-    end
-  end
-
   context 'with internal request routing' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
