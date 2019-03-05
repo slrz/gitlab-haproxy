@@ -24,6 +24,7 @@ end
 
 package 'logrotate'
 package 'socat'
+package 'hatop'
 
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
 node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
