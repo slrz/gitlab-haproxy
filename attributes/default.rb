@@ -44,6 +44,8 @@ default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
+default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] = true
+default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'] = ' X-Requested-With'
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['web_runoff']['servers'] = {}
 

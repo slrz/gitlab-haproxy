@@ -285,6 +285,7 @@ backend web
     option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
+    rspadd Access-Control-Allow-Headers:\ X-Requested-With if { capture.req.hdr(0) -m found }
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
