@@ -2,7 +2,7 @@
 # Cookbook Name:: gitlab-haproxy
 # Recipe:: default
 #
-# Copyright (C) 2016 GitLab Inc.
+# Copyright (C) 2019 GitLab Inc.
 #
 # License: MIT
 #
