@@ -83,6 +83,25 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with asset proxy' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
+      end.converge(described_recipe)
+    end
+
+    it 'creates the frontend template correctly with asset proxy' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('http-request set-header Host gitlab-pre-assets.storage.googleapis.com')
+        expect(content).to include('use_backend asset_proxy if is_asset_path !no_be_srvs_asset_proxy')
+      }
+    end
+  end
+
   context 'backend execution' do
     shared_examples 'configuring frontend haproxy' do
       it 'converges successfully' do
