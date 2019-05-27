@@ -26,11 +26,15 @@ file '/etc/haproxy/ssl/internal.pem' do
   only_if { use_internal }
 end
 
-# we are only passing in the secrets as variables
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-registry.cfg.erb'
   mode '0600'
-  variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal)
+  variables(
+    admin_password: haproxy_secrets['admin_password'],
+    use_internal: use_internal,
+    default_backend: node['gitlab-haproxy']['registry']['use_gke_backend'] ? 'registry_gke' : 'registry',
+    canary_default_backend: node['gitlab-haproxy']['canary_registry']['use_gke_backend'] ? 'canary_registry_gke' : 'canary_registry'
+  )
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
