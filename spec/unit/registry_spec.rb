@@ -104,6 +104,24 @@ describe 'gitlab-haproxy::registry' do
     end
   end
 
+  context 'when multithreading is enabled' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['global']['multithreading']['enable'] = true
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'includes the multithreading options' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('nbproc 1')
+        expect(content).to include('nbthread 1')
+      }
+    end
+  end
+
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['registry']['peers']['servers']['fe-registry-01-lb-gstg'] = ['10.65.1.101', '32768']

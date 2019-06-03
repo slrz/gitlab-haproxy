@@ -8,6 +8,10 @@ global
     group haproxy
     daemon
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+<% if node['gitlab-haproxy']['global']['multithreading']['enable'] %>
+    nbproc <%= node['gitlab-haproxy']['global']['multithreading']['nbproc'] %>
+    nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
+<% end %>
 
     # Default SSL material locations
     ca-base /etc/ssl/certs

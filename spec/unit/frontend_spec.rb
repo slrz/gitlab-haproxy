@@ -21,6 +21,24 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'using multithreading' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['global']['multithreading']['enable'] = true
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'includes the multithreading options' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('nbproc 1')
+        expect(content).to include('nbthread 1')
+      }
+    end
+  end
+
   context 'using bind options' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|

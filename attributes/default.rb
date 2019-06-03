@@ -7,6 +7,17 @@ default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please see our <a href
 default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'] = 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES'
 default['gitlab-haproxy']['global']['ssl-default-bind-options'] = nil
 
+### Multithreading configuration #####
+default['gitlab-haproxy']['global']['multithreading']['enable'] = false
+#   nbproc should never be changed, we need 1 process for our stick tables
+#   By default, only one process is created, which is the recommended mode
+#   of operation.
+default['gitlab-haproxy']['global']['multithreading']['nbproc'] = '1'
+#   It creates <number> threads for each created processes.
+#   this defaults to 4 on the current HAProxy fleet, 1 thread per core
+default['gitlab-haproxy']['global']['multithreading']['nbthread'] = node['cpu']['total']
+######################################
+
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
