@@ -10,6 +10,10 @@ global
     daemon
     maxconn 50000
     spread-checks 2
+<% if node['gitlab-haproxy']['global']['multithreading']['enable'] %>
+    nbproc <%= node['gitlab-haproxy']['global']['multithreading']['nbproc'] %>
+    nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
+<% end %>
 
     # Default SSL material locations
     ca-base /etc/ssl/certs
