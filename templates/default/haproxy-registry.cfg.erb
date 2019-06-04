@@ -162,6 +162,7 @@ backend registry_gke
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry_gke']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry_gke']['httpchk_host'] %>
+    http-request set-header Host <%= node['gitlab-haproxy']['registry_gke']['httpchk_host'] %>
     <% node['gitlab-haproxy']['registry_gke']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry_gke']['backend_port'] %> check <%= node['gitlab-haproxy']['registry_gke']['default_check_opts'] %>
     <% end %>
@@ -191,6 +192,7 @@ backend canary_registry_gke
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry_gke']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry_gke']['httpchk_host'] %>
+    http-request set-header Host <%= node['gitlab-haproxy']['registry_gke']['httpchk_host'] %>
     <% node['gitlab-haproxy']['canary_registry_gke']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry_gke']['backend_port'] %> check <%= node['gitlab-haproxy']['registry_gke']['default_check_opts'] %>
     <% end %>
