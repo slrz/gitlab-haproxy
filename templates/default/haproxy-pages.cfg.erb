@@ -8,7 +8,7 @@ global
     user haproxy
     group haproxy
     daemon
-    maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+    maxconn <%= node['gitlab-haproxy']['maxconn'] %> # raising in the defaults without raising global makes no sense (!!)
 <% if node['gitlab-haproxy']['global']['multithreading']['enable'] %>
     nbproc <%= node['gitlab-haproxy']['global']['multithreading']['nbproc'] %>
     nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
@@ -27,7 +27,7 @@ global
 defaults
     log global
     option dontlognull
-    maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+    maxconn <%= node['gitlab-haproxy']['maxconn'] %> # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
     timeout client <%= node['gitlab-haproxy']['timeout_client'] %>
