@@ -108,7 +108,6 @@ frontend https
     acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     acl is_asset_path path_beg /assets/
-    acl no_be_srvs_asset_proxy nbsrv(asset_proxy) lt 1
 
     http-request set-var(txn.host) hdr(Host)
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
@@ -137,6 +136,7 @@ frontend https
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
 
     <% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
+    acl no_be_srvs_asset_proxy nbsrv(asset_proxy) lt 1
     ###############################################################
     # Asset routing, all requests for /assets/ are routes to the
     # asset object-storage bucket
@@ -283,11 +283,13 @@ frontend api_rate_limit
 # Backend configuration
 #---------------------------------------------------------------------
 
+<% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
 backend asset_proxy
     mode http
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
     http-request set-header Host <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
     server asset-bucket <%= node['gitlab-haproxy']['frontend']['asset_proxy']['server'] %>:443 <%= node['gitlab-haproxy']['frontend']['asset_proxy']['opts'] %>
+<% end %>
 
 backend api
     mode http
