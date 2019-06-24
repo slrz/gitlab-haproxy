@@ -1,0 +1,57 @@
+# HAProxy config for camoproxy; note that this is solely to provide a control point
+# in front of camoproxy for blocking bad URLs, and perhaps eventually rate-limiting or
+# other such controls, if necessary.
+global
+    log /dev/log len 4096 local0
+    log /dev/log len 4096 local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats socket ipv4@10.0.0.2:23646 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+
+defaults
+    log global
+    option dontlognull
+    maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+    timeout connect 5000
+    timeout check 30000
+    timeout client 90s
+    timeout server 90s
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/403.http
+    errorfile 408 /etc/haproxy/errors/400.http
+    errorfile 429 /etc/haproxy/errors/429.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/500.http
+    errorfile 503 /etc/haproxy/errors/503.http
+    errorfile 504 /etc/haproxy/errors/500.http
+
+listen stats
+    bind 0.0.0.0:7331
+    mode http
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+    stats auth admin:this-is-a-test-password
+    stats admin if TRUE
+
+listen camoproxy
+    bind 0.0.0.0:80
+    mode http
+    option splice-auto
+
+    acl deny-403-url src -f /etc/haproxy/front-end-security/deny-403-urls-camoproxy.lst
+    http-request deny if deny-403-url
+
+    timeout client-fin 5s
+    timeout server-fin 5s
+    timeout server 10s
+
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+
+    server localhost localhost:8080
