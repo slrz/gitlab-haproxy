@@ -20,6 +20,7 @@ default['gitlab-haproxy']['global']['multithreading']['nbthread'] = node['cpu'][
 
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
+default['gitlab-haproxy']['timeout_server_camoproxy'] = '10s'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
 default['gitlab-haproxy']['timeout_server_fin'] = '5s'
 default['gitlab-haproxy']['timeout_tunnel'] = '8s'
@@ -144,3 +145,6 @@ default['gitlab-haproxy']['registry_gke']['default_check_opts'] = 'inter 2s fast
 
 default['gitlab-haproxy']['canary_registry']['servers'] = {}
 default['gitlab-haproxy']['canary_registry_gke']['servers'] = {}
+
+default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
+default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
