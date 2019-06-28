@@ -45,7 +45,11 @@ listen camoproxy
     mode http
     option splice-auto
 
-    acl deny-403-url src -f /etc/haproxy/front-end-security/deny-403-urls-camoproxy.lst
+    # Needs to be 'sub'; cannot be 'str' because we want to be able to block partial URLs (e.g.
+    # entire domains, not just lists of the same URL, and 'beg' would require us to know the
+    # secret to create the HMAC signed first component of the URL, which we can avoid
+    # 'reg' would be bad for performance with a large list, but isn't necessary with 'sub'
+    acl deny-403-url path -i -m sub -f /etc/haproxy/front-end-security/deny-403-urls-camoproxy.lst
     http-request deny if deny-403-url
 
     timeout client-fin 5s
