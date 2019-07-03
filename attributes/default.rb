@@ -139,6 +139,7 @@ default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinte
 
 default['gitlab-haproxy']['registry_gke']['servers'] = {}
 default['gitlab-haproxy']['registry_gke']['backend_port'] = '443'
+default['gitlab-haproxy']['registry_gke']['registry_fqdn'] = 'registry.gitlab.com'
 default['gitlab-haproxy']['registry_gke']['httpchk_host'] = 'registry.gke.gitlab.com'
 default['gitlab-haproxy']['registry_gke']['httpchk_path'] = '/'
 default['gitlab-haproxy']['registry_gke']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 ssl verify none'
