@@ -31,6 +31,16 @@ describe 'gitlab-haproxy::camoproxy' do
         }
         expect(chef_run.template('/etc/haproxy/haproxy.cfg')).to notify('execute[test-haproxy-config]').to(:run).delayed
       end
+
+      it 'creates deny list build script' do
+        expect(chef_run).to create_cookbook_file('/usr/local/bin/build-camoproxy-deny-list.rb').with(
+          mode: '0755'
+        )
+      end
+
+      it 'notifies update deny list' do
+        expect(chef_run.execute('update-camoproxy-deny-list')).to subscribe_to('execute[test-haproxy-config]').on(:run).before
+      end
     end
 
     context 'secrets in Chef vault' do

@@ -28,4 +28,8 @@ control 'haproxy-config-checks' do
   describe file('/etc/haproxy/haproxy.cfg') do
     its('mode') { should cmp '0600' }
   end
+
+  describe file('/usr/local/bin/build-camoproxy-deny-list.rb') do
+    its('mode') { should cmp '0755' }
+  end
 end
