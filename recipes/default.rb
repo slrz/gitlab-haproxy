@@ -56,6 +56,7 @@ end
 git '/etc/haproxy/front-end-security' do
   repository haproxy_secrets['front-end-security']['git_https']
   checkout_branch 'master'
+  enable_checkout false
   action :sync
   notifies :run, 'execute[test-haproxy-config]', :delayed
   timeout 15
