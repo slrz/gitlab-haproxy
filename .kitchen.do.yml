@@ -103,3 +103,14 @@ suites:
         altssh:
           servers:
             ssh01.stg.gitlab.com: 127.0.0.1
+  - name: haproxy-camoproxy
+    run_list:
+      - recipe[gitlab-haproxy::camoproxy]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/camoproxy
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
