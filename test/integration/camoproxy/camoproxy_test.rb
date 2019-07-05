@@ -32,4 +32,10 @@ control 'haproxy-config-checks' do
   describe file('/usr/local/bin/build-camoproxy-deny-list.rb') do
     its('mode') { should cmp '0755' }
   end
+
+  # This file is created by an exec that hooks before the haproxy reload
+  # and it's super important that it is actually created
+  describe file('/etc/haproxy/front-end-security/deny-403-urls-camoproxy.lst') do
+    its('mode') { should cmp '0644' }
+  end
 end
