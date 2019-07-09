@@ -38,7 +38,6 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
-
   context 'using multithreading' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
