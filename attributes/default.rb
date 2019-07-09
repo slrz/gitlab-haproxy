@@ -18,6 +18,13 @@ default['gitlab-haproxy']['global']['multithreading']['nbproc'] = '1'
 default['gitlab-haproxy']['global']['multithreading']['nbthread'] = node['cpu']['total']
 ######################################
 
+# https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#3.1-hard-stop-after
+# Kill connections that remain open when HAProxy receives a SIGUSR1
+# this helps to prevent presistent TCP connections from keeping haproxy
+# processes lingering for a long time after reload
+default['gitlab-haproxy']['global']['hard-stop']['enable'] = false
+default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '30m'
+
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_server_camoproxy'] = '10s'
