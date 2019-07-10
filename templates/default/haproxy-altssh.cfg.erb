@@ -13,6 +13,9 @@ global
     nbproc <%= node['gitlab-haproxy']['global']['multithreading']['nbproc'] %>
     nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
 <% end %>
+<% if node['gitlab-haproxy']['global']['hard-stop']['enable'] %>
+   hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
+<% end %>
 
     # Default SSL material locations
     ca-base /etc/ssl/certs

@@ -49,6 +49,23 @@ describe 'gitlab-haproxy::pages' do
     end
   end
 
+  context 'using hard-stop' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['global']['hard-stop']['enable'] = true
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'includes the hard-stop timeout' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('hard-stop-after 30m')
+      }
+    end
+  end
+
   context 'when multithreading is enabled' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
