@@ -38,4 +38,14 @@ control 'haproxy-config-checks' do
   describe file('/etc/haproxy/front-end-security/deny-403-urls-camoproxy.lst') do
     its('mode') { should cmp '0644' }
   end
+
+  # Test that methods other than a GET or HEAD are rejected by haproxy, with
+  # a 403.  Just a selection of methods tested, for practicality.
+  %w(POST PUT OPTIONS DELETE FOOBAR).each do |method|
+    describe bash("curl -X #{method} -I http://localhost:80/status") do
+      # Look at the header output only, and the first line.  Going to be
+      # more reliable formatting than the rest of haproxy (e.g. after upgrades)
+      its('stdout') { should match %r{^HTTP\/1.0 403 Forbidden} }
+    end
+  end
 end
