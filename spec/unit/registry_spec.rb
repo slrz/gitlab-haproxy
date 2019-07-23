@@ -19,17 +19,6 @@ describe 'gitlab-haproxy::registry' do
         expect(content).to include('use_backend canary_registry if is_canary_path !canary_disabled')
       }
     end
-    it 'routes to the default backends' do
-      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('use_backend registry if no_be_srvs_canary_registry')
-        expect(content).to include('use_backend canary_registry if is_canary_path !canary_disabled')
-        expect(content).to include('use_backend canary_registry if is_canary or is_canary_host')
-        expect(content).to include('default_backend registry')
-        # servers
-        expect(content).to include('server registry-01-sv-gstg registry-01-sv-gstg.internal:5000 check inter 2s fastinter 1s downinter 5s fall 3 port 5001')
-        expect(content).to include('server registry-cny-01-sv-gstg registry-cny-01-sv-gstg.internal:5000 check inter 2s fastinter 1s downinter 5s fall 3 port 5001')
-      }
-    end
     it 'creates registry acls' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include('acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst')
@@ -42,31 +31,6 @@ describe 'gitlab-haproxy::registry' do
     it 'creates the request path regex lst file' do
       expect(chef_run).to render_file('/etc/haproxy/canary-request-paths.lst').with_content { |content|
         expect(content).to include('/gitlab-com')
-      }
-    end
-  end
-
-  context 'with gke configures as the default backend' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['canary_registry']['use_gke_backend'] = true
-        node.normal['gitlab-haproxy']['registry']['use_gke_backend'] = true
-      end.converge(described_recipe)
-    end
-
-    it 'routes to the gke backends' do
-      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('use_backend registry_gke if no_be_srvs_canary_registry')
-        expect(content).to include('use_backend canary_registry_gke if is_canary_path !canary_disabled')
-        expect(content).to include('use_backend canary_registry_gke if is_canary or is_canary_host')
-        expect(content).to include('default_backend registry_gke')
-
-        ## servers
-        expect(content).to include('server registry-01-sv-gstg registry-01-sv-gstg.gke:443 check inter 2s fastinter 1s downinter 5s fall 3 ssl verify none')
-        expect(content).to include('server registry-cny-01-sv-gstg registry-cny-01-sv-gstg.gke:443 check inter 2s fastinter 1s downinter 5s fall 3 ssl verify none')
       }
     end
   end
@@ -142,13 +106,7 @@ describe 'gitlab-haproxy::registry' do
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['registry']['peers']['servers']['fe-registry-01-lb-gstg'] = ['10.65.1.101', '32768']
-
-    node.normal['gitlab-haproxy']['registry']['servers']['registry-01-sv-gstg'] = 'registry-01-sv-gstg.internal'
-    node.normal['gitlab-haproxy']['canary_registry']['servers']['registry-cny-01-sv-gstg'] = 'registry-cny-01-sv-gstg.internal'
-
-    node.normal['gitlab-haproxy']['registry_gke']['servers']['registry-01-sv-gstg'] = 'registry-01-sv-gstg.gke'
-    node.normal['gitlab-haproxy']['canary_registry_gke']['servers']['registry-cny-01-sv-gstg'] = 'registry-cny-01-sv-gstg.gke'
-
+    node.normal['gitlab-haproxy']['registry']['servers']['registry-01-sv-gstg'] = 'registry-01-sv-gstg.c.gitlab-staging-1.internal'
     node.normal['gitlab-haproxy']['registry']['custom_config'] = [
       'http-request deny deny_status 400 if is_bad',
     ]
