@@ -131,28 +131,14 @@ default['gitlab-haproxy']['backend']['rails']['rate_limit_sessions_per_second'] 
 default['gitlab-haproxy']['backend']['rails']['rate_limit_whitelist'] = '127.0.0.1'
 default['gitlab-haproxy']['backend']['rails']['servers'] = {}
 
-# The default backend for canary request path matching
-default['gitlab-haproxy']['canary_registry']['use_gke_backend'] = false
-# The default backend for all other traffic
-default['gitlab-haproxy']['registry']['use_gke_backend'] = false
-
 default['gitlab-haproxy']['registry']['servers'] = {}
+default['gitlab-haproxy']['canary_registry']['servers'] = {}
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
 default['gitlab-haproxy']['registry']['custom_config'] = nil
 default['gitlab-haproxy']['registry']['backend_port'] = '5000'
 default['gitlab-haproxy']['registry']['httpchk_host'] = 'registry.gitlab.com'
 default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
-
-default['gitlab-haproxy']['registry_gke']['servers'] = {}
-default['gitlab-haproxy']['registry_gke']['backend_port'] = '443'
-default['gitlab-haproxy']['registry_gke']['registry_fqdn'] = 'registry.gitlab.com'
-default['gitlab-haproxy']['registry_gke']['httpchk_host'] = 'registry.gke.gitlab.com'
-default['gitlab-haproxy']['registry_gke']['httpchk_path'] = '/'
-default['gitlab-haproxy']['registry_gke']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 ssl verify none'
-
-default['gitlab-haproxy']['canary_registry']['servers'] = {}
-default['gitlab-haproxy']['canary_registry_gke']['servers'] = {}
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
