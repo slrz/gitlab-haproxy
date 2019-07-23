@@ -31,6 +31,11 @@ rspec-test-job:
 
 kitchen-test-job:
   stage: tests
+  artifacts:
+    expire_in: '2d'
+    paths:
+      - .kitchen/
+
   cache:
     paths:
       - $BUNDLE_PATH
