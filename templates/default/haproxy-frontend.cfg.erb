@@ -406,7 +406,7 @@ backend canary_api
 
 backend ssh
     mode tcp
-    balance source
+    balance <%= node['gitlab-haproxy']['frontend']['ssh']['balance'] %>
     option splice-auto
     hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>

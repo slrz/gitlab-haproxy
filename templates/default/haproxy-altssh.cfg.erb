@@ -79,7 +79,7 @@ frontend check_ssh
 
 backend altssh
     mode tcp
-    balance source
+    balance <%= node['gitlab-haproxy']['altssh']['balance'] %>
     option splice-auto
     hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
