@@ -151,7 +151,10 @@ backend registry
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>
     <% node['gitlab-haproxy']['registry']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> <% if node['gitlab-haproxy']['registry']['use_weights'] %>weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
+    <% end %>
+    <% node['gitlab-haproxy']['gke_registry']['servers'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> <% if node['gitlab-haproxy']['registry']['use_weights'] %>weight <%= node['gitlab-haproxy']['gke_registry']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
     <% end %>
 
 backend canary_registry

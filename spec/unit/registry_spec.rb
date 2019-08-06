@@ -4,6 +4,25 @@ require 'chef-vault/test_fixtures'
 describe 'gitlab-haproxy::registry' do
   include ChefVault::TestFixtures.rspec_shared_context
 
+  context 'with gke weighted servers' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['registry']['use_weights'] = true
+        node.normal['gitlab-haproxy']['gke_registry']['servers'] = { 'gke-foo': '127.0.0.1' }
+      end.converge(described_recipe)
+    end
+
+    it 'creates a set of gke specific servers with weights' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('server registry-01-sv-gstg registry-01-sv-gstg.c.gitlab-staging-1.internal:5000 weight 100')
+        expect(content).to include('server gke-foo 127.0.0.1:5000 weight 0')
+      }
+    end
+  end
+
   context 'with internal request routing' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|

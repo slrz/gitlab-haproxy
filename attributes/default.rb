@@ -141,6 +141,10 @@ default['gitlab-haproxy']['registry']['backend_port'] = '5000'
 default['gitlab-haproxy']['registry']['httpchk_host'] = 'registry.gitlab.com'
 default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
+default['gitlab-haproxy']['registry']['use_weights'] = false
+default['gitlab-haproxy']['registry']['default_weight'] = '100'
+default['gitlab-haproxy']['gke_registry']['default_weight'] = '0'
+default['gitlab-haproxy']['gke_registry']['servers'] = {}
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
