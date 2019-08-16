@@ -44,9 +44,9 @@ defaults
     errorfile 408 /etc/haproxy/errors/400.http
     errorfile 429 /etc/haproxy/errors/429.http
     errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/500.http
+    errorfile 504 /etc/haproxy/errors/504.http
 
 listen stats
     bind <%= node['gitlab-haproxy']['listen_address'] %>:7331

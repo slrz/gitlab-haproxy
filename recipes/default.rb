@@ -43,13 +43,18 @@ end
 cookbook_file '/etc/haproxy/errors/500.http' do
   source 'haproxy-errors-500.http'
 end
-
+cookbook_file '/etc/haproxy/errors/502.http' do
+  source 'haproxy-errors-502.http'
+end
 cookbook_file '/etc/haproxy/errors/bad_ref.http' do
   source 'haproxy-errors-bad-ref.http'
 end
 
 template '/etc/haproxy/errors/503.http' do
   source 'haproxy-errors-503.http.erb'
+end
+cookbook_file '/etc/haproxy/errors/504.http' do
+  source 'haproxy-errors-504.http'
 end
 
 # blacklist for incoming requests
