@@ -49,6 +49,12 @@ describe 'gitlab-haproxy::default' do
       expect(chef_run).to create_cookbook_file('/etc/haproxy/errors/500.http').with(
         source: 'haproxy-errors-500.http'
       )
+      expect(chef_run).to create_cookbook_file('/etc/haproxy/errors/502.http').with(
+        source: 'haproxy-errors-502.http'
+      )
+      expect(chef_run).to create_cookbook_file('/etc/haproxy/errors/504.http').with(
+        source: 'haproxy-errors-504.http'
+      )
       expect(chef_run).to create_cookbook_file('/etc/haproxy/errors/bad_ref.http').with(
         source: 'haproxy-errors-bad-ref.http'
       )
