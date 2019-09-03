@@ -337,7 +337,9 @@ backend web
     option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
+    <% end %>
     <% if node['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] %>
     rspadd Access-Control-Allow-Headers:<%= node['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'].gsub(/ /, '\ ').gsub("'"){"\\'"} %> if { capture.req.hdr(0) -m found }
     <% end %>

@@ -38,6 +38,41 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'Content Security Policy' do
+    context 'enabled CSP' do
+      let(:chef_run) do
+        ChefSpec::SoloRunner.new do |node|
+          populate_node_properties(node)
+          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        end.converge(described_recipe)
+      end
+
+      it 'includes the Content-Security-Policy header' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).to include(%(rspadd Content-Security-Policy:\\ default-src\\ \\'self\\'))
+        }
+      end
+    end
+
+    context 'disabled CSP' do
+      let(:chef_run) do
+        ChefSpec::SoloRunner.new do |node|
+          populate_node_properties(node)
+          node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = nil
+          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        end.converge(described_recipe)
+      end
+
+      it 'omits the Content-Security-Policy header' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).not_to include('rspadd Content-Security Policy')
+        }
+      end
+    end
+  end
+
   context 'using multithreading' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
