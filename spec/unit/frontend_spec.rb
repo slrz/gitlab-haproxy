@@ -59,7 +59,7 @@ describe 'gitlab-haproxy::frontend' do
       let(:chef_run) do
         ChefSpec::SoloRunner.new do |node|
           populate_node_properties(node)
-          node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = nil
+          node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = false
           node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
           node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
         end.converge(described_recipe)

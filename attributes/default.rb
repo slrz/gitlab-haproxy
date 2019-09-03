@@ -63,6 +63,7 @@ default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
 
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
+default['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 # Access control headers disabled because of https://gitlab.com/gitlab-com/gl-infra/production/issues/724
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] = false
@@ -70,6 +71,7 @@ default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['he
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['web_runoff']['servers'] = {}
 
+default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
