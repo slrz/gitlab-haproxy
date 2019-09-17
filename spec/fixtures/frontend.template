@@ -68,6 +68,7 @@ frontend http
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
+
     http-request redirect code 301 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
     http-request redirect scheme https code 301
 
@@ -105,6 +106,9 @@ frontend https
     http-request set-header X-SSL %[ssl_fc]
     http-request deny deny_status 400 if is_legacy_ci_runner
     http-request deny deny_status 400 if is_ancient_ci_runner
+
+    http-response set-header GitLab-LB Fauxhai
+    http-response set-header GitLab-SV %s
 
     acl whitelist_internal src -f /etc/haproxy/whitelist-internal.lst
     http-request allow if whitelist_internal
