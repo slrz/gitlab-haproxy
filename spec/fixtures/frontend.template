@@ -342,11 +342,11 @@ backend ssh
     hash-type consistent
     timeout server-fin 5s
     timeout server 2h
-    # We need to check port 443 and not 22. The assumption here is that ssh won't work
+    # The default check port is 443 and not 22. The assumption here is that ssh won't work
     # if rails isn't running and they're both running on the same host.
     # We need to change this when we split rails to a separate cluster.
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 inter 2s fastinter 1s downinter 5s fall 3 verify none
+    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend websockets
     mode http
