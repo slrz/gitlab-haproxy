@@ -441,6 +441,7 @@ backend websockets
     option http-server-close
     timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
     cookie _gitlab_session prefix nocache
+    option httpchk GET <%= node['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['websockets']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['websockets']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['websockets']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none cookie <%= name %>
     <% end %>

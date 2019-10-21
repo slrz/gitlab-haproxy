@@ -81,6 +81,8 @@ default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_ena
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3'
 default['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = false
