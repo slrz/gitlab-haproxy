@@ -306,11 +306,11 @@ backend api
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['api']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['api']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['api']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['api']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
     <% if node['gitlab-haproxy']['frontend']['use_weights'] %>
     <% node['gitlab-haproxy']['frontend']['canary_api']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_api']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_api']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
     <% end %>
 
@@ -327,11 +327,11 @@ backend https_git
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['https_git']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['https_git']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['https_git']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
     <% if node['gitlab-haproxy']['frontend']['use_weights'] %>
     <% node['gitlab-haproxy']['frontend']['canary_https_git']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
     <% end %>
 
@@ -354,11 +354,11 @@ backend web
     <% end %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['web']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['web']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
     <% if node['gitlab-haproxy']['frontend']['use_weights'] %>
     <% node['gitlab-haproxy']['frontend']['canary_web']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_web']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_web']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
     <% end %>
 
@@ -373,7 +373,7 @@ backend web_runoff
     <% end %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['web_runoff']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
 
 backend canary_web
@@ -389,7 +389,7 @@ backend canary_web
     <% end %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['web']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['web']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['canary_web']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
 
 backend canary_https_git
@@ -400,7 +400,7 @@ backend canary_https_git
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['canary_https_git']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
 
 backend canary_api
@@ -411,7 +411,7 @@ backend canary_api
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['api']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['api']['httpchk_host'] %>
     <% node['gitlab-haproxy']['frontend']['canary_api']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
 
 backend ssh
@@ -442,11 +442,11 @@ backend websockets
     timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
     cookie _gitlab_session prefix nocache
     <% node['gitlab-haproxy']['frontend']['websockets']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['websockets']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['websockets']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> cookie <%= name %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['websockets']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['websockets']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none cookie <%= name %>
     <% end %>
     <% if node['gitlab-haproxy']['frontend']['use_weights'] %>
     <% node['gitlab-haproxy']['frontend']['canary_websockets']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['websockets']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> cookie <%= name %>
+    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['websockets']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none cookie <%= name %>
     <% end %>
     <% end %>
 
