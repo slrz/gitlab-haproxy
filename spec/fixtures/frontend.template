@@ -269,7 +269,7 @@ backend api
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend api_rate_limit
     option splice-auto
@@ -283,7 +283,7 @@ backend https_git
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend web
     mode http
@@ -293,7 +293,7 @@ backend web
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend web_runoff
     mode http
@@ -303,7 +303,7 @@ backend web_runoff
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend canary_web
     mode http
@@ -315,7 +315,7 @@ backend canary_web
     http-response set-header X-Robots-Tag noindex if { var(txn.host) -m beg canary }
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend canary_https_git
     mode http
@@ -324,7 +324,7 @@ backend canary_https_git
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend canary_api
     mode http
@@ -333,7 +333,7 @@ backend canary_api
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend ssh
     mode tcp
@@ -342,11 +342,11 @@ backend ssh
     hash-type consistent
     timeout server-fin 5s
     timeout server 2h
-    # We need to check port 443 and not 22. The assumption here is that ssh won't work
+    # The default check port is 443 and not 22. The assumption here is that ssh won't work
     # if rails isn't running and they're both running on the same host.
     # We need to change this when we split rails to a separate cluster.
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 inter 2s fastinter 1s downinter 5s fall 3 verify none
+    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3
 
 backend websockets
     mode http
@@ -355,7 +355,7 @@ backend websockets
     option http-server-close
     timeout tunnel 8s
     cookie _gitlab_session prefix nocache
-    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
+    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl ssl verify none inter 2s fastinter 1s downinter 5s fall 3 cookie web01.stg.gitlab.com
 
 backend 429_slow_down
     mode http
