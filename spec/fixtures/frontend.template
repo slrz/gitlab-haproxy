@@ -355,6 +355,7 @@ backend websockets
     option http-server-close
     timeout tunnel 8s
     cookie _gitlab_session prefix nocache
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
 
 backend 429_slow_down
