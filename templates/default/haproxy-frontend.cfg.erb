@@ -304,7 +304,7 @@ backend api
     option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% node['gitlab-haproxy']['frontend']['api']['servers'].each do |name, ip| %>
     server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['api']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
     <% end %>
