@@ -243,7 +243,6 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
-
   def populate_node_properties_with_weights(node)
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['frontend']['use_weights'] = true

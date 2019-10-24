@@ -28,13 +28,13 @@ default['gitlab-haproxy']['global']['tcp_checks'] =
   [
     {
       'port' => '8083',
-      'path' => '/readiness'
+      'path' => '/readiness',
     },
     {
       'port' => '443',
       'ssl' => true,
-      'path' => '/-/health'
-    }
+      'path' => '/-/health',
+    },
   ]
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
@@ -91,7 +91,6 @@ default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['en
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'] = ' X-Requested-With'
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 default['gitlab-haproxy']['frontend']['web_runoff']['servers'] = {}
-
 
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
