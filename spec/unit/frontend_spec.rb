@@ -295,12 +295,12 @@ describe 'gitlab-haproxy::frontend' do
     tcp-check send GET\ /readiness\ HTTP/1.0\r\n
     tcp-check send Host:\ gitlab.com\r\n
     tcp-check send \r\n
-    tcp-check expect rstring "200 OK"
+    tcp-check expect rstring HTTP/1\..\ 2..
     tcp-check connect port 443 ssl
     tcp-check send GET\ /-/health\ HTTP/1.0\r\n
     tcp-check send Host:\ gitlab.com\r\n
     tcp-check send \r\n
-    tcp-check expect rstring "200 OK"
+    tcp-check expect rstring HTTP/1\..\ 2..
     CHK_WEB
   end
 end
