@@ -24,7 +24,18 @@ default['gitlab-haproxy']['global']['multithreading']['nbthread'] = node['cpu'][
 # processes lingering for a long time after reload
 default['gitlab-haproxy']['global']['hard-stop']['enable'] = false
 default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '30m'
-
+default['gitlab-haproxy']['global']['tcp_checks'] =
+  [
+    {
+      'port' => '8083',
+      'path' => '/readiness',
+    },
+    {
+      'port' => '443',
+      'ssl' => true,
+      'path' => '/-/health',
+    },
+  ]
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
 default['gitlab-haproxy']['timeout_check'] = '30000'
@@ -50,9 +61,11 @@ default['gitlab-haproxy']['frontend']['api']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] = '600'
 default['gitlab-haproxy']['frontend']['api']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['https_git']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] = '4444'
@@ -62,6 +75,7 @@ default['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] = '127.0.
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['ssh']['check_opts'] = 'check-ssl port 443 verify none'
+default['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['ssh']['port'] = '22'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
@@ -69,6 +83,7 @@ default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['web']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
 # Access control headers disabled because of https://gitlab.com/gitlab-com/gl-infra/production/issues/724
@@ -81,6 +96,7 @@ default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_ena
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
