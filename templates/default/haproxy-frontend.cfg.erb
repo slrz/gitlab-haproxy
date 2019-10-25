@@ -426,7 +426,7 @@ backend ssh
     # We need to change this when we split rails to a separate cluster.
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['ssh'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% node['gitlab-haproxy']['frontend']['ssh']['servers'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['ssh']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['ssh']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> check-ssl verify none
     <% end %>
     <% if node['gitlab-haproxy']['frontend']['use_weights'] %>
     <% node['gitlab-haproxy']['frontend']['canary_ssh']['servers'].each do |name, ip| %>
