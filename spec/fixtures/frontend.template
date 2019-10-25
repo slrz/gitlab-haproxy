@@ -346,7 +346,7 @@ backend ssh
     # if rails isn't running and they're both running on the same host.
     # We need to change this when we split rails to a separate cluster.
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3
+    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend websockets
     mode http
