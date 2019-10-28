@@ -219,6 +219,31 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with tcp-check' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
+        node.normal['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['web_runoff']['tcp_check_enable'] = true
+      end.converge(described_recipe)
+    end
+
+    it 'enables tcp check for web' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3 check-ssl verify none')
+        expect(content.scan(tcp_check).size).to eq(9)
+      }
+    end
+  end
+
   def populate_node_properties_with_weights(node)
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
@@ -262,5 +287,21 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['canary_ssh']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['canary_https_git']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['canary_websockets']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  end
+
+  def tcp_check
+    <<-'CHK_WEB'
+    option tcp-check
+    tcp-check connect port 8083
+    tcp-check send GET\ /readiness\ HTTP/1.0\r\n
+    tcp-check send Host:\ gitlab.com\r\n
+    tcp-check send \r\n
+    tcp-check expect rstring HTTP/1\..\ 2..
+    tcp-check connect port 443 ssl
+    tcp-check send GET\ /-/health\ HTTP/1.0\r\n
+    tcp-check send Host:\ gitlab.com\r\n
+    tcp-check send \r\n
+    tcp-check expect rstring HTTP/1\..\ 2..
+    CHK_WEB
   end
 end
