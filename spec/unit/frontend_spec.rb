@@ -238,6 +238,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'enables tcp check for web' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3 check-ssl verify none')
         expect(content.scan(tcp_check).size).to eq(9)
       }
     end
