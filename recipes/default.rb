@@ -82,6 +82,34 @@ execute 'test-haproxy-config' do
   action :nothing
 end
 
+remote_file '/etc/haproxy/cloudflare_ips_v4.lst' do
+  source 'https://www.cloudflare.com/ips-v4'
+  mode '0644'
+  atomic_update true
+  retries 3
+  action :create
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+
+  # Prevent an update and reload on every chef-run
+  # Since cloudlfare sets an etag we can use that.
+  use_conditional_get true
+  use_etag true
+end
+
+remote_file '/etc/haproxy/cloudflare_ips_v6.lst' do
+  source 'https://www.cloudflare.com/ips-v6'
+  mode '0644'
+  atomic_update true
+  retries 3
+  action :create
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+
+  # Prevent an update and reload on every chef-run
+  # Since cloudlfare sets an etag we can use that.
+  use_conditional_get true
+  use_etag true
+end
+
 cookbook_file '/etc/cron.hourly/logrotate' do
   source 'logrotate-cron'
   owner 'root'

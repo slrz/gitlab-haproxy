@@ -45,6 +45,22 @@ control 'haproxy-config-checks' do
     its('protocols') { should eq ['tcp'] }
   end
 
+  describe file('/etc/haproxy/cloudflare_ips_v4.lst') do
+    it { should be_file }
+    its('type') do should eq :file end
+    its('owner') do should eq 'root' end
+    its('group') do should eq 'root' end
+    its('mode') { should cmp '0644' }
+  end
+
+  describe file('/etc/haproxy/cloudflare_ips_v6.lst') do
+    it { should be_file }
+    its('type') do should eq :file end
+    its('owner') do should eq 'root' end
+    its('group') do should eq 'root' end
+    its('mode') { should cmp '0644' }
+  end
+
   describe file('/etc/haproxy/haproxy.cfg') do
     its('mode') { should cmp '0600' }
   end

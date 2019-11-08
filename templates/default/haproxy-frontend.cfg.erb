@@ -97,6 +97,8 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request connection track-sc1 src
 
+<%= render 'partial_cloudflare.erb' -%>
+
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -252,6 +254,13 @@ frontend api_rate_limit
     option splice-auto
     stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request content track-sc1 src
+
+    <%
+      # Because of cloudflare, this logic does not work (we would rate-limit cloudflare IPs)
+      # by setting the following value to false, there is no change to how requests are handled,
+      # but the actual headers and 429 are disabled, effectively disabling enforcement of the rate limit.
+    %>
+    <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] -%>
     acl is_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
     http-request set-var(txn.src_http_req_rate) src_http_req_rate
     http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
@@ -260,6 +269,7 @@ frontend api_rate_limit
     http-response set-header RateLimit-Reset %[date(60)]
     http-response set-header RateLimit-ResetTime %[date(60),http_date]
     use_backend 429_slow_down if is_rate_abuse
+    <% end %>
 
     acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
@@ -301,7 +311,6 @@ backend asset_proxy
 backend api
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -322,7 +331,6 @@ backend api_rate_limit
 backend https_git
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['https_git'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -338,7 +346,6 @@ backend https_git
 backend web
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
@@ -365,7 +372,6 @@ backend web
 backend web_runoff
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
@@ -379,7 +385,6 @@ backend web_runoff
 backend canary_web
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     acl is_canary_host hdr_beg(host) -i canary
@@ -395,7 +400,6 @@ backend canary_web
 backend canary_https_git
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['https_git'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -406,7 +410,6 @@ backend canary_https_git
 backend canary_api
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
