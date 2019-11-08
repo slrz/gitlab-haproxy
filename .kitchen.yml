@@ -38,19 +38,6 @@ suites:
             servers:
               web01.stg.gitlab.com: 127.0.0.1
 
-
-  - name: haproxy-backend
-    run_list:
-      - recipe[gitlab-haproxy::backend]
-    attributes:
-      gitlab-haproxy:
-        chef_vault: secrets
-        chef_vault_item: certs
-        backend:
-          rails:
-            servers:
-              rails01.be.gitlab.com: 127.0.0.1
-
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
