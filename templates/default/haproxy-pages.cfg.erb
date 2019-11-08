@@ -58,6 +58,8 @@ frontend pages_http
     mode http
     option splice-auto
 
+<%= render 'partial_cloudflare.erb' -%>
+
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
 

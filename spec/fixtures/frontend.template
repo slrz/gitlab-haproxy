@@ -83,6 +83,12 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
     tcp-request connection track-sc1 src
 
+    acl from_cf_v4 src -f /etc/haproxy/cloudflare_ips_v4.lst
+    acl from_cf_v6 src -f /etc/haproxy/cloudflare_ips_v6.lst
+    acl cf_ip_hdr req.hdr(CF-Connecting-IP) -m found
+    http-request set-header X-Forwarded-For %[req.hdr(CF-Connecting-IP)] if from_cf_v4 cf_ip_hdr || from_cf_v6 cf_ip_hdr
+    http-request set-header X-Forwarded-For %[src] if !from_cf_v4 || !from_cf_v6 || !cf_ip_hdr
+
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -225,6 +231,7 @@ frontend api_rate_limit
     option splice-auto
     stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) peers frontend-peers
     tcp-request content track-sc1 src
+
     acl is_rate_abuse src_http_req_rate gt 600
     http-request set-var(txn.src_http_req_rate) src_http_req_rate
     http-response set-header RateLimit-Limit 600
@@ -265,7 +272,6 @@ frontend api_rate_limit
 backend api
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
@@ -279,7 +285,6 @@ backend api_rate_limit
 backend https_git
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
@@ -288,7 +293,6 @@ backend https_git
 backend web
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
@@ -298,7 +302,6 @@ backend web
 backend web_runoff
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
@@ -308,7 +311,6 @@ backend web_runoff
 backend canary_web
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     acl is_canary_host hdr_beg(host) -i canary
@@ -320,7 +322,6 @@ backend canary_web
 backend canary_https_git
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
@@ -329,7 +330,6 @@ backend canary_https_git
 backend canary_api
     mode http
     balance roundrobin
-    option forwardfor
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
