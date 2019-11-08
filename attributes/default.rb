@@ -152,14 +152,6 @@ default['gitlab-haproxy']['pages']['servers'] = {}
 default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
 default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 
-default['gitlab-haproxy']['backend']['rails']['custom_config'] = nil
-default['gitlab-haproxy']['backend']['rails']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['backend']['rails']['httpchk_path'] = '/'
-default['gitlab-haproxy']['backend']['rails']['rate_limit_frontend_port'] = '7001'
-default['gitlab-haproxy']['backend']['rails']['rate_limit_sessions_per_second'] = '20'
-default['gitlab-haproxy']['backend']['rails']['rate_limit_whitelist'] = '127.0.0.1'
-default['gitlab-haproxy']['backend']['rails']['servers'] = {}
-
 default['gitlab-haproxy']['registry']['servers'] = {}
 default['gitlab-haproxy']['canary_registry']['servers'] = {}
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
