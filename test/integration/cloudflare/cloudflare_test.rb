@@ -13,9 +13,9 @@ control 'haproxy-config-checks' do
       * haproxy configuration uses cloudflare ACLs
       * haproxy rate-limiting is not in effect'
 
-# Attributes expected:
-# node['gitlab-haproxy']['cloudflare']['enable'] = true
-# node['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = false
+  # Attributes expected:
+  # node['gitlab-haproxy']['cloudflare']['enable'] = true
+  # node['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = false
 
   describe file('/etc/haproxy/cloudflare_ips_v4.lst') do
     it { should be_file }
@@ -34,9 +34,9 @@ control 'haproxy-config-checks' do
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('mode') { should cmp '0600' }
-    its('content') { should match /if from_cf cf_ip_hdr/ }
-    its('content') { should_not match /option forwardfor/ }
-    its('content') { should_not match /use_backend 429_slow_down/ }
+    its('mode') do should cmp '0600' end
+    its('content') do should match /if from_cf cf_ip_hdr/ end
+    its('content') do should_not match /option forwardfor/ end
+    its('content') do should_not match /use_backend 429_slow_down/ end
   end
 end

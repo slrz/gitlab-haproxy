@@ -71,7 +71,7 @@ suites:
         chef_vault: secrets
         chef_vault_item: certs
         cloudflare:
-          enabled: true
+          enable: true
         frontend:
           api_rate_limit:
             enforced: false
