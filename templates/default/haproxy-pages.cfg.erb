@@ -61,7 +61,9 @@ frontend pages_http
 <%= render 'partial_cloudflare.erb' -%>
 
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    acl deny-403-domain req.hdr(host) -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
     http-request deny if deny-403-ip
+    http-request deny if deny-403-domain
 
     capture request header Host len 40
 
@@ -77,7 +79,9 @@ frontend pages_https
     option splice-auto
 
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    acl deny-403-domain req.hdr(host) -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
     http-request deny if deny-403-ip
+    http-request deny if deny-403-domain
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
