@@ -20,18 +20,16 @@ package 'haproxy' do
 end
 
 package 'logrotate'
+package 'socat'
 
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
 node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
 
-directory '/etc/haproxy/ssl' do
-  mode '0700'
-  recursive true
-end
-
-directory '/etc/haproxy/errors' do
-  mode '0700'
-  recursive true
+%w(/etc/haproxy/ssl /etc/haproxy/errors /etc/haproxy/state /etc/systemd/system/haproxy.service.d).each do |dir|
+  directory dir do
+    mode '0700'
+    recursive true
+  end
 end
 
 cookbook_file '/etc/haproxy/errors/400.http' do
@@ -122,4 +120,15 @@ cookbook_file '/etc/logrotate.d/haproxy' do
   owner 'root'
   group 'root'
   mode '0644'
+end
+
+cookbook_file '/etc/systemd/system/haproxy.service.d/override.conf' do
+  mode '0644'
+  notifies :run, 'execute[systemd reload]', :delayed
+  action node['gitlab-haproxy']['systemd_service_overrides']['enable'] ? :create : :delete
+end
+
+execute 'systemd reload' do
+  command 'systemctl daemon-reload'
+  action :nothing
 end

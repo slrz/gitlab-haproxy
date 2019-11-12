@@ -20,6 +20,7 @@ global
     ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES
     # Keep DH params size at 1024 for Java 6 HTTPS clients
     tune.ssl.default-dh-param 1024
+    server-state-file /etc/haproxy/state/global
 
 defaults
     log global
@@ -37,6 +38,7 @@ defaults
     errorfile 502 /etc/haproxy/errors/500.http
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/500.http
+    load-server-state-from-file global
 
 listen stats
     bind 0.0.0.0:7331
