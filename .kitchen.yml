@@ -86,6 +86,10 @@ suites:
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/pages
     attributes:
       gitlab-haproxy:
         chef_vault: secrets
@@ -97,6 +101,10 @@ suites:
   - name: haproxy-altssh
     run_list:
       - recipe[gitlab-haproxy::altssh]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/altssh
     attributes:
       gitlab-haproxy:
         chef_vault: secrets
@@ -105,7 +113,7 @@ suites:
           servers:
             ssh01.stg.gitlab.com: 127.0.0.1
 
-  - name: registry
+  - name: haproxy-registry
     run_list:
       - recipe[gitlab-haproxy::registry]
     attributes:
@@ -115,3 +123,15 @@ suites:
         registry:
           servers:
             registry01.be.gitlab.com: 127.0.0.1
+
+  - name: haproxy-camoproxy
+    run_list:
+      - recipe[gitlab-haproxy::camoproxy]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/camoproxy
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs

@@ -125,6 +125,20 @@ suites:
           servers:
             ssh01.stg.gitlab.com: 127.0.0.1
 
+  - name: haproxy-registry
+    run_list:
+      - recipe[gitlab-haproxy::registry]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        registry:
+          servers:
+            registry01.be.gitlab.com: 127.0.0.1
+
   - name: haproxy-camoproxy
     run_list:
       - recipe[gitlab-haproxy::camoproxy]
