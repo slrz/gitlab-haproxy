@@ -1,3 +1,6 @@
+### Save HAProxy state on reload
+default['gitlab-haproxy']['systemd_service_overrides']['enable'] = true
+
 default['gitlab-haproxy']['secrets']['backend'] = 'chef_vault'
 default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'
 default['gitlab-haproxy']['secrets']['key'] = '_default'

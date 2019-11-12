@@ -10,6 +10,7 @@ global
     daemon
     maxconn 50000
     spread-checks 2
+    server-state-file /etc/haproxy/state/global
 
     # Default SSL material locations
     ca-base /etc/ssl/certs
@@ -37,6 +38,7 @@ defaults
     errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/504.http
+    load-server-state-from-file global
 
 listen stats
     bind 0.0.0.0:7331
