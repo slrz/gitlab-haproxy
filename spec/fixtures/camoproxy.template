@@ -47,12 +47,6 @@ listen camoproxy
     mode http
     option splice-auto
 
-    acl from_cf_v4 src -f /etc/haproxy/cloudflare_ips_v4.lst
-    acl from_cf_v6 src -f /etc/haproxy/cloudflare_ips_v6.lst
-    acl cf_ip_hdr req.hdr(CF-Connecting-IP) -m found
-    http-request set-header X-Forwarded-For %[req.hdr(CF-Connecting-IP)] if from_cf_v4 cf_ip_hdr || from_cf_v6 cf_ip_hdr
-    http-request set-header X-Forwarded-For %[src] if !from_cf_v4 || !from_cf_v6 || !cf_ip_hdr
-
     # Limit which methods can be used; there's no need for anything other than GET or HEAD
     # to camoproxy, and anything else could possibly be abused
     http-request deny unless METH_GET
