@@ -64,6 +64,9 @@ frontend pages_http
     mode http
     option splice-auto
 
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+<%= render 'partial_cloudflare.erb' -%>
+<% end %>
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
 
@@ -107,7 +110,9 @@ backend pages_http
     mode http
     balance source
     hash-type consistent
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
+<% end %>
     option splice-auto
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>

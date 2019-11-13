@@ -51,6 +51,9 @@ listen camoproxy
     mode http
     option splice-auto
 
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+<%= render 'partial_cloudflare.erb' -%>
+<% end %>
     # Limit which methods can be used; there's no need for anything other than GET or HEAD
     # to camoproxy, and anything else could possibly be abused
     http-request deny unless METH_GET

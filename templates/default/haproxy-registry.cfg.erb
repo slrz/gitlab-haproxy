@@ -90,6 +90,10 @@ frontend https
     mode http
     option splice-auto
 
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+<%= render 'partial_cloudflare.erb' -%>
+<% end %>
+
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
 
@@ -151,7 +155,9 @@ frontend check_https
 backend registry
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>
@@ -165,7 +171,9 @@ backend registry
 backend canary_registry
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>

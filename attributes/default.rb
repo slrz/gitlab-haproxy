@@ -103,6 +103,7 @@ default['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
+default['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = true
 default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3'
 default['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = false
 default['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] = '/info'
@@ -155,14 +156,6 @@ default['gitlab-haproxy']['pages']['servers'] = {}
 default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
 default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 
-default['gitlab-haproxy']['backend']['rails']['custom_config'] = nil
-default['gitlab-haproxy']['backend']['rails']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['backend']['rails']['httpchk_path'] = '/'
-default['gitlab-haproxy']['backend']['rails']['rate_limit_frontend_port'] = '7001'
-default['gitlab-haproxy']['backend']['rails']['rate_limit_sessions_per_second'] = '20'
-default['gitlab-haproxy']['backend']['rails']['rate_limit_whitelist'] = '127.0.0.1'
-default['gitlab-haproxy']['backend']['rails']['servers'] = {}
-
 default['gitlab-haproxy']['registry']['servers'] = {}
 default['gitlab-haproxy']['canary_registry']['servers'] = {}
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
@@ -178,3 +171,5 @@ default['gitlab-haproxy']['gke_registry']['servers'] = {}
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
+
+default['gitlab-haproxy']['cloudflare']['enable'] = false
