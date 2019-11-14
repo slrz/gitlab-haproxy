@@ -57,6 +57,44 @@ suites:
             servers:
               web01.stg.gitlab.com: 127.0.0.1
 
+  - name: haproxy-frontend-cloudflare
+    run_list:
+      - recipe[gitlab-haproxy::frontend]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/frontend
+        - test/integration/cloudflare
+    attributes:
+      gitlab-haproxy:
+        api_address: 0.0.0.0  # for integration tests
+        chef_vault: secrets
+        chef_vault_item: certs
+        cloudflare:
+          enable: true
+        frontend:
+          api_rate_limit:
+            enforced: false
+          api:
+            servers:
+              api01.stg.gitlab.com: 127.0.0.1
+          https_git:
+            servers:
+              git01.stg.gitlab.com: 127.0.0.1
+          registry:
+            servers:
+              registry01.be.gitlab.com: 127.0.0.1
+          ssh:
+            port: 2222
+            servers:
+              git01.stg.gitlab.com: 127.0.0.1
+          web:
+            servers:
+              web01.stg.gitlab.com: 127.0.0.1
+          websockets:
+            servers:
+              web01.stg.gitlab.com: 127.0.0.1
+
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
@@ -86,6 +124,20 @@ suites:
         altssh:
           servers:
             ssh01.stg.gitlab.com: 127.0.0.1
+
+  - name: haproxy-registry
+    run_list:
+      - recipe[gitlab-haproxy::registry]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:
+      gitlab-haproxy:
+        chef_vault: secrets
+        chef_vault_item: certs
+        registry:
+          servers:
+            registry01.be.gitlab.com: 127.0.0.1
 
   - name: haproxy-camoproxy
     run_list:

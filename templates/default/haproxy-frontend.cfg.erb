@@ -15,7 +15,10 @@ global
     nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
 <% end %>
 <% if node['gitlab-haproxy']['global']['hard-stop']['enable'] %>
-   hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
+    hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
+<% end %>
+<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    server-state-file /etc/haproxy/state/global
 <% end %>
 
     # Default SSL material locations
@@ -47,6 +50,9 @@ defaults
     errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/504.http
+<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    load-server-state-from-file global
+<% end %>
 
 listen stats
     bind <%= node['gitlab-haproxy']['listen_address'] %>:7331
@@ -97,8 +103,9 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request connection track-sc1 src
 
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
 <%= render 'partial_cloudflare.erb' -%>
-
+<% end %>
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -254,7 +261,6 @@ frontend api_rate_limit
     option splice-auto
     stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     tcp-request content track-sc1 src
-
     <%
       # Because of cloudflare, this logic does not work (we would rate-limit cloudflare IPs)
       # by setting the following value to false, there is no change to how requests are handled,
@@ -311,6 +317,9 @@ backend asset_proxy
 backend api
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -331,6 +340,9 @@ backend api_rate_limit
 backend https_git
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['https_git'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -346,6 +358,9 @@ backend https_git
 backend web
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
@@ -372,6 +387,9 @@ backend web
 backend web_runoff
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
@@ -385,6 +403,9 @@ backend web_runoff
 backend canary_web
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     acl is_canary_host hdr_beg(host) -i canary
@@ -400,6 +421,9 @@ backend canary_web
 backend canary_https_git
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['https_git'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -410,6 +434,9 @@ backend canary_https_git
 backend canary_api
     mode http
     balance roundrobin
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    option forwardfor
+<% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>

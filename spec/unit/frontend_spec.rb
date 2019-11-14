@@ -244,6 +244,39 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with systemd override' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'creates the systemd overrides' do
+      expect(chef_run).to create_directory('/etc/haproxy/state')
+      expect(chef_run).to create_directory('/etc/systemd/system/haproxy.service.d')
+      expect(chef_run).to render_file('/etc/systemd/system/haproxy.service.d/override.conf').with_content { |content|
+        expect(content).to include('ExecReload=/bin/bash -c')
+      }
+    end
+  end
+
+  context 'with systemd override disabled' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['systemd_service_overrides']['enable'] = false
+      end.converge(described_recipe)
+    end
+
+    it 'does not creates the systemd overrides' do
+      expect(chef_run).not_to render_file('/etc/systemd/system/haproxy.service.d/override.conf')
+    end
+  end
+
   def populate_node_properties_with_weights(node)
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['frontend']['use_weights'] = true

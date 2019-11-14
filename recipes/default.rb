@@ -20,18 +20,16 @@ package 'haproxy' do
 end
 
 package 'logrotate'
+package 'socat'
 
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
 node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
 
-directory '/etc/haproxy/ssl' do
-  mode '0700'
-  recursive true
-end
-
-directory '/etc/haproxy/errors' do
-  mode '0700'
-  recursive true
+%w(/etc/haproxy/ssl /etc/haproxy/errors /etc/haproxy/state /etc/systemd/system/haproxy.service.d).each do |dir|
+  directory dir do
+    mode '0700'
+    recursive true
+  end
 end
 
 cookbook_file '/etc/haproxy/errors/400.http' do
@@ -82,32 +80,34 @@ execute 'test-haproxy-config' do
   action :nothing
 end
 
-remote_file '/etc/haproxy/cloudflare_ips_v4.lst' do
-  source 'https://www.cloudflare.com/ips-v4'
-  mode '0644'
-  atomic_update true
-  retries 3
-  action :create
-  notifies :run, 'execute[test-haproxy-config]', :delayed
+if node['gitlab-haproxy']['cloudflare']['enable']
+  remote_file '/etc/haproxy/cloudflare_ips_v4.lst' do
+    source 'https://www.cloudflare.com/ips-v4'
+    mode '0644'
+    atomic_update true
+    retries 3
+    action :create
+    notifies :run, 'execute[test-haproxy-config]', :delayed
 
-  # Prevent an update and reload on every chef-run
-  # Since cloudlfare sets an etag we can use that.
-  use_conditional_get true
-  use_etag true
-end
+    # Prevent an update and reload on every chef-run
+    # Since cloudlfare sets an etag we can use that.
+    use_conditional_get true
+    use_etag true
+  end
 
-remote_file '/etc/haproxy/cloudflare_ips_v6.lst' do
-  source 'https://www.cloudflare.com/ips-v6'
-  mode '0644'
-  atomic_update true
-  retries 3
-  action :create
-  notifies :run, 'execute[test-haproxy-config]', :delayed
+  remote_file '/etc/haproxy/cloudflare_ips_v6.lst' do
+    source 'https://www.cloudflare.com/ips-v6'
+    mode '0644'
+    atomic_update true
+    retries 3
+    action :create
+    notifies :run, 'execute[test-haproxy-config]', :delayed
 
-  # Prevent an update and reload on every chef-run
-  # Since cloudlfare sets an etag we can use that.
-  use_conditional_get true
-  use_etag true
+    # Prevent an update and reload on every chef-run
+    # Since cloudlfare sets an etag we can use that.
+    use_conditional_get true
+    use_etag true
+  end
 end
 
 cookbook_file '/etc/cron.hourly/logrotate' do
@@ -122,4 +122,15 @@ cookbook_file '/etc/logrotate.d/haproxy' do
   owner 'root'
   group 'root'
   mode '0644'
+end
+
+cookbook_file '/etc/systemd/system/haproxy.service.d/override.conf' do
+  mode '0644'
+  notifies :run, 'execute[systemd reload]', :delayed
+  action node['gitlab-haproxy']['systemd_service_overrides']['enable'] ? :create : :delete
+end
+
+execute 'systemd reload' do
+  command 'systemctl daemon-reload'
+  action :nothing
 end

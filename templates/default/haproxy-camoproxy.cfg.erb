@@ -12,6 +12,9 @@ global
     group haproxy
     daemon
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
+<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    server-state-file /etc/haproxy/state/global
+<% end %>
 
 defaults
     log global
@@ -29,6 +32,9 @@ defaults
     errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/504.http
+<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    load-server-state-from-file global
+<% end %>
 
 listen stats
     bind <%= node['gitlab-haproxy']['listen_address'] %>:7331
@@ -45,8 +51,9 @@ listen camoproxy
     mode http
     option splice-auto
 
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
 <%= render 'partial_cloudflare.erb' -%>
-
+<% end %>
     # Limit which methods can be used; there's no need for anything other than GET or HEAD
     # to camoproxy, and anything else could possibly be abused
     http-request deny unless METH_GET

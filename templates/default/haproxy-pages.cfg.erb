@@ -14,7 +14,10 @@ global
     nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
 <% end %>
 <% if node['gitlab-haproxy']['global']['hard-stop']['enable'] %>
-   hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
+    hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
+<% end %>
+<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    server-state-file /etc/haproxy/state/global
 <% end %>
 
     # Default SSL material locations
@@ -42,6 +45,9 @@ defaults
     errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/504.http
+<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    load-server-state-from-file global
+<% end %>
 
 listen stats
     bind <%= node['gitlab-haproxy']['listen_address'] %>:7331
@@ -58,8 +64,9 @@ frontend pages_http
     mode http
     option splice-auto
 
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
 <%= render 'partial_cloudflare.erb' -%>
-
+<% end %>
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
 <%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
@@ -111,7 +118,9 @@ backend pages_http
     mode http
     balance source
     hash-type consistent
+<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
+<% end %>
     option splice-auto
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>

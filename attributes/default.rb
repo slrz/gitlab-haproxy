@@ -1,3 +1,6 @@
+### Save HAProxy state on reload
+default['gitlab-haproxy']['systemd_service_overrides']['enable'] = true
+
 default['gitlab-haproxy']['secrets']['backend'] = 'chef_vault'
 default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'
 default['gitlab-haproxy']['secrets']['key'] = '_default'
@@ -169,3 +172,5 @@ default['gitlab-haproxy']['gke_registry']['servers'] = {}
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
+
+default['gitlab-haproxy']['cloudflare']['enable'] = false
