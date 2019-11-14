@@ -84,6 +84,22 @@ describe 'gitlab-haproxy::pages' do
     end
   end
 
+  context 'when domain blacklisting is enabled' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = true
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+    it 'includes the pages domain blacklisting options' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to eq(IO.read('spec/fixtures/pages-domain-blacklist.template'))
+      }
+    end
+  end
+
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['pages']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['pages']['http_custom_config'] = [
