@@ -155,6 +155,7 @@ default['gitlab-haproxy']['pages']['https_custom_config'] = nil
 default['gitlab-haproxy']['pages']['servers'] = {}
 default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
 default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
+default['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = false
 
 default['gitlab-haproxy']['registry']['servers'] = {}
 default['gitlab-haproxy']['canary_registry']['servers'] = {}

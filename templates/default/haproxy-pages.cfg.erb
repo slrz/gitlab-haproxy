@@ -69,6 +69,10 @@ frontend pages_http
 <% end %>
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
+<%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
+    acl deny-403-domain req.hdr(host) -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
+    http-request deny if deny-403-domain
+<%- end -%>
 
     capture request header Host len 40
 
@@ -85,6 +89,10 @@ frontend pages_https
 
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
+<%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
+    acl deny-403-domain req_ssl_sni -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
+    http-request deny if deny-403-domain
+<%- end -%>
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
