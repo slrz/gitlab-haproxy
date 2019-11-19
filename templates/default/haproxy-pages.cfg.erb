@@ -87,11 +87,12 @@ frontend pages_https
     mode tcp
     option splice-auto
 
+    tcp-request inspect-delay 5s
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
-    http-request deny if deny-403-ip
+    tcp-request content reject if deny-403-ip
 <%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
     acl deny-403-domain req_ssl_sni -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
-    http-request deny if deny-403-domain
+    tcp-request content reject if deny-403-domain
 <%- end -%>
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
