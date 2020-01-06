@@ -33,6 +33,7 @@ kitchen-test-job:
   stage: tests
   artifacts:
     expire_in: '2d'
+    when: on_failure
     paths:
       - .kitchen/
 
