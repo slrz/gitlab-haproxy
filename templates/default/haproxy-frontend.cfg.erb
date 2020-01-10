@@ -165,7 +165,7 @@ frontend https
     ###############################################################
     # API routing rules for whitelisted hosts that
     # bypass rate limiting
-    use_backend api if METH_POST is_gitlab_com_ci_artifacts_api
+    use_backend api if is_gitlab_com_ci_artifacts_api
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
     use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
