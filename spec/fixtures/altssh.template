@@ -55,7 +55,7 @@ frontend altssh
     option splice-auto
 
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
-    http-request deny if deny-403-ip
+    tcp-request content reject if deny-403-ip
 
     timeout client-fin 5s
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq

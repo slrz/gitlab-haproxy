@@ -100,12 +100,17 @@ frontend https
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     capture request header User-Agent len 64
 
+    <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <%= render 'partial_cloudflare.erb' -%>
+    # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
+    http-request set-src hdr(CF-Connecting-IP) if from_cf cf_ip_hdr
+    <% end %>
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
-    tcp-request connection track-sc1 src
+    # We cannot use tcp-request connection here, as it sees the unmasked src. This would cause us to track
+    # incoming connections from Cloudflare, rather than originating clients.
+    # Also using http-request track fixes issues with rate-limits not being accurately measured.
+    http-request track-sc1 src
 
-<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
-<%= render 'partial_cloudflare.erb' -%>
-<% end %>
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -221,8 +226,13 @@ frontend ssh
     mode tcp
     option splice-auto
 
+    <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+    acl from_cf src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst
+    # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
+    tcp-request connection expect-proxy layer4 if from_cf
+    <% end %>
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
-    tcp-request connection reject if deny-403-ip
+    tcp-request content reject if deny-403-ip
 
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
