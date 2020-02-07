@@ -12,6 +12,7 @@ include_recipe 'gitlab-haproxy::default'
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
+enforce_cf_origin_pull = node['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull']
 
 file '/etc/haproxy/ssl/registry.pem' do
   mode '0600'
@@ -30,7 +31,11 @@ end
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-registry.cfg.erb'
   mode '0600'
-  variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal)
+  variables(
+    admin_password: haproxy_secrets['admin_password'],
+    use_internal: use_internal,
+    enforce_cf_origin_pull: enforce_cf_origin_pull
+  )
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end

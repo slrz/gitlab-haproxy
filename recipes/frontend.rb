@@ -13,6 +13,7 @@ haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
 use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['canary_crt']
+enforce_cf_origin_pull = node['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull']
 
 file '/etc/haproxy/ssl/gitlab.pem' do
   mode '0600'
@@ -73,7 +74,12 @@ end
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-frontend.cfg.erb'
   mode '0600'
-  variables(admin_password: haproxy_secrets['admin_password'], use_internal: use_internal, use_canary: use_canary)
+  variables(
+    admin_password: haproxy_secrets['admin_password'],
+    use_internal: use_internal,
+    use_canary: use_canary,
+    enforce_cf_origin_pull: enforce_cf_origin_pull
+  )
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end

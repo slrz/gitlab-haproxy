@@ -144,6 +144,8 @@ default['gitlab-haproxy']['frontend']['root_page_redirect']['url'] = 'https://ab
 default['gitlab-haproxy']['frontend']['root_page_redirect']['session_cookie'] = '_gitlab_session'
 default['gitlab-haproxy']['frontend']['root_page_redirect']['status_code'] = '301'
 
+default['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'] = false
+
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}
 default['gitlab-haproxy']['altssh']['balance'] = 'source'
@@ -170,7 +172,10 @@ default['gitlab-haproxy']['registry']['default_weight'] = '100'
 default['gitlab-haproxy']['gke_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['gke_registry']['servers'] = {}
 
+default['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull'] = false
+
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
 
 default['gitlab-haproxy']['cloudflare']['enable'] = false
+default['gitlab-haproxy']['cloudflare']['origin_pull']['certificate_source'] = 'https://support.cloudflare.com/hc/en-us/article_attachments/360044928032/origin-pull-ca.pem'
