@@ -85,6 +85,7 @@ suites:
           api:
             servers:
               api01.stg.gitlab.com: 127.0.0.1
+          enforce_cloudflare_origin_pull: true
           https_git:
             servers:
               git01.stg.gitlab.com: 127.0.0.1

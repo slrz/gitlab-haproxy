@@ -110,6 +110,17 @@ if node['gitlab-haproxy']['cloudflare']['enable']
   end
 end
 
+remote_file '/etc/haproxy/ssl/cf-origin-pull.pem' do
+  source node['gitlab-haproxy']['cloudflare']['origin_pull']['certificate_source']
+  mode '0600'
+  atomic_update true
+  retries 3
+  action :create
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  use_conditional_get true
+  use_etag true
+end
+
 cookbook_file '/etc/cron.hourly/logrotate' do
   source 'logrotate-cron'
   owner 'root'
