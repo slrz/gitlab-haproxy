@@ -195,7 +195,7 @@ describe 'gitlab-haproxy::frontend' do
         expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
           source: 'haproxy-frontend.cfg.erb',
           mode: '0600',
-          variables: { admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false }
+          variables: { admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil }
         )
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
           expect(content).to eq(IO.read('spec/fixtures/frontend.template'))
@@ -274,6 +274,22 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'does not creates the systemd overrides' do
       expect(chef_run).not_to render_file('/etc/systemd/system/haproxy.service.d/override.conf')
+    end
+  end
+
+  context 'with extra HTTPS bind port' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = 11443
+      end.converge(described_recipe)
+    end
+
+    it 'includes an extra bind directive with the supplied port' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('bind 0.0.0.0:11443 ssl crt /etc/haproxy/ssl/gitlab.pem')
+      }
     end
   end
 

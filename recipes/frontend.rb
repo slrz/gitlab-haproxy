@@ -78,7 +78,8 @@ template '/etc/haproxy/haproxy.cfg' do
     admin_password: haproxy_secrets['admin_password'],
     use_internal: use_internal,
     use_canary: use_canary,
-    enforce_cf_origin_pull: enforce_cf_origin_pull
+    enforce_cf_origin_pull: enforce_cf_origin_pull,
+    https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port']
   )
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
