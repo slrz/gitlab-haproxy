@@ -8,6 +8,9 @@
 #
 include_recipe 'apt'
 
+# Don't allow automatic upgrades.
+node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'
+
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 service 'rsyslog' do
