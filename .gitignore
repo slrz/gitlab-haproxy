@@ -13,10 +13,8 @@
 
 # Berkshelf
 .vagrant
-Berksfile.lock
 
 # Bundler
-Gemfile.lock
 .bundle/*
 
 # Ruby

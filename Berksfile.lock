@@ -1,0 +1,23 @@
+DEPENDENCIES
+  gitlab-haproxy
+    path: .
+    metadata: true
+  gitlab_secrets
+    git: git@ops.gitlab.net:gitlab-cookbooks/gitlab_secrets.git
+    revision: 887867c3e6ee29d6e7c66cd20e7a434d681d7c2b
+
+GRAPH
+  apt (7.2.0)
+  chef-vault (4.0.0)
+  gitlab-haproxy (0.1.176)
+    apt (>= 0.0.0)
+    gitlab-vault (>= 0.0.0)
+    gitlab_secrets (>= 0.0.0)
+    openssh (>= 0.0.0)
+  gitlab-vault (0.2.0)
+    chef-vault (>= 0.0.0)
+  gitlab_secrets (0.0.7)
+    chef-vault (>= 0.0.0)
+  iptables (7.0.0)
+  openssh (2.8.1)
+    iptables (>= 1.0)
