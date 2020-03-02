@@ -24,7 +24,7 @@ verifier:
 
 # Rsync greatly speeds up copying chef data to DO instance
 transport:
-  name: rsync
+  name: ssh
   ssh_key: "~/.ssh/id_ed25519"
   username: root
 
