@@ -138,7 +138,15 @@ cookbook_file '/etc/logrotate.d/haproxy' do
   mode '0644'
 end
 
-cookbook_file '/etc/systemd/system/haproxy.service.d/override.conf' do
+cookbook_file '/usr/local/sbin/drain_haproxy.sh' do
+  source 'drain_haproxy.sh'
+  owner 'root'
+  group 'root'
+  mode '0750'
+end
+
+template '/etc/systemd/system/haproxy.service.d/override.conf' do
+  source 'override.conf.erb'
   mode '0644'
   notifies :run, 'execute[systemd reload]', :delayed
   action node['gitlab-haproxy']['systemd_service_overrides']['enable'] ? :create : :delete
