@@ -43,6 +43,7 @@ suites:
         api_address: 0.0.0.0  # for integration tests
         chef_vault: secrets
         chef_vault_item: certs
+        drain_time_seconds: 4
         frontend:
           api:
             servers:
@@ -79,6 +80,7 @@ suites:
         chef_vault_item: certs
         cloudflare:
           enable: true
+        drain_time_seconds: 4
         frontend:
           api_rate_limit:
             enforced: false
@@ -114,6 +116,7 @@ suites:
       gitlab-haproxy:
         chef_vault: secrets
         chef_vault_item: certs
+        drain_time_seconds: 4
         pages:
           servers:
             web01.stg.gitlab.com: 127.0.0.1
@@ -129,6 +132,7 @@ suites:
       gitlab-haproxy:
         chef_vault: secrets
         chef_vault_item: certs
+        drain_time_seconds: 4
         altssh:
           servers:
             ssh01.stg.gitlab.com: 127.0.0.1
@@ -143,6 +147,7 @@ suites:
       gitlab-haproxy:
         chef_vault: secrets
         chef_vault_item: certs
+        drain_time_seconds: 4
         registry:
           servers:
             registry01.be.gitlab.com: 127.0.0.1
@@ -158,3 +163,4 @@ suites:
       gitlab-haproxy:
         chef_vault: secrets
         chef_vault_item: certs
+        drain_time_seconds: 4

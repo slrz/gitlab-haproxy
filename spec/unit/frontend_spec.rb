@@ -258,6 +258,8 @@ describe 'gitlab-haproxy::frontend' do
       expect(chef_run).to create_directory('/etc/systemd/system/haproxy.service.d')
       expect(chef_run).to render_file('/etc/systemd/system/haproxy.service.d/override.conf').with_content { |content|
         expect(content).to include('ExecReload=/bin/bash -c')
+        expect(content).to include('TimeoutStopSec=750')
+        expect(content).to include('ExecStop=/usr/local/sbin/drain_haproxy.sh -w 600')
       }
     end
   end

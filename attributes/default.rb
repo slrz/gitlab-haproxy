@@ -1,5 +1,7 @@
 ### Save HAProxy state on reload
 default['gitlab-haproxy']['systemd_service_overrides']['enable'] = true
+default['gitlab-haproxy']['drain_time_seconds'] = 600
+default['gitlab-haproxy']['systemd_timeout_stop_seconds'] = (node['gitlab-haproxy']['drain_time_seconds'] * 1.25).to_i
 
 default['gitlab-haproxy']['secrets']['backend'] = 'chef_vault'
 default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'

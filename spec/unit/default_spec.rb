@@ -70,6 +70,9 @@ describe 'gitlab-haproxy::default' do
         group: 'root',
         mode: '0644'
       )
+      expect(chef_run).to create_cookbook_file('/usr/local/sbin/drain_haproxy.sh').with(
+        source: 'drain_haproxy.sh'
+      )
     end
   end
 end
