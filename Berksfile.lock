@@ -9,7 +9,7 @@ DEPENDENCIES
 GRAPH
   apt (7.2.0)
   chef-vault (4.0.0)
-  gitlab-haproxy (1.1.0)
+  gitlab-haproxy (1.1.1)
     apt (>= 0.0.0)
     gitlab-vault (>= 0.0.0)
     gitlab_secrets (>= 0.0.0)
