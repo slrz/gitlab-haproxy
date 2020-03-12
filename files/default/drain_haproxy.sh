@@ -18,16 +18,21 @@ USAGE
 undrain='0'
 
 iptables_drain() {
-  local flag='-A'
-  if [[ "${undrain}" -ne 0 ]]; then
-    flag='-D'
-  fi
-  iptables \
-    "${flag}" INPUT \
-    -p tcp  \
-    --dport 8001:8003 \
-    -j REJECT \
+  local drain_flags=(
+    -p tcp
+    --dport 8001:8003
+    -j REJECT
     --reject-with tcp-reset
+  )
+  local mode_flag='-A'
+  if [[ "${undrain}" -ne 0 ]]; then
+    if ! iptables -C INPUT "${drain_flags[@]}" > /dev/null 2>&1 ; then
+      echo "Already undrained"
+      return 0
+    fi
+    mode_flag='-D'
+  fi
+  iptables "${mode_flag}" INPUT "${drain_flags[@]}"
 }
 
 opt='' OPTIND='1' help='0'
