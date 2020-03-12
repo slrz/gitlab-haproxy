@@ -6,4 +6,4 @@ ExecReload=/bin/kill -USR2 $MAINPID
 
 TimeoutStopSec=<%= node['gitlab-haproxy']['systemd_timeout_stop_seconds'] %>
 ExecStop=/usr/local/sbin/drain_haproxy.sh -w <%= node['gitlab-haproxy']['drain_time_seconds'] %>
-ExecStartPost=/usr/local/sbin/drain_haproxy.sh -u
+ExecStartPost=-/usr/local/sbin/drain_haproxy.sh -u
