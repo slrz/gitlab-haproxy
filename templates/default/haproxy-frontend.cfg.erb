@@ -109,7 +109,7 @@ frontend https
     # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
     http-request set-src hdr(CF-Connecting-IP) if from_cf cf_ip_hdr
     <% end %>
-    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
+    stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     # We cannot use tcp-request connection here, as it sees the unmasked src. This would cause us to track
     # incoming connections from Cloudflare, rather than originating clients.
     # Also using http-request track fixes issues with rate-limits not being accurately measured.
@@ -160,6 +160,9 @@ frontend https
 <%= formatted_custom_config(node['gitlab-haproxy']['frontend']['https']['custom_config']) %>
 
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+    acl api_rate_limit_whitelist_cf hdr(CF-Connecting-IP) <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
+<% end %>
 
     <% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
     acl no_be_srvs_asset_proxy nbsrv(asset_proxy) lt 1
@@ -176,6 +179,9 @@ frontend https
     # bypass rate limiting
     use_backend api if is_gitlab_com_ci_artifacts_api
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+<% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+    use_backend api if is_gitlab_com_api api_rate_limit_whitelist_cf from_cf cf_ip_hdr
+<% end %>
     use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
     # API routing rules for rate limiting, canary
@@ -276,7 +282,7 @@ frontend api_rate_limit
     mode http
     option splice-auto
     stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
-    tcp-request content track-sc1 src
+    http-request track-sc1 src
     <%
       # Because of cloudflare, this logic does not work (we would rate-limit cloudflare IPs)
       # by setting the following value to false, there is no change to how requests are handled,
