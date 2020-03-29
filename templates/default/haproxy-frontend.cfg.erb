@@ -115,6 +115,8 @@ frontend https
     # Also using http-request track fixes issues with rate-limits not being accurately measured.
     http-request track-sc1 src
 
+    # https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.xhtml
+    acl is_ipv6 src 2000::/3
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_socket_upg hdr(Upgrade) -i WebSocket
     acl is_socket_path path_end -i .ws
@@ -179,6 +181,7 @@ frontend https
     # bypass rate limiting
     use_backend api if is_gitlab_com_ci_artifacts_api
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api is_ipv6
 <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist_cf from_cf cf_ip_hdr
 <% end %>
