@@ -53,6 +53,12 @@ defaults
 <% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
     load-server-state-from-file global
 <% end %>
+<% if node['gitlab-haproxy']['close_client_connections'] %>
+   # This configuration makes sure, the backend thinks it's a keep-alive connection, to avoid erratic behaviour
+   # But closes the connection to the clients. This is used as a workaround for Cloudflare connection ratelimits.
+   option http-pretend-keepalive
+   option forceclose
+<% end %>
 
 listen stats
     bind <%= node['gitlab-haproxy']['listen_address'] %>:7331
