@@ -181,6 +181,5 @@ default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
 
 default['gitlab-haproxy']['cloudflare']['enable'] = false
-default['gitlab-haproxy']['cloudflare']['origin_pull']['certificate_source'] = 'https://support.cloudflare.com/hc/en-us/article_attachments/360044928032/origin-pull-ca.pem'
 
 default['gitlab-haproxy']['close_client_connections'] = false
