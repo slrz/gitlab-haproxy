@@ -90,7 +90,7 @@ else
 
 	@# Fourth, run kitchen test, wrapped in key setup/destroy routines
 	export DIGITALOCEAN_SSH_KEY_IDS="$$(jq '.ssh_key.id' $(KEY_FILE).json)"; \
-		bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always; \
+		bundle exec kitchen test --destroy=always; \
 		r=$$?; \
 		curl -sS --fail --header "Authorization: Bearer $$DIGITALOCEAN_ACCESS_TOKEN" \
 			--request DELETE "$(DO_KEYS_API)/$$DIGITALOCEAN_SSH_KEY_IDS"; \
