@@ -95,6 +95,7 @@ frontend https
     acl is_socket_path path_end -i .ws
     acl is_gitlab_com_api path_beg -i /api/
     acl is_gitlab_com_ci_artifacts_api path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\/)
+    acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
     acl is_ancient_ci_runner path_beg -i /ci/api/
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
@@ -143,6 +144,7 @@ frontend https
     use_backend api if is_gitlab_com_ci_artifacts_api
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
     use_backend api if is_gitlab_com_api is_ipv6
+    use_backend api if is_gitlab_com_internal_api
     use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
     # API routing rules for rate limiting, canary
