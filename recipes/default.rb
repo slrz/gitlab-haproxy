@@ -11,7 +11,26 @@ include_recipe 'apt'
 # Don't allow automatic upgrades.
 node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'
 
+# Configure default secrets based on environment in GCE.
+env = node.chef_environment
+node.default['gitlab-haproxy']['secrets'] = {
+  backend: 'gkms',
+  path: {
+    path: "gitlab-#{env}-secrets/frontend-loadbalancer",
+    item: "#{env}.enc",
+  },
+  key: {
+    ring: 'gitlab-secrets',
+    key: env,
+    location: 'global',
+  },
+} if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
+
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
+
+# Tweak sysctls.
+# TODO: Roll this out.
+# include_recipe 'gitlab-haproxy::sysctl'
 
 service 'rsyslog' do
   supports [:restart]
@@ -155,3 +174,6 @@ execute 'systemd reload' do
   command 'systemctl daemon-reload'
   action :nothing
 end
+
+# Configure monitoring
+include_recipe 'gitlab-haproxy::monitoring'
