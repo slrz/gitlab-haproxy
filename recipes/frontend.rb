@@ -79,7 +79,11 @@ template '/etc/haproxy/haproxy.cfg' do
     use_internal: use_internal,
     use_canary: use_canary,
     enforce_cf_origin_pull: enforce_cf_origin_pull,
-    https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port']
+    https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port'],
+    backend_servers: Gitlab::TemplateHelpers.backend_servers_for_lb_zone(
+      node['gitlab-haproxy']['frontend']['backend'],
+      node.to_h.dig('gce', 'instance', 'zone')
+    )
   )
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed

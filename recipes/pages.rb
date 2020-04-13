@@ -20,7 +20,13 @@ end
 template '/etc/haproxy/haproxy.cfg' do
   source 'haproxy-pages.cfg.erb'
   mode '0600'
-  variables(admin_password: haproxy_secrets['admin_password'])
   helpers(Gitlab::TemplateHelpers)
   notifies :run, 'execute[test-haproxy-config]', :delayed
+  variables(
+    admin_password: haproxy_secrets['admin_password'],
+    backend_servers: Gitlab::TemplateHelpers.backend_servers_for_lb_zone(
+      node['gitlab-haproxy']['pages']['backend'],
+      node.to_h.dig('gce', 'instance', 'zone')
+    )
+  )
 end

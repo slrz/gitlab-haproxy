@@ -18,7 +18,12 @@ describe 'gitlab-haproxy::altssh' do
         expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
           source: 'haproxy-altssh.cfg.erb',
           mode: '0600',
-          variables: { admin_password: 'this-is-a-test-password' }
+          variables: {
+            admin_password: 'this-is-a-test-password',
+            backend_servers: {
+              'altssh' => { 'ssh01.stg.gitlab.com' => '127.0.0.1' },
+            },
+          }
         )
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
           expect(content).to eq(IO.read('spec/fixtures/altssh.template'))
