@@ -417,22 +417,6 @@ backend web
     <% end %>
     <% end %>
 
-backend web_runoff
-    mode http
-    balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
-    option forwardfor
-<% end %>
-    option splice-auto
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
-    rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
-    <% end %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
-    <% @backend_servers['web_runoff'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:443 <% if node['gitlab-haproxy']['frontend']['use_weights'] %>weight <%= node['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> ssl verify none
-    <% end %>
-
 backend canary_web
     mode http
     balance roundrobin

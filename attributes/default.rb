@@ -104,7 +104,6 @@ default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " defa
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] = false
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'] = ' X-Requested-With'
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
-default['gitlab-haproxy']['frontend']['web_runoff']['servers'] = {}
 
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
@@ -124,7 +123,6 @@ default['gitlab-haproxy']['frontend']['asset_proxy']['opts'] = 'check check-ssl 
 default['gitlab-haproxy']['frontend']['use_weights'] = false
 
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
-default['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['ssh']['server_port'] = '22'
@@ -165,7 +163,6 @@ default['gitlab-haproxy']['frontend']['backend']['servers']['default']['api'] = 
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['https_git'] = node['gitlab-haproxy']['frontend']['https_git']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ssh'] = node['gitlab-haproxy']['frontend']['ssh']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web'] = node['gitlab-haproxy']['frontend']['web']['servers']
-default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web_runoff'] = node['gitlab-haproxy']['frontend']['web_runoff']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets'] = node['gitlab-haproxy']['frontend']['websockets']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_web'] = node['gitlab-haproxy']['frontend']['canary_web']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_websockets'] = node['gitlab-haproxy']['frontend']['canary_websockets']['servers']
@@ -232,16 +229,13 @@ default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
 default['gitlab-haproxy']['registry']['use_weights'] = false
 default['gitlab-haproxy']['registry']['default_weight'] = '100'
-default['gitlab-haproxy']['gke_registry']['default_weight'] = '0'
-default['gitlab-haproxy']['gke_registry']['servers'] = {}
 
 default['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull'] = false
 
 default['gitlab-haproxy']['registry']['backend']['servers']['default']['registry'] = node['gitlab-haproxy']['registry']['servers']
 default['gitlab-haproxy']['registry']['backend']['servers']['default']['canary_registry'] = node['gitlab-haproxy']['canary_registry']['servers']
-default['gitlab-haproxy']['registry']['backend']['servers']['default']['gke'] = node['gitlab-haproxy']['gke_registry']['servers']
 # Essential backends must have at least one server, otherwise the chef-run will fail
-default['gitlab-haproxy']['registry']['backend']['essential'] = %w(gke)
+default['gitlab-haproxy']['registry']['backend']['essential'] = %w(registry)
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'

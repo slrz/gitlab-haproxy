@@ -164,9 +164,6 @@ backend registry
     <% @backend_servers['registry'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> <% if node['gitlab-haproxy']['registry']['use_weights'] %>weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
     <% end %>
-    <% @backend_servers['gke'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> <% if node['gitlab-haproxy']['registry']['use_weights'] %>weight <%= node['gitlab-haproxy']['gke_registry']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
-    <% end %>
 
 backend canary_registry
     mode http

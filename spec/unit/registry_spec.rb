@@ -4,24 +4,6 @@ require 'chef-vault/test_fixtures'
 describe 'gitlab-haproxy::registry' do
   include ChefVault::TestFixtures.rspec_shared_context
 
-  context 'with gke weighted servers' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['registry']['use_weights'] = true
-      end.converge(described_recipe)
-    end
-
-    it 'creates a set of gke specific servers with weights' do
-      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('server registry-01-sv-gstg registry-01-sv-gstg.c.gitlab-staging-1.internal:5000 weight 100')
-        expect(content).to include('server gke-foo 127.0.0.1:5000 weight 0')
-      }
-    end
-  end
-
   context 'with internal request routing' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
@@ -80,7 +62,6 @@ describe 'gitlab-haproxy::registry' do
             use_internal: nil,
             backend_servers: {
               'canary_registry' => {},
-              'gke' => { 'gke-foo' => '127.0.0.1' },
               'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
             },
             enforce_cf_origin_pull: false,
@@ -147,7 +128,6 @@ describe 'gitlab-haproxy::registry' do
     node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['registry']['peers']['servers']['fe-registry-01-lb-gstg'] = ['10.65.1.101', '32768']
     node.normal['gitlab-haproxy']['registry']['servers']['registry-01-sv-gstg'] = 'registry-01-sv-gstg.c.gitlab-staging-1.internal'
-    node.normal['gitlab-haproxy']['gke_registry']['servers'] = { 'gke-foo': '127.0.0.1' }
     node.normal['gitlab-haproxy']['registry']['custom_config'] = [
       'http-request deny deny_status 400 if is_bad',
     ]
