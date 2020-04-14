@@ -148,7 +148,7 @@ suites:
         chef_vault: secrets
         chef_vault_item: certs
         drain_time_seconds: 4
-        registry:
+        gke_registry:
           servers:
             registry01.be.gitlab.com: 127.0.0.1
 
