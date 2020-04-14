@@ -207,7 +207,6 @@ describe 'gitlab-haproxy::frontend' do
               'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
               'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
               'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
-              'web_runoff' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             }
           }
@@ -262,7 +261,6 @@ describe 'gitlab-haproxy::frontend' do
             'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
             'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
             'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
-            'web_runoff' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
           }
         }
@@ -303,7 +301,6 @@ describe 'gitlab-haproxy::frontend' do
             'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
             'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
             'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
-            'web_runoff' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
           }
         }
@@ -329,7 +326,7 @@ describe 'gitlab-haproxy::frontend' do
     end
 
     it 'creates the template and runs correct notifications' do
-      expect { chef_run }.to raise_error(RuntimeError, 'Essential backend web has zero servers configured: {"api"=>{"api01.stg.gitlab.com"=>"127.0.0.1"}, "https_git"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "ssh"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "web"=>{}, "web_runoff"=>{"web01.stg.gitlab.com"=>"127.0.0.1"}, "websockets"=>{"web01.stg.gitlab.com"=>"127.0.0.1"}, "canary_web"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_websockets"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_api"=>{"api-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_ssh"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_https_git"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}}, aborting!')
+      expect { chef_run }.to raise_error(RuntimeError, 'Essential backend web has zero servers configured: {"api"=>{"api01.stg.gitlab.com"=>"127.0.0.1"}, "https_git"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "ssh"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "web"=>{}, "websockets"=>{"web01.stg.gitlab.com"=>"127.0.0.1"}, "canary_web"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_websockets"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_api"=>{"api-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_ssh"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_https_git"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}}, aborting!')
     end
   end
 
@@ -346,14 +343,13 @@ describe 'gitlab-haproxy::frontend' do
         node.normal['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = true
         node.normal['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = true
         node.normal['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['web_runoff']['tcp_check_enable'] = true
       end.converge(described_recipe)
     end
 
     it 'enables tcp check for web' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3 check-ssl verify none')
-        expect(content.scan(tcp_check).size).to eq(9)
+        expect(content.scan(tcp_check).size).to eq(8)
       }
     end
   end
@@ -414,7 +410,6 @@ describe 'gitlab-haproxy::frontend' do
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
     node.normal['gitlab-haproxy']['frontend']['web']['default_weight'] = '10'
-    node.normal['gitlab-haproxy']['frontend']['web_runoff']['default_weight'] = '10'
     node.normal['gitlab-haproxy']['frontend']['api']['default_weight'] = '20'
     node.normal['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '30'
     node.normal['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '40'
@@ -435,7 +430,6 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['ssh']['port'] = '2222'
     node.normal['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['web_runoff']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
     node.normal['gitlab-haproxy']['frontend']['https']['custom_config'] = [
@@ -458,7 +452,7 @@ describe 'gitlab-haproxy::frontend' do
   def populate_node_properties_zonal(node)
     populate_node_properties(node)
 
-    %w(api https_git registry ssh web web_runoff websockets canary_web canary_api canary_ssh canary_https_git canary_websockets).each do |b|
+    %w(api https_git registry ssh web websockets canary_web canary_api canary_ssh canary_https_git canary_websockets).each do |b|
       node.normal['gitlab-haproxy']['frontend'][b]['servers'] = {}
     end
 
@@ -466,7 +460,6 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['https_git']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['ssh']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web_runoff']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['websockets']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_websockets']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
