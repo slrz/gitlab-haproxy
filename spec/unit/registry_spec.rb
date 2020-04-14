@@ -11,7 +11,6 @@ describe 'gitlab-haproxy::registry' do
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
         node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
         node.normal['gitlab-haproxy']['registry']['use_weights'] = true
-        node.normal['gitlab-haproxy']['gke_registry']['servers'] = { 'gke-foo': '127.0.0.1' }
       end.converge(described_recipe)
     end
 
@@ -76,7 +75,16 @@ describe 'gitlab-haproxy::registry' do
         expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
           source: 'haproxy-registry.cfg.erb',
           mode: '0600',
-          variables: { admin_password: 'this-is-a-test-password', use_internal: nil }
+          variables: {
+            admin_password: 'this-is-a-test-password',
+            use_internal: nil,
+            backend_servers: {
+              'canary_registry' => {},
+              'gke' => { 'gke-foo' => '127.0.0.1' },
+              'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
+            },
+            enforce_cf_origin_pull: false,
+          }
         )
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
           expect(content).to eq(IO.read('spec/fixtures/registry.template'))
@@ -84,6 +92,19 @@ describe 'gitlab-haproxy::registry' do
 
         expect(chef_run.template('/etc/haproxy/haproxy.cfg')).to notify('execute[test-haproxy-config]').to(:run).delayed
       end
+    end
+
+    context 'secrets in Chef vault' do
+      let(:chef_run) do
+        ChefSpec::SoloRunner.new do |node|
+          populate_node_properties(node)
+
+          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        end.converge(described_recipe)
+      end
+
+      it_behaves_like 'configuring registry haproxy'
     end
   end
 
@@ -126,6 +147,7 @@ describe 'gitlab-haproxy::registry' do
     node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['registry']['peers']['servers']['fe-registry-01-lb-gstg'] = ['10.65.1.101', '32768']
     node.normal['gitlab-haproxy']['registry']['servers']['registry-01-sv-gstg'] = 'registry-01-sv-gstg.c.gitlab-staging-1.internal'
+    node.normal['gitlab-haproxy']['gke_registry']['servers'] = { 'gke-foo': '127.0.0.1' }
     node.normal['gitlab-haproxy']['registry']['custom_config'] = [
       'http-request deny deny_status 400 if is_bad',
     ]

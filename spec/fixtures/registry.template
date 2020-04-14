@@ -10,7 +10,7 @@ global
     daemon
     maxconn 50000
     spread-checks 2
-
+    server-state-file /etc/haproxy/state/global
     # Default SSL material locations
     ca-base /etc/ssl/certs
     crt-base /etc/ssl/private
@@ -20,7 +20,6 @@ global
     ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES
     # Keep DH params size at 1024 for Java 6 HTTPS clients
     tune.ssl.default-dh-param 1024
-    server-state-file /etc/haproxy/state/global
 
 defaults
     log global
@@ -35,9 +34,9 @@ defaults
     errorfile 408 /etc/haproxy/errors/400.http
     errorfile 429 /etc/haproxy/errors/429.http
     errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/500.http
+    errorfile 504 /etc/haproxy/errors/504.http
     load-server-state-from-file global
 
 listen stats
@@ -76,6 +75,7 @@ frontend https
     mode http
     option splice-auto
 
+
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip
 
@@ -92,9 +92,26 @@ frontend https
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-SSL %[ssl_fc]
 
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
+    acl is_canary_host hdr_beg(host) -i canary
+    acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
+    acl no_be_srvs_canary_registry nbsrv(canary_registry) lt 1
+
     http-request deny deny_status 400 if is_bad
 
+    ###############################################################
+    # Registry routing
+    # If there are no healthy canary servers default to the web backend
+    use_backend registry if no_be_srvs_canary_registry
+    # Use the canary for internal request paths like /gitlab-com/
+    use_backend canary_registry if is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true or if the
+    # request is sent to canary.gitlab.com
+    use_backend canary_registry if is_canary or is_canary_host
+    # Finally, if no other rules match, send the request to the registry backend
     default_backend registry
+    ###############################################################
 
 frontend check_http
     bind 0.0.0.0:8001
@@ -121,5 +138,14 @@ backend registry
     option forwardfor
     option splice-auto
     timeout server-fin 5s
-    option httpchk GET / HTTP/1.1\r\nHost:\ registry.gitlab.com
+    option httpchk GET /debug/health HTTP/1.1\r\nHost:\ registry.gitlab.com
     server registry-01-sv-gstg registry-01-sv-gstg.c.gitlab-staging-1.internal:5000 check inter 2s fastinter 1s downinter 5s fall 3 port 5001
+    server gke-foo 127.0.0.1:5000 check inter 2s fastinter 1s downinter 5s fall 3 port 5001
+
+backend canary_registry
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /debug/health HTTP/1.1\r\nHost:\ registry.gitlab.com

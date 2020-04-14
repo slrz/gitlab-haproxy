@@ -56,6 +56,14 @@ default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
 default['gitlab-haproxy']['maxconn'] = '20000'
 
+#####################################################################
+#
+# Fe lb configuration, gitlab.com port 443, 80, 22
+# this is named "frontend" not to be confused with
+# frontends in the HAProxy configuration file
+#
+#####################################################################
+
 default['gitlab-haproxy']['frontend']['blacklist']['uri'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['internal'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['api'] = {}
@@ -149,9 +157,47 @@ default['gitlab-haproxy']['frontend']['root_page_redirect']['status_code'] = '30
 
 default['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'] = false
 
+# Servers for HAProxy backends, defaulted to legacy server configuration that can
+# be removed once https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/9766
+# is complete
+
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['api'] = node['gitlab-haproxy']['frontend']['api']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['https_git'] = node['gitlab-haproxy']['frontend']['https_git']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ssh'] = node['gitlab-haproxy']['frontend']['ssh']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web'] = node['gitlab-haproxy']['frontend']['web']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web_runoff'] = node['gitlab-haproxy']['frontend']['web_runoff']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets'] = node['gitlab-haproxy']['frontend']['websockets']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_web'] = node['gitlab-haproxy']['frontend']['canary_web']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_websockets'] = node['gitlab-haproxy']['frontend']['canary_websockets']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_api'] = node['gitlab-haproxy']['frontend']['canary_api']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh'] = node['gitlab-haproxy']['frontend']['canary_ssh']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_https_git'] = node['gitlab-haproxy']['frontend']['canary_https_git']['servers']
+# Essential backends must have at least one server, otherwise the chef-run will fail
+default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git ssh web websockets)
+
+#####################################################################
+#
+# ALTSSH lb configuration, gitlab.com git-ssh on port 443
+#
+#####################################################################
+
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['altssh']['servers'] = {}
 default['gitlab-haproxy']['altssh']['balance'] = 'source'
+
+# Servers for HAProxy backends, defaulted to legacy server configuration that can
+# be removed once https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/9766
+# is complete
+
+default['gitlab-haproxy']['altssh']['backend']['servers']['default']['altssh'] = node['gitlab-haproxy']['altssh']['servers']
+# Essential backends must have at least one server, otherwise the chef-run will fail
+default['gitlab-haproxy']['altssh']['backend']['essential'] = %w(altssh)
+
+#####################################################################
+#
+# Pages lb configuration, *.gitlab.io port 443 and 80
+#
+#####################################################################
 
 default['gitlab-haproxy']['pages']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
@@ -161,6 +207,20 @@ default['gitlab-haproxy']['pages']['servers'] = {}
 default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
 default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 default['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = false
+
+# Servers for HAProxy backends, defaulted to legacy server configuration that can
+# be removed once https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/9766
+# is complete
+
+default['gitlab-haproxy']['pages']['backend']['servers']['default']['pages'] = node['gitlab-haproxy']['pages']['servers']
+# Essential backends must have at least one server, otherwise the chef-run will fail
+default['gitlab-haproxy']['pages']['backend']['essential'] = %w(pages)
+
+#####################################################################
+#
+# Registry lb configuration, registry.gitlab.com port 443 and 80
+#
+#####################################################################
 
 default['gitlab-haproxy']['registry']['servers'] = {}
 default['gitlab-haproxy']['canary_registry']['servers'] = {}
@@ -176,6 +236,12 @@ default['gitlab-haproxy']['gke_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['gke_registry']['servers'] = {}
 
 default['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull'] = false
+
+default['gitlab-haproxy']['registry']['backend']['servers']['default']['registry'] = node['gitlab-haproxy']['registry']['servers']
+default['gitlab-haproxy']['registry']['backend']['servers']['default']['canary_registry'] = node['gitlab-haproxy']['canary_registry']['servers']
+default['gitlab-haproxy']['registry']['backend']['servers']['default']['gke'] = node['gitlab-haproxy']['gke_registry']['servers']
+# Essential backends must have at least one server, otherwise the chef-run will fail
+default['gitlab-haproxy']['registry']['backend']['essential'] = %w(gke)
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'

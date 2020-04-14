@@ -124,7 +124,7 @@ backend pages_http
 <% end %>
     option splice-auto
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
-    <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>
+    <% @backend_servers['pages'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
     <% end %>
 
@@ -134,6 +134,6 @@ backend pages_https
     balance source
     hash-type consistent
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
-    <% node['gitlab-haproxy']['pages']['servers'].each do |name, ip| %>
+    <% @backend_servers['pages'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['https_backend_listen_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> port <%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %>
     <% end %>

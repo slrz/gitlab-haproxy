@@ -136,7 +136,7 @@ suites:
       gitlab-haproxy:
         chef_vault: secrets
         chef_vault_item: certs
-        registry:
+        gke_registry:
           servers:
             registry01.be.gitlab.com: 127.0.0.1
 
