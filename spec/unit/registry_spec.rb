@@ -61,8 +61,14 @@ describe 'gitlab-haproxy::registry' do
             admin_password: 'this-is-a-test-password',
             use_internal: nil,
             backend_servers: {
-              'canary_registry' => {},
-              'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
+              'active' => {
+                'canary_registry' => {},
+                'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
+              },
+              'all' => {
+                'canary_registry' => {},
+                'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
+              },
             },
             enforce_cf_origin_pull: false,
           }

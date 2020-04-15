@@ -1,0 +1,380 @@
+global
+    log /dev/log len 4096 local0
+    log /dev/log len 4096 local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats socket ipv4@127.0.0.1:23646 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    maxconn 50000
+    spread-checks 2
+    server-state-file /etc/haproxy/state/global
+
+    # Default SSL material locations
+    ca-base /etc/ssl/certs
+    crt-base /etc/ssl/private
+
+    # Default ciphers to use on SSL-enabled listening sockets.
+    # For more information, see ciphers(1SSL).
+    ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES
+    # Keep DH params size at 1024 for Java 6 HTTPS clients
+    tune.ssl.default-dh-param 1024
+
+defaults
+    log global
+    option dontlognull
+    # Use all backup servers
+    # instead of just the first one
+    # if other servers are down
+    option allbackups
+    maxconn 50000
+    timeout connect 5000
+    timeout check 30000
+    timeout client 90s
+    timeout server 90s
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/429.http
+    errorfile 408 /etc/haproxy/errors/400.http
+    errorfile 429 /etc/haproxy/errors/429.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
+    errorfile 503 /etc/haproxy/errors/503.http
+    errorfile 504 /etc/haproxy/errors/504.http
+    load-server-state-from-file global
+
+listen stats
+    bind 0.0.0.0:7331
+    mode http
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+    stats auth admin:this-is-a-test-password
+    stats admin if TRUE
+
+#---------------------------------------------------------------------
+# Sync data between the frontend nodes
+#---------------------------------------------------------------------
+peers frontend-peers
+    peer fe01.sv.gitlab.com 10.65.1.101:32768
+
+#---------------------------------------------------------------------
+# Frontend configuration
+#---------------------------------------------------------------------
+frontend http
+    bind 0.0.0.0:80
+    mode http
+    option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
+    timeout client-fin 5s
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    acl is_www_gitlab_com hdr(host) -i www.gitlab.com
+
+    http-request redirect code 301 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
+    http-request redirect scheme https code 301
+
+frontend https
+    bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3
+    mode http
+    option splice-auto
+    timeout client-fin 5s
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    capture request header User-Agent len 64
+
+    stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) peers frontend-peers
+    # We cannot use tcp-request connection here, as it sees the unmasked src. This would cause us to track
+    # incoming connections from Cloudflare, rather than originating clients.
+    # Also using http-request track fixes issues with rate-limits not being accurately measured.
+    http-request track-sc1 src
+
+    # https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.xhtml
+    acl is_ipv6 src 2000::/3
+    acl is_www_gitlab_com hdr(host) -i www.gitlab.com
+    acl is_socket_upg hdr(Upgrade) -i WebSocket
+    acl is_socket_path path_end -i .ws
+    acl is_gitlab_com_api path_beg -i /api/
+    acl is_gitlab_com_ci_artifacts_api path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\/)
+    acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
+    acl is_ancient_ci_runner path_beg -i /ci/api/
+    acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
+    acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
+    acl has_multiple_slash path_reg /{2,}
+    acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
+    acl is_canary_host hdr_beg(host) -i canary
+    acl no_be_srvs_canary_web nbsrv(canary_web) lt 1
+    acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
+    acl is_asset_path path_beg /assets/
+
+    http-request set-var(txn.host) hdr(Host)
+    http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
+    http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
+    http-request set-header X-Forwarded-Proto https
+    http-request set-header X-SSL %[ssl_fc]
+    http-request deny deny_status 400 if is_legacy_ci_runner
+    http-request deny deny_status 400 if is_ancient_ci_runner
+
+    http-response set-header GitLab-LB Fauxhai
+    http-response set-header GitLab-SV %s
+
+    acl whitelist_internal src -f /etc/haproxy/whitelist-internal.lst
+    http-request allow if whitelist_internal
+
+    acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
+
+    acl require_captcha src -f /etc/haproxy/recaptcha/require-captcha.lst
+    http-request set-header X-GitLab-Show-Login-Captcha 1 if require_captcha
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    http-request deny if deny-403-ip
+
+    acl blacklist-uri path_beg -i -f /etc/haproxy/blacklist-uris.lst
+    http-request deny if blacklist-uri
+
+    acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$
+    http-request deny deny_status 400 if is_download
+
+    acl api_rate_limit_whitelist src 127.0.0.1
+
+    ###############################################################
+    # API routing rules for whitelisted hosts that
+    # bypass rate limiting
+    use_backend api if is_gitlab_com_ci_artifacts_api
+    use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+    use_backend api if is_gitlab_com_api is_ipv6
+    use_backend api if is_gitlab_com_internal_api
+    use_backend api if is_gitlab_com_api whitelist_internal
+    use_backend api if is_gitlab_com_api whitelist_api
+    # API routing rules for rate limiting, canary
+    # routing is handled in the api_rate_limit frontend
+    # This backend is a proxy for the api_rate_limit frontend
+    use_backend api_rate_limit if is_gitlab_com_api
+    ###############################################################
+
+    ###############################################################
+    # HTTPS GIT routing rules
+    # If it is an https git request and there are no healthy canary
+    # servers, route request to the https_git backend
+    use_backend https_git if is_gitlab_com_https_git no_be_srvs_canary_https_git
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_https_git if is_gitlab_com_https_git is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true is set or if the request
+    # is sent to canary.gitlab.com
+    use_backend canary_https_git if is_gitlab_com_https_git is_canary
+    use_backend canary_https_git if is_gitlab_com_https_git is_canary_host
+    # Finally, if no canary rules match, route requests to the normal
+    # https_git backend
+    use_backend https_git if is_gitlab_com_https_git
+    ###############################################################
+
+    ###############################################################
+    # Websockets routing rules
+    use_backend websockets if is_socket_upg or is_socket_path
+    ###############################################################
+
+    ###############################################################
+    # Web routing rules, if we have gotten this far we use the default
+    # web or canary_web backend
+    # If there are no healthy canary servers default to the web backend
+    use_backend web if no_be_srvs_canary_web
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_web if is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true or if the
+    # request is sent to canary.gitlab.com
+    use_backend canary_web if is_canary or is_canary_host
+    # Finally, if no other rules match, send the request to the web backend
+    default_backend web
+    ###############################################################
+
+frontend ssh
+    bind 0.0.0.0:2222
+    mode tcp
+    option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    tcp-request content reject if deny-403-ip
+
+    timeout client-fin 5s
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) peers frontend-peers
+
+    tcp-request connection deny
+
+    use_backend ssh
+
+frontend check_http
+    bind 0.0.0.0:8001
+    mode http
+    option splice-auto
+    acl no_be_srvs_web nbsrv(web) lt 1
+    monitor-uri /-/available-http
+    monitor fail if no_be_srvs_web
+
+frontend check_https
+    bind 0.0.0.0:8002
+    mode http
+    option splice-auto
+    acl no_be_srvs_web nbsrv(web) lt 1
+    acl no_be_srvs_api nbsrv(api) lt 1
+    monitor-uri /-/available-https
+    monitor fail if no_be_srvs_web || no_be_srvs_api
+
+frontend check_ssh
+    bind 0.0.0.0:8003
+    mode http
+    option splice-auto
+    acl no_be_srvs_ssh nbsrv(ssh) lt 1
+    monitor-uri /-/available-ssh
+    monitor fail if no_be_srvs_ssh
+
+frontend api_rate_limit
+    bind 127.0.0.1:4444 accept-proxy
+    mode http
+    option splice-auto
+    stick-table type ip size 1m expire 5m store gpc0,http_req_rate(1m) peers frontend-peers
+    http-request track-sc1 src
+    acl is_rate_abuse src_http_req_rate gt 600
+    http-request set-var(txn.src_http_req_rate) src_http_req_rate
+    http-response set-header RateLimit-Limit 600
+    http-response set-header RateLimit-Observed %[src_http_req_rate]
+    http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_http_req_rate)]
+    http-response set-header RateLimit-Reset %[date(60)]
+    http-response set-header RateLimit-ResetTime %[date(60),http_date]
+    use_backend 429_slow_down if is_rate_abuse
+
+    acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
+    acl is_canary_host hdr_beg(host) -i canary
+    acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
+
+    http-request deny deny_status 400 if is_download
+
+    ###############################################################
+    # API routing rules
+    # If there are no healthy canary servers default to the api backend
+    use_backend api if no_be_srvs_canary_api
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_api if is_canary_path !canary_disabled
+    # Use the canary backend if the cookie gitlab_canary=true or if the
+    # request is sent to canary.gitlab.com
+    use_backend canary_api if is_canary or is_canary_host
+    # Finally, if no canary rules match, route requests to the normal
+    # api backend
+    default_backend api
+    ###############################################################
+
+#---------------------------------------------------------------------
+# Backend configuration
+#---------------------------------------------------------------------
+
+
+backend api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend api_rate_limit
+    option splice-auto
+    mode http
+    server localhost 127.0.0.1:4444 send-proxy
+
+backend https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend web
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    rspadd Content-Security-Policy:\ default-src\ \'self\';
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend canary_web
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    acl is_canary_host hdr_beg(host) -i canary
+    http-response set-header X-Robots-Tag noindex if { var(txn.host) -m beg canary }
+    rspadd Content-Security-Policy:\ default-src\ \'self\';
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend canary_https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server git-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend canary_api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend ssh
+    mode tcp
+    balance source
+    option splice-auto
+    hash-type consistent
+    timeout server-fin 5s
+    timeout server 2h
+    # The default check port is 443 and not 22. The assumption here is that ssh won't work
+    # if rails isn't running and they're both running on the same host.
+    # We need to change this when we split rails to a separate cluster.
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3
+    server git02.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3 backup
+
+backend websockets
+    mode http
+    balance roundrobin
+    option splice-auto
+    option http-server-close
+    timeout tunnel 8s
+    cookie _gitlab_session prefix nocache
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
+    server web02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web02.stg.gitlab.com backup
+
+backend 429_slow_down
+    mode http
+    timeout tarpit 2s
+    errorfile 500 /etc/haproxy/errors/429.http
+    errorfile 503 /etc/haproxy/errors/429.http
+    http-request tarpit

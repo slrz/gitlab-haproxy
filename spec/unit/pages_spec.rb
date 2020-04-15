@@ -29,7 +29,12 @@ describe 'gitlab-haproxy::pages' do
           variables: {
             admin_password: 'this-is-a-test-password',
             backend_servers: {
-              'pages' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              'active' => {
+                'pages' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              },
+              'all' => {
+                'pages' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              },
             },
           }
         )

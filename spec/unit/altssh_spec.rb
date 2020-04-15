@@ -21,7 +21,12 @@ describe 'gitlab-haproxy::altssh' do
           variables: {
             admin_password: 'this-is-a-test-password',
             backend_servers: {
-              'altssh' => { 'ssh01.stg.gitlab.com' => '127.0.0.1' },
+              'active' => {
+                'altssh' => { 'ssh01.stg.gitlab.com' => '127.0.0.1' },
+              },
+              'all' => {
+                'altssh' => { 'ssh01.stg.gitlab.com' => '127.0.0.1' },
+              },
             },
           }
         )
