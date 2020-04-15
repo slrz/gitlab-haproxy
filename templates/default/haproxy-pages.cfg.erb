@@ -33,6 +33,10 @@ global
 defaults
     log global
     option dontlognull
+    # Use all backup servers
+    # instead of just the first one
+    # if other servers are down
+    option allbackups
     maxconn <%= node['gitlab-haproxy']['maxconn'] %> # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
@@ -124,8 +128,8 @@ backend pages_http
 <% end %>
     option splice-auto
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
-    <% @backend_servers['pages'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %>
+    <% @backend_servers['all']['pages'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend pages_https
@@ -134,6 +138,6 @@ backend pages_https
     balance source
     hash-type consistent
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
-    <% @backend_servers['pages'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['https_backend_listen_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> port <%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %>
+    <% @backend_servers['all']['pages'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['https_backend_listen_port'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> port <%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %>
     <% end %>

@@ -33,6 +33,10 @@ global
 defaults
     log global
     option dontlognull
+    # Use all backup servers
+    # instead of just the first one
+    # if other servers are down
+    option allbackups
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     timeout connect 5000
     timeout check 30000
@@ -95,6 +99,6 @@ backend altssh
     hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
-    <% @backend_servers['altssh'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> check port <%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> inter 5000 fall 3 verify none
+    <% @backend_servers['all']['altssh'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> check port <%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> inter 5000 fall 3 verify none<%= @backend_servers['active']['altssh'].key?(name) ? '' : ' backup' %>
     <% end %>

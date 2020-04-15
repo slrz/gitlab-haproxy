@@ -32,8 +32,12 @@ global
 
 defaults
     log global
-    option dontlognull
     maxconn 50000
+    option dontlognull
+    # Use all backup servers
+    # instead of just the first one
+    # if other servers are down
+    option allbackups
     timeout connect 5000
     timeout check 30000
     timeout client <%= node['gitlab-haproxy']['timeout_client'] %>
@@ -161,8 +165,8 @@ backend registry
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>
-    <% @backend_servers['registry'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> <% if node['gitlab-haproxy']['registry']['use_weights'] %>weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
+    <% @backend_servers['all']['registry'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> <% if node['gitlab-haproxy']['registry']['use_weights'] %>weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> <% end %>check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['registry'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend canary_registry
@@ -174,6 +178,6 @@ backend canary_registry
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     option httpchk GET <%= node['gitlab-haproxy']['registry']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['registry']['httpchk_host'] %>
-    <% @backend_servers['canary_registry'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %>
+    <% @backend_servers['all']['canary_registry'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
     <% end %>
