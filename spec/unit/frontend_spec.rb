@@ -353,6 +353,63 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with zone configured servers with the lb in us-east1-c, but without a canary server in the same zone' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties_zonal(node)
+        # This switches the canary web node from us-east1-c to us-east1-d.
+        # Because the LB is in us-east1-c this tests that web-cny-01 is
+        # only marked as a backup.
+        node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c'].delete('canary_web')
+        node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
+      end.converge(described_recipe)
+    end
+
+    it 'creates the template and runs correct notifications' do
+      expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
+        source: 'haproxy-frontend.cfg.erb',
+        mode: '0600',
+        variables: {
+          admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
+          backend_servers: {
+            'active' => {
+              'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_web' => {},
+              'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+            },
+            'all' => {
+              'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+            },
+          }
+        }
+      )
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup')
+      }
+      expect(chef_run.template('/etc/haproxy/haproxy.cfg')).to notify('execute[test-haproxy-config]').to(:run).delayed
+    end
+  end
+
   context 'with zone configured servers with the lb in us-east1-c and backup servers' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
