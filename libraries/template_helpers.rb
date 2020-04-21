@@ -17,6 +17,11 @@ module Gitlab
       # into a single server list
       servers['all'] = backend_cfg['servers'].values.reduce(&:deep_merge)
 
+      # Set the default active servers to an empty server config
+      servers['all'].each do |backend, _server|
+        servers['active'][backend] = {}
+      end
+
       # Build up an active server list selecting servers
       # that only match the zone of the lb
       backend_cfg['servers'].each do |server_zone, server|
