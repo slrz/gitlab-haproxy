@@ -106,6 +106,69 @@ suites:
             servers:
               web01.stg.gitlab.com: 127.0.0.1
 
+  - name: haproxy-ci
+    run_list:
+      - recipe[gitlab-haproxy::ci]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/ci
+        - test/integration/ci_no_fallback
+    attributes:
+      gitlab-haproxy:
+        timeout_server: 1h #copied from gprd
+
+        chef_vault: secrets
+        chef_vault_item: certs
+        frontend:
+          blacklist:
+            uri:
+              "/blacklist/test": "Testing"
+        ci:
+          enable_fallback: false
+          backend:
+            servers:
+              default:
+                api:
+                  api01.gitlab.com: 127.0.0.1
+                https_git:
+                  git01.gitlab.com: 127.0.0.1
+                canary_api:
+                  canary.api01.gitlab.com: 127.0.0.1
+                canary_https_git:
+                  canary.git01.gitlab.com: 127.0.0.1
+
+  - name: haproxy-ci-fallback
+    run_list:
+      - recipe[gitlab-haproxy::ci]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+        - test/integration/ci
+        - test/integration/ci_fallback
+    attributes:
+      gitlab-haproxy:
+        timeout_server: 1h #copied from gprd
+
+        chef_vault: secrets
+        chef_vault_item: certs
+        frontend:
+          blacklist:
+            uri:
+              "/blacklist/test": "Testing"
+        ci:
+          backend:
+            servers:
+              default:
+                api:
+                  api01.gitlab.com: 127.0.0.1
+                https_git:
+                  git01.gitlab.com: 127.0.0.1
+                canary_api:
+                  canary.api01.gitlab.com: 127.0.0.1
+                canary_https_git:
+                  canary.git01.gitlab.com: 127.0.0.1
+
   - name: haproxy-pages
     run_list:
       - recipe[gitlab-haproxy::pages]
