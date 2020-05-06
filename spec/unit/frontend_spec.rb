@@ -95,7 +95,7 @@ describe 'gitlab-haproxy::frontend' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
         populate_node_properties(node)
-        node.normal['gitlab-haproxy']['global']['ssl-default-bind-options'] = 'no-tlsv10 no-tlsv11'
+        node.normal['gitlab-haproxy']['global']['ssl-default-bind-options'] = 'no-sslv3 no-tlsv10 no-tlsv11'
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
         node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
       end.converge(described_recipe)
@@ -103,7 +103,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the frontend template correctly with global bind options.' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('ssl-default-bind-options no-tlsv10 no-tlsv11')
+        expect(content).to include('ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11')
       }
     end
   end

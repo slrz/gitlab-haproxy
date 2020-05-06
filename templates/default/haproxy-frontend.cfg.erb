@@ -28,9 +28,7 @@ global
     # Default ciphers to use on SSL-enabled listening sockets.
     # For more information, see ciphers(1SSL).
     ssl-default-bind-ciphers <%= node['gitlab-haproxy']['global']['ssl-default-bind-ciphers'] %>
-<% unless node['gitlab-haproxy']['global']['ssl-default-bind-options'].nil? %>
     ssl-default-bind-options <%= node['gitlab-haproxy']['global']['ssl-default-bind-options'] %>
-<% end %>
     # Keep DH params size at 1024 for Java 6 HTTPS clients
     tune.ssl.default-dh-param 1024
 
