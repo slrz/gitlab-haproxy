@@ -36,6 +36,11 @@ service 'rsyslog' do
   supports [:restart]
 end
 
+apt_repository 'haproxy' do
+  uri node['gitlab-haproxy']['package-uri']
+  not_if { node['gitlab-haproxy']['distro-package'] }
+end
+
 package 'haproxy' do
   # We restart rsyslog in order to create the socket HAProxy logs to
   notifies :restart, 'service[rsyslog]', :delayed
