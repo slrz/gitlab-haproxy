@@ -15,12 +15,14 @@ use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl'][
 enforce_cf_origin_pull = node['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull']
 
 file '/etc/haproxy/ssl/registry.pem' do
+  sensitive true
   mode '0600'
   content "#{haproxy_secrets['ssl']['registry_crt']}\n#{haproxy_secrets['ssl']['registry_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
 file '/etc/haproxy/ssl/internal.pem' do
+  sensitive true
   mode '0600'
   content "#{haproxy_secrets['ssl']['internal_crt']}\n#{haproxy_secrets['ssl']['internal_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed

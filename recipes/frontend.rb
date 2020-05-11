@@ -16,12 +16,14 @@ use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['can
 enforce_cf_origin_pull = node['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull']
 
 file '/etc/haproxy/ssl/gitlab.pem' do
+  sensitive true
   mode '0600'
   content "#{haproxy_secrets['ssl']['gitlab_crt']}\n#{haproxy_secrets['ssl']['gitlab_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
 
 file '/etc/haproxy/ssl/internal.pem' do
+  sensitive true
   mode '0600'
   content "#{haproxy_secrets['ssl']['internal_crt']}\n#{haproxy_secrets['ssl']['internal_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed
@@ -29,6 +31,7 @@ file '/etc/haproxy/ssl/internal.pem' do
 end
 
 file '/etc/haproxy/ssl/canary.pem' do
+  sensitive true
   mode '0600'
   content "#{haproxy_secrets['ssl']['canary_crt']}\n#{haproxy_secrets['ssl']['canary_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed
