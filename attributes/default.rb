@@ -252,10 +252,10 @@ default['gitlab-haproxy']['close_client_connections'] = false
 
 ###### CI Configuration
 default['gitlab-haproxy']['ci']['backend']['essential'] = %w(api https_git)
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['api'] = []
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['https_git'] = []
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_api'] = []
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_https_git'] = []
+default['gitlab-haproxy']['ci']['backend']['servers']['default']['api'] = {}
+default['gitlab-haproxy']['ci']['backend']['servers']['default']['https_git'] = {}
+default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_api'] = {}
+default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_https_git'] = {}
 default['gitlab-haproxy']['ci']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
 default['gitlab-haproxy']['ci']['api']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['ci']['https_git']['check_opts'] = 'check-ssl'

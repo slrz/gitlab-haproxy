@@ -29,25 +29,26 @@ describe 'gitlab-haproxy::ci' do
         variables: {
           admin_password: 'this-is-a-test-password',
           backend_servers: {
-            "active"=>{
-              "api"=> {
-                "api02.stg.gitlab.com"=>"127.0.0.1"
+            'active' => {
+              'api' => {
+                'api02.stg.gitlab.com' => '127.0.0.1',
               },
-              "canary_api"=>[],
-              "canary_https_git"=>[],
-              "https_git"=>{
-                "git02.stg.gitlab.com"=>"127.0.0.1"
-              }
+              'canary_api' => {},
+              'canary_https_git' => {},
+              'https_git' => {
+                'git02.stg.gitlab.com' => '127.0.0.1',
+              },
             },
-            "all" => {
-              "api" => {
-                "api02.stg.gitlab.com"=>"127.0.0.1"
+            'all' => {
+              'api' => {
+                'api02.stg.gitlab.com' => '127.0.0.1',
               },
-              "canary_api"=>[],
-              "canary_https_git"=>[],
-              "https_git" => {
-                "git02.stg.gitlab.com"=>"127.0.0.1"}
-             }
+              'canary_api' => {},
+              'canary_https_git' => {},
+              'https_git' => {
+                'git02.stg.gitlab.com' => '127.0.0.1',
+              },
+            },
           },
         }
       )
@@ -58,6 +59,7 @@ describe 'gitlab-haproxy::ci' do
       expect(chef_run.template('/etc/haproxy/haproxy.cfg')).to notify('execute[test-haproxy-config]').to(:run).delayed
     end
   end
+
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['ci']['backend']['servers']['default']['https_git']['git02.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['ci']['backend']['servers']['default']['api']['api02.stg.gitlab.com'] = '127.0.0.1'
