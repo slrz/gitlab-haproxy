@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: gitlab-haproxy
-# Recipe:: gitlab
+# Recipe:: ci
 #
 # Copyright (C) 2016 GitLab Inc.
 #

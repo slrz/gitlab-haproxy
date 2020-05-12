@@ -1,0 +1,240 @@
+global
+    log /dev/log len 4096 local0
+    log /dev/log len 4096 local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats socket ipv4@10.0.0.2:23646 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    maxconn 50000
+    spread-checks 2
+    server-state-file /etc/haproxy/state/global
+
+    # Default SSL material locations
+    ca-base /etc/ssl/certs
+    crt-base /etc/ssl/private
+
+    # Default ciphers to use on SSL-enabled listening sockets.
+    # For more information, see ciphers(1SSL).
+    ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES
+    ssl-default-bind-options no-tlsv10 no-tlsv11
+    # Keep DH params size at 1024 for Java 6 HTTPS clients
+    tune.ssl.default-dh-param 1024
+
+defaults
+    log global
+    option dontlognull
+    # Use all backup servers
+    # instead of just the first one
+    # if other servers are down
+    option allbackups
+    maxconn 50000
+    timeout connect 5000
+    timeout check 30000
+    timeout client 90s
+    timeout server 90s
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/403.http
+    errorfile 408 /etc/haproxy/errors/400.http
+    errorfile 429 /etc/haproxy/errors/429.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
+    errorfile 503 /etc/haproxy/errors/503.http
+    errorfile 504 /etc/haproxy/errors/504.http
+    load-server-state-from-file global
+
+listen stats
+    bind 0.0.0.0:7331
+    mode http
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+    stats auth admin:this-is-a-test-password
+    stats admin if TRUE
+
+#---------------------------------------------------------------------
+# Frontend configuration
+#---------------------------------------------------------------------
+frontend https
+    bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/ci.pem
+    mode http
+    option splice-auto
+    timeout client-fin 5s
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+    capture request header User-Agent len 64
+
+    ###############################################################
+    # CI API ACLs
+    # HAProxy will OR these invocations
+
+    acl is_api_method method POST PATCH PUT
+    ### POST PATCH PUT Rules
+    # POST for register runner
+    acl is_ci_api path_reg -i ^\/api\/v4\/runners$
+    # POST to get job
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/request$
+    # POST for runner verification
+    acl is_ci_api path_reg -i ^\/api\/v4\/runners\/verify$
+    # PATCH for job traces
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+\/trace$
+    # PUT for job status etc
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+$
+    # GET/POST for build artifacts (note, no end match here!)
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+/artifacts
+
+    acl is_api_get_method method GET
+    ### GET Rules
+    # GET to get jobs
+    acl is_ci_api_get path_reg -i ^\/api\/v4\/jobs$
+    # GET/POST for build artifacts (note, no end match here!)
+    acl is_ci_api_get path_reg -i ^\/api\/v4\/jobs\/\d+/artifacts
+    ###############################################################
+
+    ###############################################################
+    # HTTPS git ACLs
+    # HAProxy will OR these acl conditions
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git$
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs\?service=git-(upload|receive)-pack$
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/git-(upload|receive)-pack$
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/objects\/[^\/]{2}\/[^\/]{14,}$
+    acl is_git_method method GET POST
+    ###############################################################
+
+    ###############################################################
+    # Canary ACLs
+    acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
+    acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
+    acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
+    ###############################################################
+
+    ###############################################################
+    # Fallback ACLs
+    acl git_fallback path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git
+    acl api_fallback path_reg -i ^\/api
+    ###############################################################
+
+    http-request set-var(txn.host) hdr(Host)
+    http-request set-header X-Forwarded-Proto https
+    http-request set-header X-SSL %[ssl_fc]
+    http-response set-header GitLab-LB Fauxhai
+    http-response set-header GitLab-SV %s
+
+    acl blacklist-uri path_beg -i -f /etc/haproxy/blacklist-uris.lst
+    http-request deny if blacklist-uri
+
+    ###############################################################
+    # HTTPS GIT routing
+    # If it is an https git request and there are no healthy canary
+    # servers, route request to the https_git backend
+    use_backend https_git if is_https_git is_git_method no_be_srvs_canary_https_git
+
+    # Use the canary for internal request paths like /gitlab-com/
+    use_backend canary_https_git if is_https_git is_git_method is_canary_path
+
+    # Finally, if no canary rules match, route requests to the normal
+    # https_git backend
+    use_backend https_git if is_https_git is_git_method
+    ###############################################################
+
+    ###############################################################
+    # API routing
+    # If there are no healthy canary servers default to the api backend
+    use_backend api if is_ci_api is_api_method no_be_srvs_canary_api
+    use_backend api if is_ci_api_get is_api_get_method no_be_srvs_canary_api
+
+    # Use the canary for internal request paths like /gitlab-com/, unless
+    # the cookie gitlab_canary=false is set
+    use_backend canary_api if is_ci_api is_api_method is_canary_path
+    use_backend canary_api if is_ci_api_get is_api_get_method is_canary_path
+
+    # Finally, if no canary rules match, route requests to the normal
+    # api backend
+    use_backend api if is_ci_api is_api_method
+    use_backend api if is_ci_api_get is_api_get_method
+    ###############################################################
+
+    ###############################################################
+    # Fallback routing
+    ## Fallback mode is enabled, so any unmatched action will still be routed.
+    use_backend fallback_https_git if git_fallback
+    use_backend fallback_api if api_fallback
+    ###############################################################
+
+    default_backend return_403
+
+frontend check_https
+    bind 0.0.0.0:8002
+    mode http
+    option splice-auto
+    acl no_be_srvs_https_git nbsrv(https_git) lt 1
+    acl no_be_srvs_api nbsrv(api) lt 1
+    monitor-uri /-/available-https
+    monitor fail if no_be_srvs_https_git || no_be_srvs_api
+
+#---------------------------------------------------------------------
+# Backend configuration
+#---------------------------------------------------------------------
+backend return_403
+    mode http
+    http-request deny
+
+backend api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
+
+backend https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
+
+backend fallback_api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    http-request set-header GitLab-CI-Fallback "api"
+    http-response set-header GitLab-CI-Fallback "api"
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
+
+backend fallback_https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    http-request set-header GitLab-CI-Fallback "git"
+    http-response set-header GitLab-CI-Fallback "git"
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
+
+backend canary_https_git
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+
+backend canary_api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
