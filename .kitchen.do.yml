@@ -36,6 +36,7 @@ suites:
         api_address: 0.0.0.0  # for integration tests
         chef_vault: secrets
         chef_vault_item: certs
+        distro-package: false
         frontend:
           api:
             servers:
