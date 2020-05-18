@@ -7,6 +7,10 @@
 # License: MIT
 #
 
+# Let's use HAProxy 2.1
+node.default['gitlab-haproxy']['distro-package'] = false
+node.default['gitlab-haproxy']['major-version'] = 'haproxy-2.1'
+
 include_recipe 'gitlab-haproxy::default'
 
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']

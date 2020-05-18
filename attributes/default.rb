@@ -263,7 +263,7 @@ default['gitlab-haproxy']['ci']['https_git']['check_opts'] = 'check-ssl'
 # This will add a duplicate fallback_* backend for git and api with identical configuration.
 # When this is enabled a request, that failed matching will be routed to those backends.
 # This is designed to be a quick-fix during an incident instead of a permanent setting.
-default['gitlab-haproxy']['ci']['enable_fallback'] = true
+default['gitlab-haproxy']['ci']['enable_fallback'] = false
 
 default['gitlab-haproxy']['ci']['use_weights'] = true
 default['gitlab-haproxy']['ci']['default_weight'] = '100'

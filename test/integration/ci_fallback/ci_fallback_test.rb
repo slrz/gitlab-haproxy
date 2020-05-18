@@ -14,9 +14,9 @@ control 'haproxy-config-checks' do
   describe file('/etc/haproxy/haproxy.cfg') do
     its('content') do should match /acl git_fallback path_reg/ end
     its('content') do should match /acl api_fallback path_reg/ end
-    its('content') do should match /use_backend fallback_https_git if git_fallback/ end
-    its('content') do should match /use_backend fallback_api if api_fallback/ end
-    its('content') do should match /backend fallback_api/ end
-    its('content') do should match /backend fallback_https_git/ end
+    its('content') do should match /use_backend fallback_ci_https_git if git_fallback/ end
+    its('content') do should match /use_backend fallback_ci_api if api_fallback/ end
+    its('content') do should match /backend fallback_ci_api/ end
+    its('content') do should match /backend fallback_ci_https_git/ end
   end
 end

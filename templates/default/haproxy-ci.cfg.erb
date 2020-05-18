@@ -119,8 +119,8 @@ frontend https
 
     ###############################################################
     # Canary ACLs
-    acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
-    acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
+    acl no_be_srvs_canary_https_git nbsrv(canary_ci_https_git) lt 1
+    acl no_be_srvs_canary_api nbsrv(canary_ci_api) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     ###############################################################
 
@@ -146,42 +146,42 @@ frontend https
 <% if node['gitlab-haproxy']['ci']['canary_https_git']['enable'] %>
     # If it is an https git request and there are no healthy canary
     # servers, route request to the https_git backend
-    use_backend https_git if is_https_git is_git_method no_be_srvs_canary_https_git
+    use_backend ci_https_git if is_https_git is_git_method no_be_srvs_canary_https_git
 
     # Use the canary for internal request paths like /gitlab-com/
-    use_backend canary_https_git if is_https_git is_git_method is_canary_path
+    use_backend canary_ci_https_git if is_https_git is_git_method is_canary_path
 
     # Finally, if no canary rules match, route requests to the normal
     # https_git backend
 <% end %>
-    use_backend https_git if is_https_git is_git_method
+    use_backend ci_https_git if is_https_git is_git_method
     ###############################################################
 
     ###############################################################
     # API routing
 <% if node['gitlab-haproxy']['ci']['canary_api']['enable'] %>
     # If there are no healthy canary servers default to the api backend
-    use_backend api if is_ci_api is_api_method no_be_srvs_canary_api
-    use_backend api if is_ci_api_get is_api_get_method no_be_srvs_canary_api
+    use_backend ci_api if is_ci_api is_api_method no_be_srvs_canary_api
+    use_backend ci_api if is_ci_api_get is_api_get_method no_be_srvs_canary_api
 
     # Use the canary for internal request paths like /gitlab-com/, unless
     # the cookie gitlab_canary=false is set
-    use_backend canary_api if is_ci_api is_api_method is_canary_path
-    use_backend canary_api if is_ci_api_get is_api_get_method is_canary_path
+    use_backend canary_ci_api if is_ci_api is_api_method is_canary_path
+    use_backend canary_ci_api if is_ci_api_get is_api_get_method is_canary_path
 
     # Finally, if no canary rules match, route requests to the normal
     # api backend
 <% end %>
-    use_backend api if is_ci_api is_api_method
-    use_backend api if is_ci_api_get is_api_get_method
+    use_backend ci_api if is_ci_api is_api_method
+    use_backend ci_api if is_ci_api_get is_api_get_method
     ###############################################################
 
 <%if node['gitlab-haproxy']['ci']['enable_fallback'] == true %>
     ###############################################################
     # Fallback routing
     ## Fallback mode is enabled, so any unmatched action will still be routed.
-    use_backend fallback_https_git if git_fallback
-    use_backend fallback_api if api_fallback
+    use_backend fallback_ci_https_git if git_fallback
+    use_backend fallback_ci_api if api_fallback
     ###############################################################
 
 <% end %>
@@ -191,8 +191,8 @@ frontend check_https
     bind <%= node['gitlab-haproxy']['listen_address'] %>:8002
     mode http
     option splice-auto
-    acl no_be_srvs_https_git nbsrv(https_git) lt 1
-    acl no_be_srvs_api nbsrv(api) lt 1
+    acl no_be_srvs_https_git nbsrv(ci_https_git) lt 1
+    acl no_be_srvs_api nbsrv(ci_api) lt 1
     monitor-uri /-/available-https
     monitor fail if no_be_srvs_https_git || no_be_srvs_api
 
@@ -203,7 +203,7 @@ backend return_403
     mode http
     http-request deny
 
-backend api
+backend ci_api
     mode http
     balance roundrobin
     option forwardfor
@@ -219,7 +219,7 @@ backend api
 <% end %>
 <% end %>
 
-backend https_git
+backend ci_https_git
     mode http
     balance roundrobin
     option forwardfor
@@ -236,7 +236,7 @@ backend https_git
 <% end %>
 
 <%if node['gitlab-haproxy']['ci']['enable_fallback'] == true %>
-backend fallback_api
+backend fallback_ci_api
     mode http
     balance roundrobin
     option forwardfor
@@ -255,7 +255,7 @@ backend fallback_api
 <% end %>
 <% end %>
 
-backend fallback_https_git
+backend fallback_ci_https_git
     mode http
     balance roundrobin
     option forwardfor
@@ -274,7 +274,7 @@ backend fallback_https_git
 <% end %>
 <% end %>
 
-backend canary_https_git
+backend canary_ci_https_git
     mode http
     balance roundrobin
     option forwardfor
@@ -285,7 +285,7 @@ backend canary_https_git
     server <%= name %> <%= ip %>:443 check <%= node['gitlab-haproxy']['ci']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['ci']['default_check_opts'] %> ssl verify none<%= @backend_servers['active']['canary_https_git'].key?(name) ? '' : ' backup' %>
 <% end %>
 
-backend canary_api
+backend canary_ci_api
     mode http
     balance roundrobin
     option forwardfor

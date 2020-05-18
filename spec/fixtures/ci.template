@@ -106,16 +106,11 @@ frontend https
 
     ###############################################################
     # Canary ACLs
-    acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
-    acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
+    acl no_be_srvs_canary_https_git nbsrv(canary_ci_https_git) lt 1
+    acl no_be_srvs_canary_api nbsrv(canary_ci_api) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     ###############################################################
 
-    ###############################################################
-    # Fallback ACLs
-    acl git_fallback path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git
-    acl api_fallback path_reg -i ^\/api
-    ###############################################################
 
     http-request set-var(txn.host) hdr(Host)
     http-request set-header X-Forwarded-Proto https
@@ -130,38 +125,31 @@ frontend https
     # HTTPS GIT routing
     # If it is an https git request and there are no healthy canary
     # servers, route request to the https_git backend
-    use_backend https_git if is_https_git is_git_method no_be_srvs_canary_https_git
+    use_backend ci_https_git if is_https_git is_git_method no_be_srvs_canary_https_git
 
     # Use the canary for internal request paths like /gitlab-com/
-    use_backend canary_https_git if is_https_git is_git_method is_canary_path
+    use_backend canary_ci_https_git if is_https_git is_git_method is_canary_path
 
     # Finally, if no canary rules match, route requests to the normal
     # https_git backend
-    use_backend https_git if is_https_git is_git_method
+    use_backend ci_https_git if is_https_git is_git_method
     ###############################################################
 
     ###############################################################
     # API routing
     # If there are no healthy canary servers default to the api backend
-    use_backend api if is_ci_api is_api_method no_be_srvs_canary_api
-    use_backend api if is_ci_api_get is_api_get_method no_be_srvs_canary_api
+    use_backend ci_api if is_ci_api is_api_method no_be_srvs_canary_api
+    use_backend ci_api if is_ci_api_get is_api_get_method no_be_srvs_canary_api
 
     # Use the canary for internal request paths like /gitlab-com/, unless
     # the cookie gitlab_canary=false is set
-    use_backend canary_api if is_ci_api is_api_method is_canary_path
-    use_backend canary_api if is_ci_api_get is_api_get_method is_canary_path
+    use_backend canary_ci_api if is_ci_api is_api_method is_canary_path
+    use_backend canary_ci_api if is_ci_api_get is_api_get_method is_canary_path
 
     # Finally, if no canary rules match, route requests to the normal
     # api backend
-    use_backend api if is_ci_api is_api_method
-    use_backend api if is_ci_api_get is_api_get_method
-    ###############################################################
-
-    ###############################################################
-    # Fallback routing
-    ## Fallback mode is enabled, so any unmatched action will still be routed.
-    use_backend fallback_https_git if git_fallback
-    use_backend fallback_api if api_fallback
+    use_backend ci_api if is_ci_api is_api_method
+    use_backend ci_api if is_ci_api_get is_api_get_method
     ###############################################################
 
     default_backend return_403
@@ -170,8 +158,8 @@ frontend check_https
     bind 0.0.0.0:8002
     mode http
     option splice-auto
-    acl no_be_srvs_https_git nbsrv(https_git) lt 1
-    acl no_be_srvs_api nbsrv(api) lt 1
+    acl no_be_srvs_https_git nbsrv(ci_https_git) lt 1
+    acl no_be_srvs_api nbsrv(ci_api) lt 1
     monitor-uri /-/available-https
     monitor fail if no_be_srvs_https_git || no_be_srvs_api
 
@@ -182,7 +170,7 @@ backend return_403
     mode http
     http-request deny
 
-backend api
+backend ci_api
     mode http
     balance roundrobin
     option forwardfor
@@ -191,7 +179,7 @@ backend api
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
 
-backend https_git
+backend ci_https_git
     mode http
     balance roundrobin
     option forwardfor
@@ -200,30 +188,8 @@ backend https_git
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
 
-backend fallback_api
-    mode http
-    balance roundrobin
-    option forwardfor
-    option splice-auto
-    http-request set-header GitLab-CI-Fallback "api"
-    http-response set-header GitLab-CI-Fallback "api"
-    option splice-auto
-    timeout server-fin 5s
-    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
 
-backend fallback_https_git
-    mode http
-    balance roundrobin
-    option forwardfor
-    option splice-auto
-    http-request set-header GitLab-CI-Fallback "git"
-    http-response set-header GitLab-CI-Fallback "git"
-    timeout server-fin 5s
-    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
-
-backend canary_https_git
+backend canary_ci_https_git
     mode http
     balance roundrobin
     option forwardfor
@@ -231,7 +197,7 @@ backend canary_https_git
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
 
-backend canary_api
+backend canary_ci_api
     mode http
     balance roundrobin
     option forwardfor

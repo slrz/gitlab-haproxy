@@ -131,7 +131,6 @@ suites:
             uri:
               "/blacklist/test": "Testing"
         ci:
-          enable_fallback: false
           backend:
             servers:
               default:
@@ -163,6 +162,7 @@ suites:
             uri:
               "/blacklist/test": "Testing"
         ci:
+          enable_fallback: true
           backend:
             servers:
               default:

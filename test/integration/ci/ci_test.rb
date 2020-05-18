@@ -32,9 +32,9 @@ control 'haproxy-config-checks' do
     its('content') do should match /acl is_https_git path_reg/ end
     its('content') do should match /acl is_canary_path path_beg/ end
     its('content') do should match /acl blacklist-uri path_beg/ end
-    its('content') do should match /use_backend api if is_ci_api is_api_method/ end
-    its('content') do should match /use_backend api if is_ci_api_get is_api_get_method/ end
-    its('content') do should match /use_backend https_git if is_https_git is_git_method/ end
+    its('content') do should match /use_backend ci_api if is_ci_api is_api_method/ end
+    its('content') do should match /use_backend ci_api if is_ci_api_get is_api_get_method/ end
+    its('content') do should match /use_backend ci_https_git if is_https_git is_git_method/ end
     its('content') do should match /default_backend return_403/ end
     its('content') do should match /server canary.api01.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ end
     its('content') do should match /server canary.api01.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ end
