@@ -7,6 +7,8 @@
 # License: MIT
 #
 
+node.default['gitlab-haproxy']['timeout_server'] = '90s'
+
 include_recipe 'gitlab-haproxy::default'
 
 # For the deny list builder

@@ -16,7 +16,7 @@ default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'] = 'ECDHE-RSA-AES
 default['gitlab-haproxy']['global']['ssl-default-bind-options'] = 'no-tlsv10 no-tlsv11'
 
 ### Multithreading configuration #####
-default['gitlab-haproxy']['global']['multithreading']['enable'] = false
+default['gitlab-haproxy']['global']['multithreading']['enable'] = true
 #   nbproc should never be changed, we need 1 process for our stick tables
 #   By default, only one process is created, which is the recommended mode
 #   of operation.
@@ -54,7 +54,7 @@ default['gitlab-haproxy']['timeout_server_fin'] = '5s'
 default['gitlab-haproxy']['timeout_tunnel'] = '8s'
 default['gitlab-haproxy']['listen_address'] = '0.0.0.0'
 default['gitlab-haproxy']['timeout_client'] = '90s'
-default['gitlab-haproxy']['timeout_server'] = '90s'
+default['gitlab-haproxy']['timeout_server'] = '1h'
 default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
 default['gitlab-haproxy']['maxconn'] = '20000'
