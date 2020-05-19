@@ -63,6 +63,9 @@ end
 cookbook_file '/etc/haproxy/errors/400.http' do
   source 'haproxy-errors-400.http'
 end
+cookbook_file '/etc/haproxy/errors/403.http' do
+  source 'haproxy-errors-403.http'
+end
 cookbook_file '/etc/haproxy/errors/429.http' do
   source 'haproxy-errors-429.http'
 end

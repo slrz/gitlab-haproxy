@@ -12,6 +12,7 @@ include_recipe 'gitlab-haproxy::default'
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 file '/etc/haproxy/ssl/pages.pem' do
+  sensitive true
   mode '0600'
   content "#{haproxy_secrets['ssl']['pages_crt']}\n#{haproxy_secrets['ssl']['pages_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed

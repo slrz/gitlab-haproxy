@@ -19,3 +19,6 @@
 
 # Ruby
 .ruby-version
+
+# RubyMine
+.idea/
