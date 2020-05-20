@@ -29,7 +29,7 @@ rspec-test-job:
     variables:
       - $CI_PRIVATE_KEY
 
-kitchen-test-job:
+.kitchen_template:
   stage: tests
   artifacts:
     expire_in: '2d'
@@ -41,10 +41,50 @@ kitchen-test-job:
     paths:
       - $BUNDLE_PATH
   script:
-    - make kitchen
+    - make kitchen KITCHEN_SUITE=$SUITE
   only:
     variables:
       - $CI_PRIVATE_KEY
+
+kitchen-haproxy-frontend:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-frontend
+
+kitchen-haproxy-frontend-cloudflare:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-frontend-cloudflare
+
+kitchen-haproxy-ci:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-ci
+
+kitchen-haproxy-ci-fallback:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-ci-fallback
+
+kitchen-haproxy-pages:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-pages
+
+kitchen-haproxy-altssh:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-altssh
+
+kitchen-haproxy-registry:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-registry
+
+kitchen-haproxy-camoproxy:
+  extends: .kitchen_template
+  variables:
+    SUITE: haproxy-camoproxy
 
 push-cookbook:
   stage: publish

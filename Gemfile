@@ -5,7 +5,7 @@ group :test do
   gem 'chef', '~> 14'
   gem 'chef-vault', '~> 3.0'
   gem 'chef-vault-testfixtures', '~> 3.0'
-  gem 'chefspec', '~> 7.0'
+  gem 'chefspec'
   gem 'cookstyle', '~> 2.0'
   gem 'kitchen-digitalocean'
   gem 'kitchen-inspec'

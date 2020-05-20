@@ -1,8 +1,5 @@
 default['gitlab-haproxy']['distro-package'] = true
 default['gitlab-haproxy']['major-version'] = 'haproxy-1.8'
-# Official Debian haproxy-team PPA (https://haproxy.debian.net/)
-# Source: https://salsa.debian.org/haproxy-team/haproxy
-default['gitlab-haproxy']['package-uri'] = "ppa:vbernat/#{node['gitlab-haproxy']['major-version']}"
 
 ### Save HAProxy state on reload
 default['gitlab-haproxy']['systemd_service_overrides']['enable'] = true

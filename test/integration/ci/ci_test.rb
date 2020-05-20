@@ -18,6 +18,11 @@ control 'haproxy-config-checks' do
     its('protocols') do should eq ['tcp'] end
   end
 
+  describe package('haproxy') do
+    it { should be_installed }
+    its('version') { should cmp >= '2.1.0' }
+  end
+
   # https
   describe port(443) do
     its('processes') do should eq ['haproxy'] end
