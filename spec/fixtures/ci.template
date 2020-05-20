@@ -58,6 +58,12 @@ listen stats
     stats auth admin:this-is-a-test-password
     stats admin if TRUE
 
+frontend metrics
+   mode http
+   bind *:8404
+   option http-use-htx
+   http-request use-service prometheus-exporter if { path /metrics }
+
 #---------------------------------------------------------------------
 # Frontend configuration
 #---------------------------------------------------------------------
