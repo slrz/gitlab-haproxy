@@ -1,4 +1,4 @@
-default['gitlab-haproxy']['distro-package'] = true
+default['gitlab-haproxy']['distro-package'] = false
 default['gitlab-haproxy']['major-version'] = 'haproxy-1.8'
 
 ### Save HAProxy state on reload

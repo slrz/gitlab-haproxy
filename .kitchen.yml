@@ -25,7 +25,6 @@ suites:
       gitlab-haproxy:
         chef_vault: secrets
         chef_vault_item: certs
-        distro-package: false
         frontend:
           api:
             servers:
