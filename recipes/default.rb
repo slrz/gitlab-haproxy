@@ -36,8 +36,10 @@ service 'rsyslog' do
   supports [:restart]
 end
 
+# Official Debian haproxy-team PPA (https://haproxy.debian.net/)
+# Source: https://salsa.debian.org/haproxy-team/haproxy
 apt_repository 'haproxy' do
-  uri node['gitlab-haproxy']['package-uri']
+  uri "ppa:vbernat/#{node['gitlab-haproxy']['major-version']}"
   not_if { node['gitlab-haproxy']['distro-package'] }
 end
 

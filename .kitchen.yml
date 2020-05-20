@@ -8,6 +8,7 @@ provisioner:
   require_chef_omnibus: "14"
 platforms:
   - name: ubuntu-16.04
+  - name: ubuntu-18.04
 
 verifier:
   name: inspec
@@ -47,6 +48,8 @@ suites:
               web01.stg.gitlab.com: 127.0.0.1
 
   - name: haproxy-ci
+    excludes:
+      - ubuntu-16-04 # 16.04 doesn't support haproxy-2.1
     run_list:
       - recipe[gitlab-haproxy::ci]
     verifier:
@@ -78,6 +81,8 @@ suites:
                   canary.git01.gitlab.com: 127.0.0.1
 
   - name: haproxy-ci-fallback
+    excludes:
+      - ubuntu-16-04 # 16.04 doesn't support haproxy-2.1
     run_list:
       - recipe[gitlab-haproxy::ci]
     driver_config:

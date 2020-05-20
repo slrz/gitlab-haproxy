@@ -65,7 +65,7 @@ rspec:	check
 kitchen:	### Run kitchen tests on DigitalOcean
 ifeq ($(GITLAB_CI),)
 	@# Locally, just fire up kitchen test, as we're not using ephemeral keys
-	bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always
+	bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE)
 else
 	@# On CI, wrap kitchen test into setup/cleanup key routines
 
@@ -90,7 +90,7 @@ else
 
 	@# Fourth, run kitchen test, wrapped in key setup/destroy routines
 	export DIGITALOCEAN_SSH_KEY_IDS="$$(jq '.ssh_key.id' $(KEY_FILE).json)"; \
-		bundle exec kitchen test --destroy=always; \
+		bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE); \
 		r=$$?; \
 		curl -sS --fail --header "Authorization: Bearer $$DIGITALOCEAN_ACCESS_TOKEN" \
 			--request DELETE "$(DO_KEYS_API)/$$DIGITALOCEAN_SSH_KEY_IDS"; \
