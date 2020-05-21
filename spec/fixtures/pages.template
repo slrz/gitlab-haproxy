@@ -11,6 +11,7 @@ global
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
     nbproc 1
     nbthread 1
+    hard-stop-after 5m
     server-state-file /etc/haproxy/state/global
 
     # Default SSL material locations

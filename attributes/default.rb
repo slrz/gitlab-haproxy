@@ -1,4 +1,3 @@
-default['gitlab-haproxy']['distro-package'] = false
 default['gitlab-haproxy']['major-version'] = 'haproxy-1.8'
 
 ### Save HAProxy state on reload
@@ -16,22 +15,17 @@ default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'] = 'ECDHE-RSA-AES
 default['gitlab-haproxy']['global']['ssl-default-bind-options'] = 'no-tlsv10 no-tlsv11'
 
 ### Multithreading configuration #####
-default['gitlab-haproxy']['global']['multithreading']['enable'] = true
-#   nbproc should never be changed, we need 1 process for our stick tables
-#   By default, only one process is created, which is the recommended mode
-#   of operation.
-default['gitlab-haproxy']['global']['multithreading']['nbproc'] = '1'
 #   It creates <number> threads for each created processes.
 #   this defaults to 4 on the current HAProxy fleet, 1 thread per core
-default['gitlab-haproxy']['global']['multithreading']['nbthread'] = node['cpu']['total']
+default['gitlab-haproxy']['global']['nbthread'] = node['cpu']['total']
 ######################################
 
 # https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#3.1-hard-stop-after
 # Kill connections that remain open when HAProxy receives a SIGUSR1
 # this helps to prevent presistent TCP connections from keeping haproxy
 # processes lingering for a long time after reload
-default['gitlab-haproxy']['global']['hard-stop']['enable'] = false
-default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '30m'
+default['gitlab-haproxy']['global']['hard-stop']['enable'] = true
+default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '5m'
 default['gitlab-haproxy']['global']['tcp_checks'] =
   [
     {

@@ -1,60 +1,78 @@
 DEPENDENCIES
   gitlab-exporters
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-exporters.git
-    revision: e12a1b1c6c4e3170a47fb827d5cbcf9493383ef4
+    revision: b0374411813677ec2b096e9191f08b022bc10dc6
   gitlab-haproxy
     path: .
     metadata: true
   gitlab-mtail
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-mtail.git
     revision: aef5ef48a05ef8dba020bf9416a58b1cb95bb8e2
+  gitlab-server
+    git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-server.git
+    revision: 759438afc68513179d3f0a710c70a49e55784385
   gitlab_secrets
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab_secrets.git
     revision: 887867c3e6ee29d6e7c66cd20e7a434d681d7c2b
 
 GRAPH
-  apt (7.2.0)
+  apt (7.3.0)
   ark (5.0.0)
     seven_zip (>= 0.0.0)
   build-essential (8.2.1)
     mingw (>= 1.1)
     seven_zip (>= 0.0.0)
-  chef-vault (4.0.0)
-  consul (4.0.0)
+  chef-client (11.5.0)
+    cron (>= 4.2.0)
+    logrotate (>= 1.9.0)
+  chef-vault (3.1.2)
+  chef_client_updater (3.10.0)
+  consul (4.0.1)
     build-essential (>= 5.0.0)
     golang (>= 0.0.0)
     nssm (>= 4.0.0)
     poise (~> 2.2)
     poise-archive (~> 1.3)
     poise-service (~> 1.4)
-  gitlab-exporters (3.3.3)
+  cron (6.3.0)
+  gitlab-exporters (3.5.4)
     ark (>= 0.0.0)
     chef-vault (>= 0.0.0)
     consul (>= 0.0.0)
+    gitlab-server (~> 1.11.0)
     gitlab-vault (~> 0.2)
     gitlab_secrets (~> 0.0)
     runit (>= 0.0.0)
-  gitlab-haproxy (1.5.1)
+  gitlab-haproxy (1.6.0)
     apt (>= 0.0.0)
     gitlab-exporters (>= 0.0.0)
     gitlab-mtail (>= 0.0.0)
     gitlab-vault (>= 0.0.0)
     gitlab_secrets (>= 0.0.0)
-    openssh (>= 0.0.0)
   gitlab-mtail (2.5.0)
     runit (>= 0.0.0)
+  gitlab-server (1.11.0)
+    apt (>= 0.0.0)
+    chef-client (>= 0.0.0)
+    chef-vault (~> 3.0)
+    chef_client_updater (>= 0.0.0)
+    gitlab-vault (>= 0.0.0)
+    gitlab_secrets (>= 0.0.0)
+    hostsfile (>= 0.0.0)
+    sudo (>= 0.0.0)
+    systemd (>= 0.0.0)
+    users (>= 0.0.0)
   gitlab-vault (0.2.0)
     chef-vault (>= 0.0.0)
   gitlab_secrets (0.0.7)
     chef-vault (>= 0.0.0)
   golang (1.7.0)
-  iptables (7.0.0)
+  hostsfile (3.0.1)
+  logrotate (2.2.2)
   mingw (2.1.0)
     seven_zip (>= 0.0.0)
   nssm (4.0.1)
     windows (>= 0.0.0)
-  openssh (2.8.1)
-    iptables (>= 1.0)
   packagecloud (1.0.1)
   poise (2.8.2)
   poise-archive (1.5.0)
@@ -66,5 +84,8 @@ GRAPH
     yum-epel (>= 0.0.0)
   seven_zip (3.1.2)
     windows (>= 0.0.0)
+  sudo (5.4.5)
+  systemd (3.2.4)
+  users (5.4.0)
   windows (7.0.0)
   yum-epel (3.3.0)
