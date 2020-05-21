@@ -10,13 +10,13 @@ describe 'gitlab-haproxy::default' do
         .with('gkms', 'secrets', 'certs').and_return(secrets)
     end
     let(:chef_run) do
-      ChefSpec::SoloRunner.new { |node|
+      ChefSpec::SoloRunner.new do |node|
         node.normal['gitlab-haproxy']['secrets'] = {
           'backend' => 'gkms',
           'path' => 'secrets',
           'key' => 'certs',
         }
-      }.converge(described_recipe)
+      end.converge(described_recipe)
     end
 
     it 'converges successfully' do

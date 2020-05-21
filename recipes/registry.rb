@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: gitlab-haproxy
+# Cookbook:: gitlab-haproxy
 # Recipe:: registry
 #
-# Copyright (C) 2018 GitLab Inc.
+# Copyright:: (C) 2018 GitLab Inc.
 #
 # License: MIT
 #

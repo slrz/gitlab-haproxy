@@ -12,11 +12,11 @@ control 'haproxy-config-checks' do
 '
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('content') do should_not match /acl git_fallback path_reg/ end
-    its('content') do should_not match /acl api_fallback path_reg/ end
-    its('content') do should_not match /use_backend fallback_ci_https_git if git_fallback/ end
-    its('content') do should_not match /use_backend fallback_ci_api if api_fallback/ end
-    its('content') do should_not match /backend fallback_ci_api/ end
-    its('content') do should_not match /backend fallback_ci_https_git/ end
+    its('content') { should_not match /acl git_fallback path_reg/ }
+    its('content') { should_not match /acl api_fallback path_reg/ }
+    its('content') { should_not match /use_backend fallback_ci_https_git if git_fallback/ }
+    its('content') { should_not match /use_backend fallback_ci_api if api_fallback/ }
+    its('content') { should_not match /backend fallback_ci_api/ }
+    its('content') { should_not match /backend fallback_ci_https_git/ }
   end
 end

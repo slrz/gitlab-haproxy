@@ -6,12 +6,13 @@ group :test do
   gem 'chef-vault', '~> 3.0'
   gem 'chef-vault-testfixtures', '~> 3.0'
   gem 'chefspec'
-  gem 'cookstyle', '~> 2.0'
+  gem 'cookstyle'
   gem 'kitchen-digitalocean'
   gem 'kitchen-inspec'
   gem 'kitchen-vagrant'
   gem 'rubocop'
   gem 'test-kitchen'
+  gem 'dbus-systemd'
 end
 
 group :ed25519 do

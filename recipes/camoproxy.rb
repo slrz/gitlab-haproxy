@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: gitlab-haproxy
+# Cookbook:: gitlab-haproxy
 # Recipe:: camoproxy
 #
-# Copyright (C) 2019 GitLab Inc.
+# Copyright:: (C) 2019 GitLab Inc.
 #
 # License: MIT
 #

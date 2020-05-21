@@ -22,33 +22,33 @@ control 'haproxy-config-checks' do
 
   describe file('/etc/haproxy/cloudflare_ips_v4.lst') do
     it { should be_file }
-    its('type') do should eq :file end
-    its('owner') do should eq 'root' end
-    its('group') do should eq 'root' end
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
     its('mode') { should cmp '0644' }
   end
 
   describe file('/etc/haproxy/cloudflare_ips_v6.lst') do
     it { should be_file }
-    its('type') do should eq :file end
-    its('owner') do should eq 'root' end
-    its('group') do should eq 'root' end
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
     its('mode') { should cmp '0644' }
   end
 
   describe file('/etc/haproxy/ssl/cf-origin-pull.pem') do
     it { should be_file }
-    its('type') do should eq :file end
-    its('owner') do should eq 'root' end
-    its('group') do should eq 'root' end
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
     its('mode') { should cmp '0600' }
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('mode') do should cmp '0600' end
-    its('content') do should match /if from_cf cf_ip_hdr/ end
-    its('content') do should match %r{verify required ca-file /etc/haproxy/ssl/cf-origin-pull\.pem} end
-    its('content') do should_not match /option forwardfor/ end
-    its('content') do should_not match /use_backend 429_slow_down/ end
+    its('mode') { should cmp '0600' }
+    its('content') { should match /if from_cf cf_ip_hdr/ }
+    its('content') { should match %r{verify required ca-file /etc/haproxy/ssl/cf-origin-pull\.pem} }
+    its('content') { should_not match /option forwardfor/ }
+    its('content') { should_not match /use_backend 429_slow_down/ }
   end
 end

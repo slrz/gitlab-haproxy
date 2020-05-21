@@ -18,6 +18,11 @@ before_script:
   - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq
   - make gems
 
+cookstyle:
+  stage: tests
+  script:
+    - bundle exec cookstyle
+
 rspec-test-job:
   stage: tests
   cache:

@@ -9,10 +9,8 @@ global
     group haproxy
     daemon
     maxconn 20000 # raising in the defaults without raising global makes no sense (!!)
-<% if node['gitlab-haproxy']['global']['multithreading']['enable'] %>
-    nbproc <%= node['gitlab-haproxy']['global']['multithreading']['nbproc'] %>
-    nbthread <%= node['gitlab-haproxy']['global']['multithreading']['nbthread'] %>
-<% end %>
+    nbproc 1
+    nbthread <%= node['gitlab-haproxy']['global']['nbthread'] %>
 <% if node['gitlab-haproxy']['global']['hard-stop']['enable'] %>
     hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
 <% end %>

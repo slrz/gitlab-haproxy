@@ -1,14 +1,13 @@
 #
-# Cookbook Name:: gitlab-haproxy
+# Cookbook:: gitlab-haproxy
 # Recipe:: ci
 #
-# Copyright (C) 2016 GitLab Inc.
+# Copyright:: (C) 2016 GitLab Inc.
 #
 # License: MIT
 #
 
 # Let's use HAProxy 2.1
-node.default['gitlab-haproxy']['distro-package'] = false
 node.default['gitlab-haproxy']['major-version'] = 'haproxy-2.1'
 
 include_recipe 'gitlab-haproxy::default'
