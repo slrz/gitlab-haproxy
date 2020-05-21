@@ -14,4 +14,4 @@ module Gitlab
   end
 end
 
-Chef::Recipe.send(:include, Gitlab::HAProxyCookbook)
+Chef::Recipe.include Gitlab::HAProxyCookbook

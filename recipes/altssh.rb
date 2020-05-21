@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: gitlab-haproxy
+# Cookbook:: gitlab-haproxy
 # Recipe:: altssh
 #
-# Copyright (C) 2017 GitLab Inc.
+# Copyright:: (C) 2017 GitLab Inc.
 #
 # License: MIT
 #

@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: gitlab-haproxy
+# Cookbook:: gitlab-haproxy
 # Recipe:: default
 #
-# Copyright (C) 2019 GitLab Inc.
+# Copyright:: (C) 2019 GitLab Inc.
 #
 # License: MIT
 #
@@ -40,7 +40,6 @@ end
 # Source: https://salsa.debian.org/haproxy-team/haproxy
 apt_repository 'haproxy' do
   uri "ppa:vbernat/#{node['gitlab-haproxy']['major-version']}"
-  not_if { node['gitlab-haproxy']['distro-package'] }
 end
 
 package 'haproxy' do

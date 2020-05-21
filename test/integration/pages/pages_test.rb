@@ -13,22 +13,22 @@ control 'haproxy-config-checks' do
       * correct backends are used'
   # stats
   describe port(7331) do
-    its('processes') do should eq ['haproxy'] end
-    its('addresses') do should eq ['0.0.0.0'] end
+    its('processes') { should eq ['haproxy'] }
+    its('addresses') { should eq ['0.0.0.0'] }
     its('protocols') { should eq ['tcp'] }
   end
 
   # http
   describe port(80) do
-    its('processes') do should eq ['haproxy'] end
-    its('addresses') do should eq ['0.0.0.0'] end
+    its('processes') { should eq ['haproxy'] }
+    its('addresses') { should eq ['0.0.0.0'] }
     its('protocols') { should eq ['tcp'] }
   end
 
   # https
   describe port(443) do
-    its('processes') do should eq ['haproxy'] end
-    its('addresses') do should eq ['0.0.0.0'] end
+    its('processes') { should eq ['haproxy'] }
+    its('addresses') { should eq ['0.0.0.0'] }
     its('protocols') { should eq ['tcp'] }
   end
 

@@ -28,17 +28,17 @@ control 'logrotate-config-valid' do
 
   describe file('/etc/cron.hourly/logrotate') do
     it { should be_file }
-    its('type') do should eq :file end
-    its('owner') do should eq 'root' end
-    its('group') do should eq 'root' end
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
     its('mode') { should cmp '0755' }
   end
 
   describe file('/etc/logrotate.d/haproxy') do
     it { should be_file }
-    its('type') do should eq :file end
-    its('owner') do should eq 'root' end
-    its('group') do should eq 'root' end
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
     its('mode') { should cmp '0644' }
   end
 end
