@@ -47,6 +47,10 @@ defaults
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/504.http
     load-server-state-from-file global
+    # This configuration makes sure, the backend thinks it's a keep-alive connection, to avoid erratic behaviour
+    # But closes the connection to the clients. This is used as a workaround for Cloudflare connection ratelimits.
+    option http-pretend-keepalive
+    option forceclose
 
 listen stats
     bind 0.0.0.0:7331
@@ -289,8 +293,10 @@ backend api
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server api01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-    server api02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server api01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server api-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api-cny-02.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend api_rate_limit
     option splice-auto
@@ -304,8 +310,10 @@ backend https_git
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-    server git02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server git01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server git-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git-cny-02.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend web
     mode http
@@ -315,8 +323,10 @@ backend web
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-    server web02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server web01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web-cny-02.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend canary_web
     mode http
@@ -328,8 +338,8 @@ backend canary_web
     http-response set-header X-Robots-Tag noindex if { var(txn.host) -m beg canary }
     rspadd Content-Security-Policy:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-    server web-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend canary_https_git
     mode http
@@ -338,8 +348,8 @@ backend canary_https_git
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-    server git-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server git-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server git-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend canary_api
     mode http
@@ -348,8 +358,8 @@ backend canary_api
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none
-    server api-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none backup
+    server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend ssh
     mode tcp
@@ -362,8 +372,10 @@ backend ssh
     # if rails isn't running and they're both running on the same host.
     # We need to change this when we split rails to a separate cluster.
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git01.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3
-    server git02.stg.gitlab.com 127.0.0.1:22 check check-ssl port 443 verify none inter 2s fastinter 1s downinter 5s fall 3 backup
+    server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3
+    server git02.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3 backup
+    server git-cny-01.stg.gitlab.com 127.0.0.1:22 weight 0 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3 check-ssl verify none
+    server git-cny-02.stg.gitlab.com 127.0.0.1:22 weight 0 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3 check-ssl verify none backup
 
 backend websockets
     mode http
@@ -373,8 +385,10 @@ backend websockets
     timeout tunnel 8s
     cookie _gitlab_session prefix nocache
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server web01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
-    server web02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none cookie web02.stg.gitlab.com backup
+    server web01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
+    server web02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none cookie web02.stg.gitlab.com backup
+    server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none cookie web-cny-01.stg.gitlab.com
+    server web-cny-02.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none cookie web-cny-02.stg.gitlab.com backup
 
 backend 429_slow_down
     mode http

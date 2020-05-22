@@ -7,6 +7,16 @@
 # License: MIT
 #
 
+node.default['gitlab-haproxy']['close_client_connections'] = true
+
+env = node.chef_environment
+node.default['gitlab-haproxy']['frontend']['asset_proxy'] = {
+  enable: true,
+  host: "gitlab-#{env}-assets.storage.googleapis.com",
+} if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
+
+node.default['gitlab-haproxy']['frontend']['use_weights'] = true
+
 include_recipe 'gitlab-haproxy::default'
 
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']

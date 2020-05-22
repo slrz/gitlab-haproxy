@@ -111,7 +111,7 @@ default['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] = 'gitlab.co
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = true
-default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3'
+default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 3s fastinter 1s downinter 5s fall 3'
 default['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = false
 default['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] = '/info'
 default['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'example.com'
@@ -224,7 +224,7 @@ default['gitlab-haproxy']['registry']['backend_port'] = '5000'
 default['gitlab-haproxy']['registry']['httpchk_host'] = 'registry.gitlab.com'
 default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
-default['gitlab-haproxy']['registry']['use_weights'] = false
+default['gitlab-haproxy']['registry']['use_weights'] = true
 default['gitlab-haproxy']['registry']['default_weight'] = '100'
 
 default['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull'] = false
@@ -247,7 +247,7 @@ default['gitlab-haproxy']['ci']['backend']['servers']['default']['api'] = {}
 default['gitlab-haproxy']['ci']['backend']['servers']['default']['https_git'] = {}
 default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_api'] = {}
 default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_https_git'] = {}
-default['gitlab-haproxy']['ci']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
+default['gitlab-haproxy']['ci']['default_check_opts'] = 'inter 3s fastinter 1s downinter 5s fall 3'
 default['gitlab-haproxy']['ci']['api']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['ci']['https_git']['check_opts'] = 'check-ssl'
 
