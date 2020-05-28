@@ -76,34 +76,47 @@ frontend https
     acl is_api_method method POST PATCH PUT
     ### POST PATCH PUT Rules
     # POST for register runner
-    acl is_ci_api path_reg -i ^\/api\/v4\/runners$
+    acl is_ci_api path_reg -i ^\/api\/v4\/runners($|\?)
     # POST to get job
-    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/request$
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/request($|\?)
     # POST for runner verification
-    acl is_ci_api path_reg -i ^\/api\/v4\/runners\/verify$
+    acl is_ci_api path_reg -i ^\/api\/v4\/runners\/verify($|\?)
     # PATCH for job traces
-    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+\/trace$
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+\/trace($|\?)
     # PUT for job status etc
-    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+$
-    # GET/POST for build artifacts (note, no end match here!)
-    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+/artifacts
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+($|\?)
+    # GET/POST for build artifacts
+    acl is_ci_api path_reg -i ^\/api\/v4\/jobs\/\d+/artifacts($|\?)
 
     acl is_api_get_method method GET
     ### GET Rules
     # GET to get jobs
-    acl is_ci_api_get path_reg -i ^\/api\/v4\/jobs$
-    # GET/POST for build artifacts (note, no end match here!)
-    acl is_ci_api_get path_reg -i ^\/api\/v4\/jobs\/\d+/artifacts
+    acl is_ci_api_get path_reg -i ^\/api\/v4\/jobs($|\?)
+    # GET/POST for build artifacts
+    acl is_ci_api_get path_reg -i ^\/api\/v4\/jobs\/\d+/artifacts($|\?)
     ###############################################################
 
     ###############################################################
     # HTTPS git ACLs
     # HAProxy will OR these acl conditions
+    # See: https://git-scm.com/docs/http-protocol
+    # git HTTP protocol
     acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git$
     acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$
     acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs\?service=git-(upload|receive)-pack$
     acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/git-(upload|receive)-pack$
     acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/objects\/[^\/]{2}\/[^\/]{14,}$
+    # See: https://github.com/git-lfs/git-lfs/blob/master/docs/api/server-discovery.md
+    # LFS base endpoint
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs($|\?)
+    # See: https://github.com/git-lfs/git-lfs/blob/master/docs/api/locking.md
+    # LFS file locking
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/locks($|\?)
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/locks/verify$
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/locks\/[^\/]+\/unlock$
+    # See: https://github.com/git-lfs/git-lfs/blob/master/docs/api/batch.md
+    # The actual download is handled via the URL returned in the payload and is not derived from here.
+    acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/objects\/batch$
     acl is_git_method method GET POST
     ###############################################################
 

@@ -54,42 +54,42 @@ rspec-test-job:
 kitchen-haproxy-frontend:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-frontend
+    SUITE: haproxy-frontend-ubuntu
 
 kitchen-haproxy-frontend-cloudflare:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-frontend-cloudflare
+    SUITE: haproxy-frontend-cloudflare-ubuntu
 
 kitchen-haproxy-ci:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-ci
+    SUITE: haproxy-ci-ubuntu
 
 kitchen-haproxy-ci-fallback:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-ci-fallback
+    SUITE: haproxy-ci-fallback-ubuntu
 
 kitchen-haproxy-pages:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-pages
+    SUITE: haproxy-pages-ubuntu
 
 kitchen-haproxy-altssh:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-altssh
+    SUITE: haproxy-altssh-ubuntu
 
 kitchen-haproxy-registry:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-registry
+    SUITE: haproxy-registry-ubuntu
 
 kitchen-haproxy-camoproxy:
   extends: .kitchen_template
   variables:
-    SUITE: haproxy-camoproxy
+    SUITE: haproxy-camoproxy-ubuntu
 
 push-cookbook:
   stage: publish
