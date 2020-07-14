@@ -6,7 +6,7 @@
 #
 # License: MIT
 #
-include_recipe 'apt'
+include_recipe 'apt::unattended-upgrades'
 
 # Don't allow automatic upgrades.
 node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'

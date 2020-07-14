@@ -41,12 +41,10 @@ control 'haproxy-config-checks' do
     its('content') { should match /use_backend ci_api if is_ci_api_get is_api_get_method/ }
     its('content') { should match /use_backend ci_https_git if is_https_git is_git_method/ }
     its('content') { should match /default_backend return_403/ }
-    its('content') { should match /server canary.api01.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ }
-    its('content') { should match /server canary.api01.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ }
-    its('content') { should match /server api01.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ }
-    its('content') { should match /server canary.api01.gitlab.com 127.0.0.1:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ }
-    its('content') { should match /server canary.api01.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ }
-    its('content') { should match /server git01.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none/ }
+    its('content') { should match /server canary.api01.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none/ }
+    its('content') { should match /server api01.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none/ }
+    its('content') { should match /server canary.api01.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none/ }
+    its('content') { should match /server git01.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none/ }
   end
 
   describe file('/etc/haproxy/blacklist-uris.lst') do

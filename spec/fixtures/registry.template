@@ -146,7 +146,7 @@ backend registry
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /debug/health HTTP/1.1\r\nHost:\ registry.gitlab.com
-    server registry-01-sv-gstg registry-01-sv-gstg.c.gitlab-staging-1.internal:5000 check inter 2s fastinter 1s downinter 5s fall 3 port 5001
+    server registry-01-sv-gstg registry-01-sv-gstg.c.gitlab-staging-1.internal:5000 weight 100 check inter 2s fastinter 1s downinter 5s fall 3 port 5001
 
 backend canary_registry
     mode http

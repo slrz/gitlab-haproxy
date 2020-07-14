@@ -7,12 +7,6 @@
 # License: MIT
 #
 
-node.default['gitlab-haproxy']['canary_request_path']['path_list'] = [
-  '/v2/charts',
-  '/v2/gitlab-com',
-  '/v2/gitlab-org/gitlab-ee',
-]
-
 include_recipe 'gitlab-haproxy::default'
 
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']

@@ -199,7 +199,7 @@ backend ci_api
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
+    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
 
 backend ci_https_git
     mode http
@@ -208,7 +208,7 @@ backend ci_https_git
     option splice-auto
     timeout server-fin 5s
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
-    server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 port 5001 ssl verify none
+    server git02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
 
 
 backend canary_ci_https_git
