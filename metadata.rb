@@ -3,7 +3,7 @@ maintainer       'GitLab Inc.'
 maintainer_email 'ops-contact@gitlab.com'
 license          'All rights reserved'
 description      'Manage HAProxy server'
-version          '1.6.3'
+version          '1.6.4'
 chef_version     '>= 14.0'
 
 depends 'gitlab-exporters'

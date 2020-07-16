@@ -10,10 +10,11 @@
 node.default['gitlab-haproxy']['close_client_connections'] = true
 
 env = node.chef_environment
-node.default['gitlab-haproxy']['frontend']['asset_proxy'] = {
-  enable: true,
-  host: "gitlab-#{env}-assets.storage.googleapis.com",
-} if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
+
+if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
+  node.default['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
+  node.default['gitlab-haproxy']['frontend']['asset_proxy']['host'] = "gitlab-#{env}-assets.storage.googleapis.com"
+end
 
 node.default['gitlab-haproxy']['frontend']['use_weights'] = true
 

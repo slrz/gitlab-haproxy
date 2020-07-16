@@ -138,11 +138,15 @@ describe 'gitlab-haproxy::frontend' do
   context 'with asset proxy' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
+        env = Chef::Environment.new
+        env.name 'pre'
+        node.stub(:chef_environment).and_return env.name
+        Chef::Environment.stub(:load).and_return env
+        node.normal['cloud']['provider'] = 'gce'
+
         populate_node_properties(node)
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
         node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
       end.converge(described_recipe)
     end
 
