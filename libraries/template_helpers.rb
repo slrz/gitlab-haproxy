@@ -23,9 +23,10 @@ module Gitlab
       end
 
       # Build up an active server list selecting servers
-      # that only match the zone of the lb
+      # that only match the zone of the lb or the zone named
+      # default
       backend_cfg['servers'].each do |server_zone, server|
-        servers['active'].update(server) if lb_zone == server_zone
+        servers['active'].update(server) if lb_zone == server_zone || server_zone == 'default'
       end
 
       backend_cfg['essential'].each do |backend|
