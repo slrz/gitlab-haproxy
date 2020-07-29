@@ -596,12 +596,13 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['https_git']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['ssh']['git01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['websockets']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_websockets']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_api']['api-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_ssh']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_https_git']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+    # If the zone is set to `default` it will be included by default
+    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets']['web01.stg.gitlab.com'] = '127.0.0.1'
   end
 
   def populate_node_properties_zonal_backup(node)
