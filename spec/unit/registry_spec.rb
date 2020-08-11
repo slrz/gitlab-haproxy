@@ -4,6 +4,22 @@ require 'chef-vault/test_fixtures'
 describe 'gitlab-haproxy::registry' do
   include ChefVault::TestFixtures.rspec_shared_context
 
+  context 'using weights with canaries' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties_with_weights(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'creates the frontend template correctly with weights.' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('server gke-cny-registry 1.1.1.1:5000 weight 3 check inter 2s fastinter 1s downinter 5s fall 3 port 5001')
+      }
+    end
+  end
+
   context 'with internal request routing' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
@@ -120,4 +136,12 @@ describe 'gitlab-haproxy::registry' do
       'http-request deny deny_status 400 if is_bad',
     ]
   end
+
+  def populate_node_properties_with_weights(node)
+    populate_node_properties(node)
+    node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
+    node.normal['gitlab-haproxy']['frontend']['registry']['default_weight'] = '3'
+    node.normal['gitlab-haproxy']['canary_registry']['servers']['gke-cny-registry'] = '1.1.1.1'
+  end
+
 end
