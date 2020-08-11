@@ -134,6 +134,7 @@ default['gitlab-haproxy']['frontend']['canary_registry']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '0'
 
