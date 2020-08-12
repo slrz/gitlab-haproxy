@@ -78,11 +78,11 @@ describe 'gitlab-haproxy::registry' do
             use_internal: nil,
             backend_servers: {
               'active' => {
-                'canary_registry' => {},
+                'canary_registry' => {"gke-cny-registry"=>"1.1.1.1"},
                 'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
               },
               'all' => {
-                'canary_registry' => {},
+                'canary_registry' => {"gke-cny-registry"=>"1.1.1.1"},
                 'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
               },
             },
@@ -132,6 +132,7 @@ describe 'gitlab-haproxy::registry' do
     node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['registry']['peers']['servers']['fe-registry-01-lb-gstg'] = ['10.65.1.101', '32768']
     node.normal['gitlab-haproxy']['registry']['servers']['registry-01-sv-gstg'] = 'registry-01-sv-gstg.c.gitlab-staging-1.internal'
+    node.normal['gitlab-haproxy']['canary_registry']['servers']['gke-cny-registry'] = '1.1.1.1'
     node.normal['gitlab-haproxy']['registry']['custom_config'] = [
       'http-request deny deny_status 400 if is_bad',
     ]
@@ -139,7 +140,7 @@ describe 'gitlab-haproxy::registry' do
 
   def populate_node_properties_with_weights(node)
     populate_node_properties(node)
-    node.normal['gitlab-haproxy']['frontend']['registry']['default_weight'] = '3'
-    node.normal['gitlab-haproxy']['canary_registry']['servers']['gke-cny-registry'] = '1.1.1.1'
+    node.normal['gitlab-haproxy']['canary_registry']['default_weight'] = '3'
   end
+
 end

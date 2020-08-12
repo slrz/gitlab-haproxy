@@ -134,7 +134,6 @@ default['gitlab-haproxy']['frontend']['canary_registry']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
-default['gitlab-haproxy']['frontend']['canary_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '0'
 
@@ -219,6 +218,7 @@ default['gitlab-haproxy']['pages']['backend']['essential'] = %w(pages)
 
 default['gitlab-haproxy']['registry']['servers'] = {}
 default['gitlab-haproxy']['canary_registry']['servers'] = {}
+default['gitlab-haproxy']['canary_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
 default['gitlab-haproxy']['registry']['custom_config'] = nil
 default['gitlab-haproxy']['registry']['backend_port'] = '5000'
