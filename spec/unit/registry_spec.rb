@@ -78,11 +78,11 @@ describe 'gitlab-haproxy::registry' do
             use_internal: nil,
             backend_servers: {
               'active' => {
-                'canary_registry' => {"gke-cny-registry"=>"1.1.1.1"},
+                'canary_registry' => { 'gke-cny-registry' => '1.1.1.1' },
                 'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
               },
               'all' => {
-                'canary_registry' => {"gke-cny-registry"=>"1.1.1.1"},
+                'canary_registry' => {'gke-cny-registry' => '1.1.1.1' },
                 'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
               },
             },
@@ -142,5 +142,4 @@ describe 'gitlab-haproxy::registry' do
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['canary_registry']['default_weight'] = '3'
   end
-
 end
