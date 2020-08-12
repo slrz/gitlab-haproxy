@@ -82,7 +82,7 @@ describe 'gitlab-haproxy::registry' do
                 'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
               },
               'all' => {
-                'canary_registry' => {'gke-cny-registry' => '1.1.1.1' },
+                'canary_registry' => { 'gke-cny-registry' => '1.1.1.1' },
                 'registry' => { 'registry-01-sv-gstg' => 'registry-01-sv-gstg.c.gitlab-staging-1.internal' },
               },
             },
