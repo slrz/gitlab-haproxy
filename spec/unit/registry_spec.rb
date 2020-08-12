@@ -139,7 +139,6 @@ describe 'gitlab-haproxy::registry' do
 
   def populate_node_properties_with_weights(node)
     populate_node_properties(node)
-    node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
     node.normal['gitlab-haproxy']['frontend']['registry']['default_weight'] = '3'
     node.normal['gitlab-haproxy']['canary_registry']['servers']['gke-cny-registry'] = '1.1.1.1'
   end
