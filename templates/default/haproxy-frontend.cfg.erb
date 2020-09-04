@@ -203,13 +203,12 @@ frontend https
 
     ###############################################################
     # HTTPS GIT routing rules
+    # Note we do not route to the https git backend based on request paths
+    # see https://gitlab.com/gitlab-com/gl-infra/delivery/-/issues/1182
     <% if node['gitlab-haproxy']['frontend']['canary_https_git']['enable'] %>
     # If it is an https git request and there are no healthy canary
     # servers, route request to the https_git backend
     use_backend https_git if is_gitlab_com_https_git no_be_srvs_canary_https_git
-    # Use the canary for internal request paths like /gitlab-com/, unless
-    # the cookie gitlab_canary=false is set
-    use_backend canary_https_git if is_gitlab_com_https_git is_canary_path !canary_disabled
     # Use the canary backend if the cookie gitlab_canary=true is set or if the request
     # is sent to canary.gitlab.com
     use_backend canary_https_git if is_gitlab_com_https_git is_canary
