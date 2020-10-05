@@ -14,4 +14,4 @@ module Gitlab
   end
 end
 
-Chef::Recipe.include Gitlab::HAProxyCookbook
+Chef::DSL::Recipe.include Gitlab::HAProxyCookbook

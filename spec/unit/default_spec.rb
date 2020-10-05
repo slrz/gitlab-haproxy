@@ -9,6 +9,7 @@ describe 'gitlab-haproxy::default' do
       expect_any_instance_of(Chef::Recipe).to receive(:get_secrets)
         .with('gkms', 'secrets', 'certs').and_return(secrets)
     end
+
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
         node.normal['gitlab-haproxy']['secrets'] = {
