@@ -35,6 +35,7 @@ describe 'gitlab-haproxy::registry' do
         expect(content).to include('use_backend canary_registry if is_canary_path !canary_disabled')
       }
     end
+
     it 'creates registry acls' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include('acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst')
@@ -44,6 +45,7 @@ describe 'gitlab-haproxy::registry' do
         expect(content).to include('acl no_be_srvs_canary_registry nbsrv(canary_registry) lt 1')
       }
     end
+
     it 'creates the request path regex lst file' do
       expect(chef_run).to render_file('/etc/haproxy/canary-request-paths.lst').with_content { |content|
         expect(content).to include('/gitlab-com')

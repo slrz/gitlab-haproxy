@@ -85,6 +85,7 @@ describe 'gitlab-haproxy::pages' do
         node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
       end.converge(described_recipe)
     end
+
     it 'includes the pages domain blacklisting options' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to eq(IO.read('spec/fixtures/pages-domain-blacklist.template'))
