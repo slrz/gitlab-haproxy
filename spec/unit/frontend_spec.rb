@@ -467,7 +467,7 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with tcp-check' do
-    let(:chef_run) do
+    let(:tcp_http_check) do
       ChefSpec::SoloRunner.new do |node|
         populate_node_properties(node)
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
@@ -482,10 +482,37 @@ describe 'gitlab-haproxy::frontend' do
       end.converge(described_recipe)
     end
 
-    it 'enables tcp check for web' do
-      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3 check-ssl verify none')
-        expect(content.scan(tcp_check).size).to eq(8)
+    let(:tcp_only) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
+        node.normal['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = true
+        node.normal['gitlab-haproxy']['frontend']['ssh']['check_opts'] = ''
+      end.converge(described_recipe)
+    end
+
+    it 'enables http check via tcp for web' do
+      expect(tcp_http_check).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('option tcp-check')
+        expect(content).not_to include('tcp-check expect rstring HTTP/1\..\ 2..')
+        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3')
+        expect(content.scan(tcp_check).size).to eq(0)
+      }
+    end
+
+    it 'when only tcp checks' do
+      expect(tcp_only).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('option tcp-check')
+        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check  inter 3s fastinter 1s downinter 5s fall 3')
+        expect(content).not_to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3')
+        expect(content.scan(tcp_check).size).to eq(0)
       }
     end
   end
