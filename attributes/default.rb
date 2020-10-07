@@ -26,18 +26,7 @@ default['gitlab-haproxy']['global']['nbthread'] = node['cpu']['total']
 # processes lingering for a long time after reload
 default['gitlab-haproxy']['global']['hard-stop']['enable'] = true
 default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '5m'
-default['gitlab-haproxy']['global']['tcp_checks'] =
-  [
-    {
-      'port' => '8083',
-      'path' => '/readiness',
-    },
-    {
-      'port' => '443',
-      'ssl' => true,
-      'path' => '/-/health',
-    },
-  ]
+
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
 default['gitlab-haproxy']['timeout_check'] = '30000'

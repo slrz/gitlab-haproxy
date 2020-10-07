@@ -1,12 +1,5 @@
     <% if @ha_frontend['tcp_check_enable'] %>
     option tcp-check
-    <% (@ha_global['tcp_checks'] || []).each do |check| %>
-    tcp-check connect port <%= check['port'] %><%= check['ssl'] ? ' ssl' : '' %>
-    tcp-check send GET\ <%= check['path'] %>\ HTTP/1.0\r\n
-    tcp-check send Host:\ <%= @ha_frontend['httpchk_host'] %>\r\n
-    tcp-check send \r\n
-    tcp-check expect rstring HTTP/1\..\ 2..
-    <% end %>
     <% else %>
     option httpchk GET <%= @ha_frontend['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= @ha_frontend['httpchk_host'] %>
     <% end %>
