@@ -182,8 +182,11 @@ suites:
         chef_vault: secrets
         chef_vault_item: certs
         altssh:
-          servers:
-            ssh01.stg.gitlab.com: 127.0.0.1
+          backend:
+            servers:
+              default:
+                altssh:
+                  ssh01.stg.gitlab.com: 127.0.0.1
 
   - name: haproxy-registry
     run_list:

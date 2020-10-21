@@ -21,6 +21,10 @@ template '/etc/haproxy/haproxy.cfg' do
     backend_servers: Gitlab::TemplateHelpers.backend_servers_for_lb_zone(
       node['gitlab-haproxy']['altssh']['backend'],
       node.to_h.dig('gce', 'instance', 'zone')
+    ),
+    backend_canary_servers: Gitlab::TemplateHelpers.backend_servers_for_lb_zone(
+      node['gitlab-haproxy']['canary_altssh']['backend'],
+      node.to_h.dig('gce', 'instance', 'zone')
     )
   )
 end
