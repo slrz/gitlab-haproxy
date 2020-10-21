@@ -108,6 +108,7 @@ default['gitlab-haproxy']['frontend']['asset_proxy']['server'] = 'storage.google
 default['gitlab-haproxy']['frontend']['asset_proxy']['opts'] = 'check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none'
 default['gitlab-haproxy']['frontend']['use_weights'] = false
 
+default['gitlab-haproxy']['frontend']['altssh']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
@@ -120,6 +121,7 @@ default['gitlab-haproxy']['frontend']['canary_web']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_api']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_https_git']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_registry']['enable'] = true
+default['gitlab-haproxy']['frontend']['canary_altssh']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
@@ -164,17 +166,14 @@ default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git
 #
 #####################################################################
 
-default['gitlab-haproxy']['altssh']['custom_config'] = nil
-default['gitlab-haproxy']['altssh']['servers'] = {}
-default['gitlab-haproxy']['altssh']['balance'] = 'source'
-
-# Servers for HAProxy backends, defaulted to legacy server configuration that can
-# be removed once https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/9766
-# is complete
-
-default['gitlab-haproxy']['altssh']['backend']['servers']['default']['altssh'] = node['gitlab-haproxy']['altssh']['servers']
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['altssh']['backend']['essential'] = %w(altssh)
+default['gitlab-haproxy']['canary_altssh']['backend']['essential'] = %w()
+
+default['gitlab-haproxy']['altssh']['backend']['servers']['default']['altssh'] = {}
+default['gitlab-haproxy']['altssh']['balance'] = 'source'
+default['gitlab-haproxy']['altssh']['custom_config'] = nil
+default['gitlab-haproxy']['canary_altssh']['backend']['servers']['default']['canary_altssh'] = {}
 
 #####################################################################
 #
