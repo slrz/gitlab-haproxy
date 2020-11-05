@@ -20,3 +20,5 @@ group :ed25519 do
   gem 'rbnacl', '<5.0'
   gem 'rbnacl-libsodium'
 end
+
+gem 'kitchen-docker', git: 'https://github.com/test-kitchen/kitchen-docker/'

@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/test-kitchen/kitchen-docker/
+  revision: 41e80fed3a7cc86323e19c16a5a340cebf7e5848
+  specs:
+    kitchen-docker (2.10.0)
+      test-kitchen (>= 1.0.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -708,6 +715,7 @@ DEPENDENCIES
   cookstyle
   dbus-systemd
   kitchen-digitalocean
+  kitchen-docker!
   kitchen-inspec
   kitchen-vagrant
   rbnacl (< 5.0)
