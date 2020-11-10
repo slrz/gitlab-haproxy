@@ -150,11 +150,6 @@ frontend https
 
     acl api_rate_limit_whitelist src 127.0.0.1
 
-    # Always sets this header to one or zero, overwriting a client-supplied value if it exists
-    # Implicit "AND"
-    http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_internal !whitelist_api !api_rate_limit_whitelist
-    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal || whitelist_api || api_rate_limit_whitelist
-
     ###############################################################
     # API routing rules for whitelisted hosts that
     # bypass rate limiting

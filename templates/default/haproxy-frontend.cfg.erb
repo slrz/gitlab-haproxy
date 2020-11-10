@@ -169,11 +169,12 @@ frontend https
 <%= formatted_custom_config(node['gitlab-haproxy']['frontend']['https']['custom_config']) %>
 
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
-
+    <% if node['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] -%>
     # Always sets this header to one or zero, overwriting a client-supplied value if it exists
     # Implicit "AND"
     http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_internal !whitelist_api !api_rate_limit_whitelist
     http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal || whitelist_api || api_rate_limit_whitelist
+    <% end -%>
 
     <% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
     acl no_be_srvs_asset_proxy nbsrv(asset_proxy) lt 1
