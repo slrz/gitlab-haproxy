@@ -22,7 +22,6 @@ verifier:
   name: inspec
 
 transport:
-  name: rsync
   ssh_key: <%= ENV['GITLAB_DO_SSH_KEY'] || "~/.ssh/id_rsa" %>
   username: root
 
