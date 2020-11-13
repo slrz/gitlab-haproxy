@@ -581,8 +581,9 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'includes bypass header setting code' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_internal !whitelist_api !api_rate_limit_whitelist')
-        expect(content).to include('http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal || whitelist_api || api_rate_limit_whitelist')
+        expect(content).to include('http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist')
+        expect(content).to include('http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist')
+        expect(content).to include("http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal\n    http-request allow if whitelist_internal")
       }
     end
   end
