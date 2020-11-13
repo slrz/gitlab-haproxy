@@ -26,7 +26,7 @@ module Gitlab
       # that only match the zone of the lb or the zone named
       # default
       backend_cfg['servers'].each do |server_zone, server|
-        servers['active'].update(server) if lb_zone == server_zone || server_zone == 'default'
+        servers['active'].deep_merge!(server) if lb_zone == server_zone || server_zone == 'default'
       end
 
       backend_cfg['essential'].each do |backend|
@@ -34,7 +34,6 @@ module Gitlab
           raise "Essential backend #{backend} has zero active servers configured: #{servers['active']}, aborting!"
         end
       end
-
       servers
     end
 
