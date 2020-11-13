@@ -370,6 +370,7 @@ backend ssh
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3
     server git02.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3 backup
+    server git-cny-default-server 127.0.0.1:22 weight 0 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3
     server git-cny-01.stg.gitlab.com 127.0.0.1:22 weight 0 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3
     server git-cny-02.stg.gitlab.com 127.0.0.1:22 weight 0 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3 backup
 

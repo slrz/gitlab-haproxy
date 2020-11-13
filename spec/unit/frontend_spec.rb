@@ -418,7 +418,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
-              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-default-server' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
@@ -430,7 +430,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1', 'api02.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1', 'api-cny-02.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-02.stg.gitlab.com' => '127.0.0.1' },
-              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-02.stg.gitlab.com' => '127.0.0.1' },
+              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-02.stg.gitlab.com' => '127.0.0.1', 'git-cny-default-server' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1', 'web-cny-02.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1', 'web-cny-02.stg.gitlab.com' => '127.0.0.1' },
               'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1', 'git02.stg.gitlab.com' => '127.0.0.1' },
@@ -665,6 +665,8 @@ describe 'gitlab-haproxy::frontend' do
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_api']['api-cny-02.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_ssh']['git-cny-02.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_https_git']['git-cny-02.stg.gitlab.com'] = '127.0.0.1'
+    # This is a default server which should not be marked as a backup
+    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh']['git-cny-default-server'] = '127.0.0.1'
   end
 
   def populate_node_properties_zonal_missing_essential(node)
