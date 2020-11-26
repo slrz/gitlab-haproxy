@@ -174,9 +174,12 @@ frontend https
     acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
     <% if node['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] -%>
     # Always sets this header to one or zero, overwriting a client-supplied value if it exists
+    # More information about bypassing the rate limiting for git traffic in these issues:
+    # - https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/680
+    # - https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
     # Implicit "AND"
-    http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist
-    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist
+    http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist !is_gitlab_com_https_git
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist || is_gitlab_com_https_git
     <% end -%>
 
     <% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
