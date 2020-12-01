@@ -327,6 +327,8 @@ frontend api_rate_limit
     http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %> if is_gitlab_com_package_registry
     http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>),sub(txn.src_http_req_rate)] if is_gitlab_com_package_registry
     use_backend 429_slow_down if is_gitlab_com_package_registry is_package_registry_rate_abuse
+    # No need for any canary handling; paths that match the package registries do not have canary-type identifiers
+    use_backend api if is_gitlab_com_package_registry
     <% end -%>
     use_backend 429_slow_down if is_rate_abuse
     <% end %>
