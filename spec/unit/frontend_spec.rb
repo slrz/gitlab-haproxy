@@ -588,6 +588,27 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with package registry rate limit enabled' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = true
+      end.converge(described_recipe)
+    end
+
+    it 'includes package registry configuration' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        # Do not test the specific regex, just that we have a regex-based ACL
+        expect(content).to include('acl is_gitlab_com_package_registry path_reg -i')
+        expect(content).to include('acl is_package_registry_rate_abuse src_http_req_rate gt 7000')
+        expect(content).to include('http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry')
+        expect(content).to match(/http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry/)
+      }
+    end
+  end
+
   def populate_node_properties_with_weights(node)
     populate_node_properties(node)
     node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
