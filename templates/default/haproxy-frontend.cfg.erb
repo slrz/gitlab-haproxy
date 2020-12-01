@@ -307,11 +307,27 @@ frontend api_rate_limit
     <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] -%>
     acl is_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
     http-request set-var(txn.src_http_req_rate) src_http_req_rate
+    <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] -%>
+    # See https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/11748
+    # Implemented as a single regex to keep the later ACL condition expressions manageable.  For readability
+    # (and canonical reference), the three regexes are:
+    # ^\/api\/v\d\/packages\/
+    # ^\/api\/v\d\/projects\/[^\/]+\/packages($|\/)
+    # ^\/api\/v\d\/groups\/[^\/]+\/-\/packages($|\/)
+    acl is_gitlab_com_package_registry path_reg -i ^\/api\/v\d\/(packages|projects\/[^\/]+\/packages($|\/)|groups\/[^\/]+\/-\/packages($|\/))
+    acl is_package_registry_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>
+    <% end -%>
     http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
     http-response set-header RateLimit-Observed %[src_http_req_rate]
     http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>),sub(txn.src_http_req_rate)]
     http-response set-header RateLimit-Reset %[date(60)]
     http-response set-header RateLimit-ResetTime %[date(60),http_date]
+    <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] -%>
+    # Override these headers for package registry requests
+    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %> if is_gitlab_com_package_registry
+    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>),sub(txn.src_http_req_rate)] if is_gitlab_com_package_registry
+    use_backend 429_slow_down if is_gitlab_com_package_registry is_package_registry_rate_abuse
+    <% end -%>
     use_backend 429_slow_down if is_rate_abuse
     <% end %>
 
