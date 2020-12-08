@@ -93,6 +93,23 @@ describe 'gitlab-haproxy::pages' do
     end
   end
 
+  context 'when PROXY protocol is enabled' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['pages']['enable_https_proxyv2'] = true
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'includes the proxy-v2 option' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('server web01.stg.gitlab.com 127.0.0.1:2443 check inter 3s fastinter 1s downinter 5s fall 3 port 1080 send-proxy-v2')
+      }
+    end
+  end
+
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['pages']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['pages']['http_custom_config'] = [
