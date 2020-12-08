@@ -97,7 +97,7 @@ describe 'gitlab-haproxy::pages' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
         populate_node_properties(node)
-        node.normal['gitlab-haproxy']['pages']['enable_proxyv2'] = true
+        node.normal['gitlab-haproxy']['pages']['enable_https_proxyv2'] = true
         node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
         node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
       end.converge(described_recipe)
