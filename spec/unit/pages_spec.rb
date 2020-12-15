@@ -105,7 +105,7 @@ describe 'gitlab-haproxy::pages' do
 
     it 'includes the proxy-v2 option' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('server web01.stg.gitlab.com 127.0.0.1:2443 check inter 3s fastinter 1s downinter 5s fall 3 port 1080 send-proxy-v2')
+        expect(content).to include('server web01.stg.gitlab.com-proxyv2 127.0.0.1:2443 check inter 3s fastinter 1s downinter 5s fall 3 port 1080 send-proxy-v2')
       }
     end
   end
