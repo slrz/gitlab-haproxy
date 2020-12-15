@@ -73,6 +73,8 @@ default['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second']
 default['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] = '127.0.0.1'
 default['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = nil
 default['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] = false
+# Only has effect if the enable_ratelimit_bypass_header is also set to true
+default['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] = false
 
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/-/health'
