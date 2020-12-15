@@ -1,16 +1,100 @@
 require 'spec_helper'
 require 'chef-vault/test_fixtures'
 
+def populate_node_properties
+  normal_attributes['gitlab-haproxy']['chef_vault'] = 'secrets'
+  normal_attributes['gitlab-haproxy']['chef_vault_item'] = 'certs'
+  normal_attributes['gitlab-haproxy']['api_address'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['peers']['servers']['fe01.sv.gitlab.com'] = ['10.65.1.101', '32768']
+  normal_attributes['gitlab-haproxy']['frontend']['api']['servers']['api01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['https_git']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['registry']['servers']['registry01.be.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['ssh']['port'] = '2222'
+  normal_attributes['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
+  normal_attributes['gitlab-haproxy']['frontend']['https']['custom_config'] = [
+    'acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$',
+    'http-request deny deny_status 400 if is_download',
+  ]
+  normal_attributes['gitlab-haproxy']['frontend']['ssh']['custom_config'] = [
+    'tcp-request connection deny',
+  ]
+  normal_attributes['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = [
+    'http-request deny deny_status 400 if is_download',
+  ]
+  normal_attributes['gitlab-haproxy']['frontend']['canary_web']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_api']['servers']['api-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_ssh']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_https_git']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_websockets']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+end
+
+def populate_node_properties_with_weights
+  populate_node_properties
+  normal_attributes['gitlab-haproxy']['frontend']['use_weights'] = true
+  normal_attributes['gitlab-haproxy']['frontend']['web']['default_weight'] = '10'
+  normal_attributes['gitlab-haproxy']['frontend']['api']['default_weight'] = '20'
+  normal_attributes['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '30'
+  normal_attributes['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '40'
+  normal_attributes['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '50'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '1'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '2'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '3'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '4'
+  normal_attributes['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '5'
+end
+
+def populate_node_properties_zonal
+  populate_node_properties
+
+  %w(api https_git registry ssh web websockets canary_web canary_api canary_ssh canary_https_git canary_websockets).each do |b|
+    normal_attributes['gitlab-haproxy']['frontend'][b]['servers'] = {}
+  end
+
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['api']['api01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['https_git']['git01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['ssh']['git01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web']['web01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_websockets']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_api']['api-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_ssh']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_https_git']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
+  # If the zone is set to `default` it will be included by default
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets']['web01.stg.gitlab.com'] = '127.0.0.1'
+end
+
+def populate_node_properties_zonal_backup
+  populate_node_properties_zonal
+
+  # These will be backup servers
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['api']['api02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['https_git']['git02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['ssh']['git02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['web']['web02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['websockets']['web02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_web']['web-cny-02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_websockets']['web-cny-02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_api']['api-cny-02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_ssh']['git-cny-02.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_https_git']['git-cny-02.stg.gitlab.com'] = '127.0.0.1'
+  # This is a default server which should not be marked as a backup
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh']['git-cny-default-server'] = '127.0.0.1'
+end
+
+def populate_node_properties_zonal_missing_essential
+  populate_node_properties_zonal
+
+  normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web'] = {}
+end
+
 describe 'gitlab-haproxy::frontend' do
   include ChefVault::TestFixtures.rspec_shared_context
+
   context 'using weights with canaries' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties_with_weights(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
+    populate_node_properties_with_weights
 
     it 'creates the frontend template correctly with weights.' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -22,14 +106,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'using hard-stop' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['global']['hard-stop']['enable'] = true
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['global']['hard-stop']['enable'] = true
 
     it 'includes the hard-stop timeout' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -39,15 +117,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'Content Security Policy' do
+    populate_node_properties
     context 'enabled CSP' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new do |node|
-          populate_node_properties(node)
-          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        end.converge(described_recipe)
-      end
-
       it 'includes the Content-Security-Policy header' do
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
           expect(content).to include(%(rspadd Content-Security-Policy:\\ default-src\\ \\'self\\'))
@@ -56,14 +127,7 @@ describe 'gitlab-haproxy::frontend' do
     end
 
     context 'disabled CSP' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new do |node|
-          populate_node_properties(node)
-          node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = false
-          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        end.converge(described_recipe)
-      end
+      normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = false
 
       it 'omits the Content-Security-Policy header' do
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -74,14 +138,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'using bind options' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['global']['ssl-default-bind-options'] = 'no-sslv3 no-tlsv10 no-tlsv11'
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['global']['ssl-default-bind-options'] = 'no-sslv3 no-tlsv10 no-tlsv11'
 
     it 'creates the frontend template correctly with global bind options.' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -91,15 +149,9 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'using root redirect option' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['frontend']['root_page_redirect']['enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['root_page_redirect']['url'] = 'https://example.com'
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['root_page_redirect']['enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['root_page_redirect']['url'] = 'https://example.com'
 
     it 'creates the redirect for requests without the _gitlab_session cookie' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -111,14 +163,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with internal request routing' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = ['\/gitlab-com']
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = ['\/gitlab-com']
 
     it 'creates the frontend template correctly with internal request routing' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -136,23 +182,13 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with asset proxy' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        env = Chef::Environment.new
-        env.name 'pre'
-        node.stub(:chef_environment).and_return env.name
-        Chef::Environment.stub(:load).and_return env
-        node.normal['cloud']['provider'] = 'gce'
-
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['cloud']['provider'] = 'gce'
 
     it 'creates the frontend template correctly with asset proxy' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('http-request set-header Host gitlab-pre-assets.storage.googleapis.com')
+        # Default env is _default; replacing that is challenging, so allow this technically invalid hostname for the purposes of testing
+        expect(content).to include('http-request set-header Host gitlab-_default-assets.storage.googleapis.com')
         expect(content).to include('use_backend asset_proxy if is_asset_path !no_be_srvs_asset_proxy')
       }
     end
@@ -220,29 +256,15 @@ describe 'gitlab-haproxy::frontend' do
     end
 
     context 'secrets in Chef vault' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new do |node|
-          populate_node_properties(node)
-
-          node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-          node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        end.converge(described_recipe)
-      end
+      populate_node_properties
 
       it_behaves_like 'configuring frontend haproxy'
     end
   end
 
   context 'with a valid GCE zone but no zone configured servers' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
@@ -287,15 +309,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with zone configured servers with the lb in us-east1-c' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties_zonal(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
-      end.converge(described_recipe)
-    end
+    populate_node_properties_zonal
+    normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
@@ -340,20 +355,14 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with zone configured servers with the lb in us-east1-c, but without a canary server in the same zone' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties_zonal(node)
-        # This switches the canary web node from us-east1-c to us-east1-d.
-        # Because the LB is in us-east1-c this tests that web-cny-01 is
-        # only marked as a backup.
-        node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c'].delete('canary_web')
-        node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
-      end.converge(described_recipe)
-    end
+    populate_node_properties_zonal
+
+    # This switches the canary web node from us-east1-c to us-east1-d.
+    # Because the LB is in us-east1-c this tests that web-cny-01 is
+    # only marked as a backup.
+    normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c'].delete('canary_web')
+    normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
+    normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
@@ -397,15 +406,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with zone configured servers with the lb in us-east1-c and backup servers' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties_zonal_backup(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
-      end.converge(described_recipe)
-    end
+    populate_node_properties_zonal_backup
+    normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
@@ -451,15 +453,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with zone configured servers with the lb in us-east1-c and no web servers' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties_zonal_missing_essential(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
-      end.converge(described_recipe)
-    end
+    populate_node_properties_zonal_missing_essential
+    normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
       expect { chef_run }.to raise_error(RuntimeError, 'Essential backend web has zero active servers configured: {"api"=>{"api01.stg.gitlab.com"=>"127.0.0.1"}, "https_git"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "ssh"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "web"=>{}, "websockets"=>{"web01.stg.gitlab.com"=>"127.0.0.1"}, "canary_web"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_websockets"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_api"=>{"api-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_ssh"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_https_git"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}}, aborting!')
@@ -467,39 +462,17 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with tcp-check' do
-    let(:tcp_http_check) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
-        node.normal['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = true
-      end.converge(described_recipe)
-    end
-
-    let(:tcp_only) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
-        node.normal['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = true
-        node.normal['gitlab-haproxy']['frontend']['ssh']['check_opts'] = ''
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'gitlab-pre-assets.storage.googleapis.com'
+    normal_attributes['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = true
 
     it 'enables http check via tcp for web' do
-      expect(tcp_http_check).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include('option tcp-check')
         expect(content).not_to include('tcp-check expect rstring HTTP/1\..\ 2..')
         expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3')
@@ -507,24 +480,21 @@ describe 'gitlab-haproxy::frontend' do
       }
     end
 
-    it 'when only tcp checks' do
-      expect(tcp_only).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('option tcp-check')
-        expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check  inter 3s fastinter 1s downinter 5s fall 3')
-        expect(content).not_to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3')
-        expect(content.scan(tcp_check).size).to eq(0)
-      }
+    context 'when only tcp checks' do
+      normal_attributes['gitlab-haproxy']['frontend']['ssh']['check_opts'] = ''
+      it 'ssh has tcp only check' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).to include('option tcp-check')
+          expect(content).to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check  inter 3s fastinter 1s downinter 5s fall 3')
+          expect(content).not_to include('server git01.stg.gitlab.com 127.0.0.1:22 weight 100 check check-ssl port 443 verify none inter 3s fastinter 1s downinter 5s fall 3')
+          expect(content.scan(tcp_check).size).to eq(0)
+        }
+      end
     end
   end
 
   context 'with systemd override' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-      end.converge(described_recipe)
-    end
+    populate_node_properties
 
     it 'creates the systemd overrides' do
       expect(chef_run).to create_directory('/etc/haproxy/state')
@@ -538,14 +508,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with systemd override disabled' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['systemd_service_overrides']['enable'] = false
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['systemd_service_overrides']['enable'] = false
 
     it 'does not creates the systemd overrides' do
       expect(chef_run).not_to render_file('/etc/systemd/system/haproxy.service.d/override.conf')
@@ -553,14 +517,8 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with extra HTTPS bind port' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = 11443
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = 11443
 
     it 'includes an extra bind directive with the supplied port' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -570,33 +528,33 @@ describe 'gitlab-haproxy::frontend' do
   end
 
   context 'with bypass rate limit header enabled' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] = true
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] = false
 
     it 'includes bypass header setting code' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist')
-        expect(content).to include('http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist')
+        expect(content).to include('acl is_gitlab_com_jwt_auth always_false')
+        expect(content).to match(/http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist !is_gitlab_com_https_git !is_gitlab_com_jwt_auth$/)
+        expect(content).to match(/http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist || is_gitlab_com_https_git || is_gitlab_com_jwt_auth$/)
         expect(content).to include("http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal\n    http-request allow if whitelist_internal")
       }
+    end
+
+    context 'and jwt_auth ratelimit bypass enabled' do
+      normal_attributes['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] = true
+
+      it 'sets is_gitlab_com_jwt_auth based on the path' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).to include('acl is_gitlab_com_jwt_auth path -i /jwt/auth')
+        }
+      end
     end
   end
 
   context 'with package registry rate limit enabled' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        populate_node_properties(node)
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = true
-      end.converge(described_recipe)
-    end
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = true
 
     it 'includes package registry configuration' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -607,93 +565,6 @@ describe 'gitlab-haproxy::frontend' do
         expect(content).to match(/http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry/)
       }
     end
-  end
-
-  def populate_node_properties_with_weights(node)
-    populate_node_properties(node)
-    node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
-    node.normal['gitlab-haproxy']['frontend']['web']['default_weight'] = '10'
-    node.normal['gitlab-haproxy']['frontend']['api']['default_weight'] = '20'
-    node.normal['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '30'
-    node.normal['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '40'
-    node.normal['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '50'
-    node.normal['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '1'
-    node.normal['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '2'
-    node.normal['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '3'
-    node.normal['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '4'
-    node.normal['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '5'
-  end
-
-  def populate_node_properties(node)
-    node.normal['gitlab-haproxy']['api_address'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['peers']['servers']['fe01.sv.gitlab.com'] = ['10.65.1.101', '32768']
-    node.normal['gitlab-haproxy']['frontend']['api']['servers']['api01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['https_git']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['registry']['servers']['registry01.be.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['ssh']['port'] = '2222'
-    node.normal['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
-    node.normal['gitlab-haproxy']['frontend']['https']['custom_config'] = [
-      'acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$',
-      'http-request deny deny_status 400 if is_download',
-    ]
-    node.normal['gitlab-haproxy']['frontend']['ssh']['custom_config'] = [
-      'tcp-request connection deny',
-    ]
-    node.normal['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = [
-      'http-request deny deny_status 400 if is_download',
-    ]
-    node.normal['gitlab-haproxy']['frontend']['canary_web']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['canary_api']['servers']['api-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['canary_ssh']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['canary_https_git']['servers']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['canary_websockets']['servers']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
-  end
-
-  def populate_node_properties_zonal(node)
-    populate_node_properties(node)
-
-    %w(api https_git registry ssh web websockets canary_web canary_api canary_ssh canary_https_git canary_websockets).each do |b|
-      node.normal['gitlab-haproxy']['frontend'][b]['servers'] = {}
-    end
-
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['api']['api01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['https_git']['git01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['ssh']['git01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web']['web01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_web']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_websockets']['web-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_api']['api-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_ssh']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['canary_https_git']['git-cny-01.stg.gitlab.com'] = '127.0.0.1'
-    # If the zone is set to `default` it will be included by default
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets']['web01.stg.gitlab.com'] = '127.0.0.1'
-  end
-
-  def populate_node_properties_zonal_backup(node)
-    populate_node_properties_zonal(node)
-
-    # These will be backup servers
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['api']['api02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['https_git']['git02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['ssh']['git02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['web']['web02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['websockets']['web02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_web']['web-cny-02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_websockets']['web-cny-02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_api']['api-cny-02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_ssh']['git-cny-02.stg.gitlab.com'] = '127.0.0.1'
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-d']['canary_https_git']['git-cny-02.stg.gitlab.com'] = '127.0.0.1'
-    # This is a default server which should not be marked as a backup
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh']['git-cny-default-server'] = '127.0.0.1'
-  end
-
-  def populate_node_properties_zonal_missing_essential(node)
-    populate_node_properties_zonal(node)
-
-    node.normal['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web'] = {}
   end
 
   def tcp_check
