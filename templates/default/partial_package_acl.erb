@@ -1,0 +1,3 @@
+    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/packages/
+    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/projects/[^/]+/packages(/|$)
+    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/groups/[^/]+/-/packages(/|$)

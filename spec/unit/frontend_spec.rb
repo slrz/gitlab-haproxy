@@ -90,6 +90,25 @@ def populate_node_properties_zonal_missing_essential
   normal_attributes['gitlab-haproxy']['frontend']['backend']['servers']['us-east1-c']['web'] = {}
 end
 
+def parse_config(content)
+  config = Hash.new { |h, k| h[k] = [] }
+  section = nil
+
+  content.each_line do |line|
+    line.strip!
+
+    if line.start_with?('#') || line.empty?
+      # skip
+    elsif (match_data = /^(global|defaults.*|listen .*|frontend .*|backend .*|peers .*|mailers .*)$/.match(line))
+      section = match_data[1]
+    else
+      config[section] << line
+    end
+  end
+
+  config
+end
+
 describe 'gitlab-haproxy::frontend' do
   include ChefVault::TestFixtures.rspec_shared_context
 
@@ -531,22 +550,64 @@ describe 'gitlab-haproxy::frontend' do
     populate_node_properties
     normal_attributes['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] = true
     normal_attributes['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] = false
+    normal_attributes['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimit_bypass'] = false
+
+    def set_bypass(acl)
+      "http-request set-header X-GitLab-RateLimit-Bypass 1 if #{acl}"
+    end
 
     it 'includes bypass header setting code' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('acl is_gitlab_com_jwt_auth always_false')
-        expect(content).to match(/http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist !is_gitlab_com_https_git !is_gitlab_com_jwt_auth$/)
-        expect(content).to match(/http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist || is_gitlab_com_https_git || is_gitlab_com_jwt_auth$/)
-        expect(content).to include("http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal\n    http-request allow if whitelist_internal")
+        frontend_https = parse_config(content)['frontend https']
+
+        expect(frontend_https).to include('http-request set-header X-GitLab-RateLimit-Bypass 0')
+
+        %w(whitelist_api api_rate_limit_whitelist is_gitlab_com_https_git).each do |acl|
+          expect(frontend_https).to include(set_bypass(acl))
+        end
+
+        %w(is_gitlab_com_jwt_auth is_gitlab_com_package_registry is_gitlab_com_go_get).each do |acl|
+          expect(frontend_https).not_to include(set_bypass(acl))
+        end
+      }
+    end
+
+    it 'orders the bypass for whitelist_internal correctly' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        frontend_https = parse_config(content)['frontend https']
+        set_header_index = frontend_https.index('http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal')
+        request_allow_index = frontend_https.index('http-request allow if whitelist_internal')
+
+        expect(set_header_index).to be < request_allow_index
       }
     end
 
     context 'and jwt_auth ratelimit bypass enabled' do
       normal_attributes['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] = true
 
-      it 'sets is_gitlab_com_jwt_auth based on the path' do
+      it 'sets a header for is_gitlab_com_jwt_auth' do
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-          expect(content).to include('acl is_gitlab_com_jwt_auth path -i /jwt/auth')
+          expect(parse_config(content)['frontend https']).to include('http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_jwt_auth')
+        }
+      end
+    end
+
+    context 'and package registry ratelimit bypass enabled' do
+      normal_attributes['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimit_bypass'] = true
+
+      it 'sets sets a header for is_gitlab_com_package_registry' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(parse_config(content)['frontend https']).to include('http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_package_registry')
+        }
+      end
+    end
+
+    context 'and go get ratelimit bypass enabled' do
+      normal_attributes['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass'] = true
+
+      it 'sets sets a header for is_gitlab_com_package_registry' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(parse_config(content)['frontend https']).to include('http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_go_get')
         }
       end
     end
@@ -558,11 +619,12 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'includes package registry configuration' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        # Do not test the specific regex, just that we have a regex-based ACL
-        expect(content).to include('acl is_gitlab_com_package_registry path_reg -i')
-        expect(content).to include('acl is_package_registry_rate_abuse src_http_req_rate gt 7000')
-        expect(content).to include('http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry')
-        expect(content).to match(/http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry/)
+        frontend = parse_config(content)['frontend api_rate_limit']
+
+        expect(frontend).to include('acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/packages/')
+        expect(frontend).to include('acl is_package_registry_rate_abuse src_http_req_rate gt 7000')
+        expect(frontend).to include('http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry')
+        expect(frontend.grep(/http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry/)).to_not be_empty
       }
     end
   end

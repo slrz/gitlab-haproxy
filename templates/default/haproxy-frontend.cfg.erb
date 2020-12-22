@@ -131,11 +131,7 @@ frontend https
     acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
     acl is_ancient_ci_runner path_beg -i /ci/api/
     acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
-    <% if node['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass']-%>
     acl is_gitlab_com_jwt_auth path -i /jwt/auth
-    <% else %>
-    acl is_gitlab_com_jwt_auth always_false
-    <% end -%>
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
     acl has_multiple_slash path_reg /{2,}
     acl is_canary req.cook(gitlab_canary) -m str -i true
@@ -145,6 +141,14 @@ frontend https
     acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     acl is_asset_path path_beg /assets/
+    acl whitelist_internal src -f /etc/haproxy/whitelist-internal.lst
+    acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
+    acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
+<%= render 'partial_package_acl.erb'  -%>
+    acl is_gitlab_com_go_get query -m str "go-get=1"
+    acl is_gitlab_com_go_get query -m beg "go-get=1&"
+    acl is_gitlab_com_go_get query -m sub "&go-get=1&"
+    acl is_gitlab_com_go_get query -m end "&go-get=1"
 
     http-request set-var(txn.host) hdr(Host)
     http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if is_www_gitlab_com
@@ -154,16 +158,33 @@ frontend https
     http-request deny deny_status 400 if is_legacy_ci_runner
     http-request deny deny_status 400 if is_ancient_ci_runner
 
+    <% if node['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] -%>
+    # Prevent users from setting bypass header
+    http-request set-header X-GitLab-RateLimit-Bypass 0
+
+    # IP whitelists
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if api_rate_limit_whitelist
+    # Git HTTP https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_https_git
+    <% if node['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] -%>
+    # JWT auth https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/692
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_jwt_auth
+    <% end -%>
+    <% if node['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimit_bypass'] -%>
+    # Package registries https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_package_registry
+    <% end -%>
+    <% if node['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass'] -%>
+    # Package registries https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_go_get
+    <% end -%>
+    <% end -%>
     http-response set-header GitLab-LB <%= node['hostname'] %>
     http-response set-header GitLab-SV %s
 
-    acl whitelist_internal src -f /etc/haproxy/whitelist-internal.lst
-    <% if node['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] -%>
-    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_internal
-    <% end -%>
     http-request allow if whitelist_internal
-
-    acl whitelist_api src -f /etc/haproxy/whitelist-api.lst
 
     acl require_captcha src -f /etc/haproxy/recaptcha/require-captcha.lst
     http-request set-header X-GitLab-Show-Login-Captcha 1 if require_captcha
@@ -175,19 +196,6 @@ frontend https
     http-request deny if blacklist-uri
 
 <%= formatted_custom_config(node['gitlab-haproxy']['frontend']['https']['custom_config']) %>
-
-    acl api_rate_limit_whitelist src <%= node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] %>
-    <% if node['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] -%>
-    # Always sets this header to one or zero, overwriting a client-supplied value if it exists
-    # More information about bypassing the rate limiting for git traffic in these issues:
-    # - https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/680
-    # - https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
-    # And for JWT auth:
-    # - https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/692
-    # Implicit "AND"
-    http-request set-header X-GitLab-RateLimit-Bypass 0 if !whitelist_api !api_rate_limit_whitelist !is_gitlab_com_https_git !is_gitlab_com_jwt_auth
-    http-request set-header X-GitLab-RateLimit-Bypass 1 if whitelist_api || api_rate_limit_whitelist || is_gitlab_com_https_git || is_gitlab_com_jwt_auth
-    <% end -%>
 
     <% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
     acl no_be_srvs_asset_proxy nbsrv(asset_proxy) lt 1
@@ -314,14 +322,8 @@ frontend api_rate_limit
     <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] -%>
     acl is_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
     http-request set-var(txn.src_http_req_rate) src_http_req_rate
+<%= render 'partial_package_acl.erb'  -%>
     <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] -%>
-    # See https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/11748
-    # Implemented as a single regex to keep the later ACL condition expressions manageable.  For readability
-    # (and canonical reference), the three regexes are:
-    # ^\/api\/v\d\/packages\/
-    # ^\/api\/v\d\/projects\/[^\/]+\/packages($|\/)
-    # ^\/api\/v\d\/groups\/[^\/]+\/-\/packages($|\/)
-    acl is_gitlab_com_package_registry path_reg -i ^\/api\/v\d\/(packages|projects\/[^\/]+\/packages($|\/)|groups\/[^\/]+\/-\/packages($|\/))
     acl is_package_registry_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>
     <% end -%>
     http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>

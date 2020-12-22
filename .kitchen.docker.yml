@@ -43,6 +43,11 @@ suites:
           api:
             servers:
               api01.stg.gitlab.com: 127.0.0.1
+          https:
+            enable_ratelimit_bypass_header: true
+            enable_jwt_auth_ratelimit_bypass: true
+            enable_package_registry_ratelimit_bypass: true
+            enable_go_get_ratelimit_bypass: true
           https_git:
             servers:
               git01.stg.gitlab.com: 127.0.0.1
