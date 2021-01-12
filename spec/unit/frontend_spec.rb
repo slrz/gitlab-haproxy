@@ -623,8 +623,14 @@ describe 'gitlab-haproxy::frontend' do
 
         expect(frontend).to include('acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/packages/')
         expect(frontend).to include('acl is_package_registry_rate_abuse src_http_req_rate gt 7000')
-        expect(frontend).to include('http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry')
-        expect(frontend.grep(/http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry/)).to_not be_empty
+        expect(frontend).to include(
+          'http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry no_ratelimit_headers'
+        )
+        expect(
+          frontend.grep(
+            /http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry no_ratelimit_headers/
+          )
+        ).to_not be_empty
       }
     end
   end
