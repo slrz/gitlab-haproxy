@@ -326,15 +326,25 @@ frontend api_rate_limit
     <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] -%>
     acl is_package_registry_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>
     <% end -%>
-    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>
-    http-response set-header RateLimit-Observed %[src_http_req_rate]
-    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>),sub(txn.src_http_req_rate)]
-    http-response set-header RateLimit-Reset %[date(60)]
-    http-response set-header RateLimit-ResetTime %[date(60),http_date]
+
+    <%
+      # The backends may return RateLimit-* when a request is throttled at their
+      # sides. HAProxy should honor these headers. These headers come as a whole.
+      # If a header is detected, all of them will be kept intact. Modifying them
+      # partially would confuse the client.
+      # See more at https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/731
+    %>
+    acl no_ratelimit_headers res.hdr(RateLimit-Limit) -m len 0
+
+    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %> if no_ratelimit_headers
+    http-response set-header RateLimit-Observed %[src_http_req_rate] if no_ratelimit_headers
+    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] %>),sub(txn.src_http_req_rate)] if no_ratelimit_headers
+    http-response set-header RateLimit-Reset %[date(60)] if no_ratelimit_headers
+    http-response set-header RateLimit-ResetTime %[date(60),http_date] if no_ratelimit_headers
     <% if node['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] -%>
     # Override these headers for package registry requests
-    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %> if is_gitlab_com_package_registry
-    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>),sub(txn.src_http_req_rate)] if is_gitlab_com_package_registry
+    http-response set-header RateLimit-Limit <%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %> if is_gitlab_com_package_registry no_ratelimit_headers
+    http-response set-header RateLimit-Remaining %[int(<%= node['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] %>),sub(txn.src_http_req_rate)] if is_gitlab_com_package_registry no_ratelimit_headers
     use_backend 429_slow_down if is_gitlab_com_package_registry is_package_registry_rate_abuse
     # No need for any canary handling; paths that match the package registries do not have canary-type identifiers
     use_backend api if is_gitlab_com_package_registry
