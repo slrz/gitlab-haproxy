@@ -125,7 +125,7 @@ frontend https
     acl api_rate_limit_whitelist src 127.0.0.1
     acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/packages/
     acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/projects/[^/]+/packages(/|$)
-    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/groups/[^/]+(-/)?/packages(/|$)
+    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/groups/[^/]+/(-/)?packages(/|$)
     acl is_gitlab_com_go_get query -m str "go-get=1"
     acl is_gitlab_com_go_get query -m beg "go-get=1&"
     acl is_gitlab_com_go_get query -m sub "&go-get=1&"
@@ -258,7 +258,7 @@ frontend api_rate_limit
     http-request set-var(txn.src_http_req_rate) src_http_req_rate
     acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/packages/
     acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/projects/[^/]+/packages(/|$)
-    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/groups/[^/]+(-/)?/packages(/|$)
+    acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/groups/[^/]+/(-/)?packages(/|$)
 
     acl has_ratelimit_headers res.hdr(RateLimit-Limit) -m found
 
