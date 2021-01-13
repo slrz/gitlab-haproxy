@@ -471,6 +471,55 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'when package_registry_enforced is enabled' do
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] = '7000'
+    normal_attributes['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = true
+
+    it 'creates the template and runs correct notifications' do
+      expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
+        source: 'haproxy-frontend.cfg.erb',
+        mode: '0600',
+        variables: {
+          admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
+          backend_servers: {
+            'active' => {
+              'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+            },
+            'all' => {
+              'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'https_git' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'ssh' => { 'git01.stg.gitlab.com' => '127.0.0.1' },
+              'web' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+              'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
+            },
+          }
+        }
+      )
+
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to eq(IO.read('spec/fixtures/frontend-with-package-registry-enforced.template'))
+      }
+
+      expect(chef_run.template('/etc/haproxy/haproxy.cfg')).to notify('execute[test-haproxy-config]').to(:run).delayed
+    end
+  end
+
   context 'with zone configured servers with the lb in us-east1-c and no web servers' do
     populate_node_properties_zonal_missing_essential
     normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
@@ -624,11 +673,11 @@ describe 'gitlab-haproxy::frontend' do
         expect(frontend).to include('acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/packages/')
         expect(frontend).to include('acl is_package_registry_rate_abuse src_http_req_rate gt 7000')
         expect(frontend).to include(
-          'http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry no_ratelimit_headers'
+          'http-response set-header RateLimit-Limit 7000 if is_gitlab_com_package_registry !has_ratelimit_headers'
         )
         expect(
           frontend.grep(
-            /http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry no_ratelimit_headers/
+            /http-response set-header RateLimit-Remaining.*if is_gitlab_com_package_registry !has_ratelimit_headers/
           )
         ).to_not be_empty
       }
