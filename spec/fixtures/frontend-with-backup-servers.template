@@ -260,13 +260,13 @@ frontend api_rate_limit
     acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/projects/[^/]+/packages(/|$)
     acl is_gitlab_com_package_registry path_reg ^/api/v[0-9]/groups/[^/]+(-/)?/packages(/|$)
 
-    acl no_ratelimit_headers res.hdr(RateLimit-Limit) -m len 0
+    acl has_ratelimit_headers res.hdr(RateLimit-Limit) -m found
 
-    http-response set-header RateLimit-Limit 600 if no_ratelimit_headers
-    http-response set-header RateLimit-Observed %[src_http_req_rate] if no_ratelimit_headers
-    http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_http_req_rate)] if no_ratelimit_headers
-    http-response set-header RateLimit-Reset %[date(60)] if no_ratelimit_headers
-    http-response set-header RateLimit-ResetTime %[date(60),http_date] if no_ratelimit_headers
+    http-response set-header RateLimit-Observed %[src_http_req_rate] if !has_ratelimit_headers
+    http-response set-header RateLimit-Remaining %[int(600),sub(txn.src_http_req_rate)] if !has_ratelimit_headers
+    http-response set-header RateLimit-Reset %[date(60)] if !has_ratelimit_headers
+    http-response set-header RateLimit-ResetTime %[date(60),http_date] if !has_ratelimit_headers
+    http-response set-header RateLimit-Limit 600 if !has_ratelimit_headers
     use_backend 429_slow_down if is_rate_abuse
 
     acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
