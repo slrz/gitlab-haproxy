@@ -86,4 +86,5 @@ backend altssh
     hash-type consistent
     timeout server-fin 5s
     timeout server 2h
-    server altssh0.local 127.0.0.1:22  check port 22 inter 5000 fall 3 verify none
+    server altssh0.local 127.0.0.1:22 weight 100 check port 22 inter 5000 fall 3 verify none
+    server cny-altssh0.local 127.0.0.1:22 weight 0 check port 22 inter 5000 fall 3 verify none
