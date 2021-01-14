@@ -103,52 +103,6 @@ describe 'gitlab-haproxy::altssh' do
     end
   end
 
-  context 'with weight enabled' do
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
-        node.normal['gitlab-haproxy']['altssh']['backend']['servers']['default']['altssh']['altssh0.local'] = '127.0.0.1'
-        node.normal['gitlab-haproxy']['canary_altssh']['backend']['servers']['default']['canary_altssh']['cny-altssh0.local'] = '127.0.0.1'
-        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
-        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
-        node.normal['gitlab-haproxy']['frontend']['use_weights'] = true
-      end.converge(described_recipe)
-    end
-
-    it 'converges successfully' do
-      expect { chef_run }.to_not raise_error
-    end
-
-    it 'creates the template' do
-      expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-        source: 'haproxy-altssh.cfg.erb',
-        mode: '0600',
-        variables: {
-          admin_password: 'this-is-a-test-password',
-          backend_servers: {
-            'active' => {
-              'altssh' => { 'altssh0.local' => '127.0.0.1' },
-            },
-            'all' => {
-              'altssh' => { 'altssh0.local' => '127.0.0.1' },
-            },
-          },
-          backend_canary_servers: {
-            'active' => {
-              'canary_altssh' => { 'cny-altssh0.local' => '127.0.0.1' },
-            },
-            'all' => {
-              'canary_altssh' => { 'cny-altssh0.local' => '127.0.0.1' },
-            },
-          },
-        }
-      )
-      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('server altssh0.local 127.0.0.1:22 weight 100 check port 22 inter 5000 fall 3 verify none')
-        expect(content).to include('server cny-altssh0.local 127.0.0.1:22 weight 0 check port 22 inter 5000 fall 3 verify none')
-      }
-    end
-  end
-
   def populate_node_properties(node)
     node.normal['gitlab-haproxy']['altssh']['backend']['servers']['default']['altssh']['ssh01.stg.gitlab.com'] = '127.0.0.1'
     node.normal['gitlab-haproxy']['altssh']['custom_config'] = [

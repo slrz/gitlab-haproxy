@@ -33,7 +33,6 @@ end
 
 def populate_node_properties_with_weights
   populate_node_properties
-  normal_attributes['gitlab-haproxy']['frontend']['use_weights'] = true
   normal_attributes['gitlab-haproxy']['frontend']['web']['default_weight'] = '10'
   normal_attributes['gitlab-haproxy']['frontend']['api']['default_weight'] = '20'
   normal_attributes['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '30'
