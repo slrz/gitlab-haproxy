@@ -62,11 +62,13 @@ default['gitlab-haproxy']['frontend']['api']['rate_limit_http_rate_per_minute'] 
 default['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] = '7000'
 default['gitlab-haproxy']['frontend']['api']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = false
+default['gitlab-haproxy']['frontend']['api']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['https_git']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['https_git']['servers'] = {}
+default['gitlab-haproxy']['frontend']['https_git']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] = '4444'
 default['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] = '10'
@@ -83,8 +85,11 @@ default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['ssh']['check_opts'] = 'check-ssl port 443 verify none'
 default['gitlab-haproxy']['frontend']['ssh']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['ssh']['port'] = '22'
+default['gitlab-haproxy']['frontend']['ssh']['server_port'] = '22'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
+default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['ssh']['balance'] = 'source'
 
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
@@ -95,6 +100,7 @@ default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " defa
 # Access control headers disabled because of https://gitlab.com/gitlab-com/gl-infra/production/issues/724
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] = false
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'] = ' X-Requested-With'
+default['gitlab-haproxy']['frontend']['web']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
@@ -104,6 +110,7 @@ default['gitlab-haproxy']['frontend']['websockets']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] = '/-/health'
+default['gitlab-haproxy']['frontend']['websockets']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = true
 default['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = false
@@ -113,13 +120,11 @@ default['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] = '/info'
 default['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'example.com'
 default['gitlab-haproxy']['frontend']['asset_proxy']['server'] = 'storage.googleapis.com'
 default['gitlab-haproxy']['frontend']['asset_proxy']['opts'] = 'check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none'
+default['gitlab-haproxy']['frontend']['asset_proxy']['server_port'] = '443'
 
 default['gitlab-haproxy']['frontend']['altssh']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
-default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
-default['gitlab-haproxy']['frontend']['ssh']['server_port'] = '22'
-default['gitlab-haproxy']['frontend']['ssh']['balance'] = 'source'
 default['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
 
