@@ -71,6 +71,17 @@ default['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['https_git']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['https_git']['ssl_verify'] = 'ssl verify none'
+
+# These defaults are set so that we can have different defaults for the canary
+# backend and can be removed once https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3465
+# is complete, https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/-/merge_requests/272
+default['gitlab-haproxy']['frontend']['canary_https_git']['httpchk_host'] = node['gitlab-haproxy']['frontend']['https_git']['httpchk_host']
+default['gitlab-haproxy']['frontend']['canary_https_git']['httpchk_path'] = node['gitlab-haproxy']['frontend']['https_git']['httpchk_path']
+default['gitlab-haproxy']['frontend']['canary_https_git']['check_opts'] = node['gitlab-haproxy']['frontend']['https_git']['check_opts']
+default['gitlab-haproxy']['frontend']['canary_https_git']['tcp_check_enable'] = node['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable']
+default['gitlab-haproxy']['frontend']['canary_https_git']['server_port'] = node['gitlab-haproxy']['frontend']['https_git']['server_port']
+default['gitlab-haproxy']['frontend']['canary_https_git']['ssl_verify'] = node['gitlab-haproxy']['frontend']['https_git']['ssl_verify']
+
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] = '4444'
 default['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] = '10'
