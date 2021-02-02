@@ -429,7 +429,7 @@ backend https_git
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['https_git']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['https_git']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['https_git']['ssl_verify'] %><%= @backend_servers['active']['https_git'].key?(name) ? '' : ' backup' %>
     <% end %>
     <% @backend_servers['all']['canary_https_git'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['https_git']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['https_git']['ssl_verify'] %><%= @backend_servers['active']['canary_https_git'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['canary_https_git']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['canary_https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['canary_https_git']['ssl_verify'] %><%= @backend_servers['active']['canary_https_git'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend web
