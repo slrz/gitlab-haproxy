@@ -118,6 +118,7 @@ frontend https
     acl is_canary_host hdr_beg(host) -i canary
     acl no_be_srvs_canary_web nbsrv(canary_web) lt 1
     acl no_be_srvs_canary_https_git nbsrv(canary_https_git) lt 1
+    acl no_be_srvs_canary_api nbsrv(canary_api) lt 1
     acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
     acl is_asset_path path_beg /assets/
     acl whitelist_internal src -f /etc/haproxy/whitelist-internal.lst
@@ -161,7 +162,13 @@ frontend https
     # bypass rate limiting
     use_backend api if is_gitlab_com_ci_artifacts_api
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
+
+    ## ipv6 routing rules for canary API
+    use_backend api if is_gitlab_com_api is_ipv6 no_be_srvs_canary_api
+    use_backend canary_api if is_gitlab_com_api is_ipv6 is_canary
+    use_backend canary_api if is_gitlab_com_api is_ipv6 is_canary_path !canary_disabled
     use_backend api if is_gitlab_com_api is_ipv6
+
     use_backend api if is_gitlab_com_internal_api
     use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
