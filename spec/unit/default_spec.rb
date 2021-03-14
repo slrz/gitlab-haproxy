@@ -65,6 +65,7 @@ describe 'gitlab-haproxy::default' do
         group: 'root',
         mode: '0755'
       )
+      expect(chef_run).to delete_file('/etc/cron.daily/logrotate')
       expect(chef_run).to create_cookbook_file('/etc/logrotate.d/haproxy').with(
         source: 'logrotate-haproxy',
         owner: 'root',
