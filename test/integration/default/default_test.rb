@@ -33,6 +33,10 @@ control 'logrotate-config-valid' do
     its('mode') { should cmp '0755' }
   end
 
+  describe file('/etc/cron.daily/logrotate') do
+    it { should_not exist }
+  end
+
   describe file('/etc/logrotate.d/haproxy') do
     it { should be_file }
     its('type') { should eq :file }
