@@ -13,7 +13,10 @@ def populate_node_properties
   normal_attributes['gitlab-haproxy']['frontend']['ssh']['servers']['git01.stg.gitlab.com'] = '127.0.0.1'
   normal_attributes['gitlab-haproxy']['frontend']['web']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
   normal_attributes['gitlab-haproxy']['frontend']['websockets']['servers']['web01.stg.gitlab.com'] = '127.0.0.1'
+  normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = true
   normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
+  normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] = true
+  normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only'] = " default-src 'self';"
   normal_attributes['gitlab-haproxy']['frontend']['https']['custom_config'] = [
     'acl is_download path_reg -i (\/-\/archive\/).*[.](zip|tar|tar[.]gz|tar[.]bz2)$',
     'http-request deny deny_status 400 if is_download',
@@ -134,6 +137,27 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'Content Security Policy Report Only' do
+    populate_node_properties
+    context 'enabled CSPRO' do
+      it 'includes the Content-Security-Policy-Report-Only header' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).to include(%(rspadd Content-Security-Policy-Report-Only:\\ default-src\\ \\'self\\'))
+        }
+      end
+    end
+
+    context 'disabled CSPRO' do
+      override_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] = false
+
+      it 'omits the Content-Security-Policy-Report-Only header' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).not_to include('rspadd Content-Security-Policy-Report-Only:')
+        }
+      end
+    end
+  end
+
   context 'Content Security Policy' do
     populate_node_properties
     context 'enabled CSP' do
@@ -145,11 +169,11 @@ describe 'gitlab-haproxy::frontend' do
     end
 
     context 'disabled CSP' do
-      normal_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = false
-
+      override_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = false
+      override_attributes['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = false
       it 'omits the Content-Security-Policy header' do
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-          expect(content).not_to include('rspadd Content-Security Policy')
+          expect(content).not_to include('rspadd Content-Security-Policy:')
         }
       end
     end
