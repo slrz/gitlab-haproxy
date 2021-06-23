@@ -449,6 +449,7 @@ describe 'gitlab-haproxy::frontend' do
 
   context 'with zone configured servers with the lb in us-east1-c and backup servers' do
     populate_node_properties_zonal_backup
+    override_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] = false
     normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
@@ -496,6 +497,7 @@ describe 'gitlab-haproxy::frontend' do
 
   context 'when package_registry_enforced is enabled' do
     populate_node_properties
+    override_attributes['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] = false
     normal_attributes['gitlab-haproxy']['frontend']['api']['rate_limit_package_registry_rate_per_minute'] = '7000'
     normal_attributes['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = true
     normal_attributes['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = true
