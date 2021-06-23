@@ -336,6 +336,7 @@ backend web
     option splice-auto
     timeout server-fin 5s
     rspadd Content-Security-Policy:\ default-src\ \'self\';
+    rspadd Content-Security-Policy-Report-Only:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
@@ -349,6 +350,7 @@ backend canary_web
     acl is_canary_host hdr_beg(host) -i canary
     http-response set-header X-Robots-Tag noindex if { var(txn.host) -m beg canary }
     rspadd Content-Security-Policy:\ default-src\ \'self\';
+    rspadd Content-Security-Policy-Report-Only:\ default-src\ \'self\';
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
 
