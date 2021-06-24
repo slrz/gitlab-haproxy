@@ -450,6 +450,9 @@ backend web
     <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     <% end %>
+    <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] %>
+    rspadd Content-Security-Policy-Report-Only:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
+    <% end %>
     <% if node['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] %>
     rspadd Access-Control-Allow-Headers:<%= node['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'].gsub(/ /, '\ ').gsub("'"){"\\'"} %> if { capture.req.hdr(0) -m found }
     <% end %>
@@ -478,6 +481,9 @@ backend canary_web
     http-response set-header X-Robots-Tag noindex if { var(txn.host) -m beg canary }
     <% if node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] %>
     rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
+    <% end %>
+    <% if node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only_enabled'] %>
+    rspadd Content-Security-Policy-Report-Only:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     <% end %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% @backend_servers['all']['canary_web'].each do |name, ip| %>

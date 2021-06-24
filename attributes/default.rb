@@ -111,6 +111,8 @@ default['gitlab-haproxy']['frontend']['web']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['web']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['web']['content_security_policy'] = " default-src 'self';"
+default['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] = false
+default['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only'] = " default-src 'self';"
 # Access control headers disabled because of https://gitlab.com/gitlab-com/gl-infra/production/issues/724
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] = false
 default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'] = ' X-Requested-With'
@@ -120,6 +122,8 @@ default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
+default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only_enabled'] = false
+default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['websockets']['servers'] = {}
 default['gitlab-haproxy']['frontend']['websockets']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['websockets']['tcp_check_enable'] = false
