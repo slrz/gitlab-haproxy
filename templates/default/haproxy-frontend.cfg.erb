@@ -466,7 +466,7 @@ backend web
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['web']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['web']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['web']['ssl_verify'] %><%= @backend_servers['active']['web'].key?(name) ? '' : ' backup' %>
     <% end %>
     <% @backend_servers['all']['canary_web'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['web']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_web']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['web']['ssl_verify'] %><%= @backend_servers['active']['canary_web'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['canary_web']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_web']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['canary_web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['canary_web']['ssl_verify'] %><%= @backend_servers['active']['canary_web'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend canary_web
@@ -485,9 +485,9 @@ backend canary_web
     <% if node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only_enabled'] %>
     rspadd Content-Security-Policy-Report-Only:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     <% end %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['canary_web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% @backend_servers['all']['canary_web'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['web']['server_port'] %> check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['web']['ssl_verify'] %><%= @backend_servers['active']['canary_web'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['canary_web']['server_port'] %> check <%= node['gitlab-haproxy']['frontend']['canary_web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['canary_web']['ssl_verify'] %><%= @backend_servers['active']['canary_web'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend canary_https_git

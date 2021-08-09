@@ -120,6 +120,14 @@ default['gitlab-haproxy']['frontend']['web']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['web']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
 
+# These defaults are set so that we can have different defaults for the canary
+default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = node['gitlab-haproxy']['frontend']['web']['httpchk_host']
+default['gitlab-haproxy']['frontend']['canary_web']['httpchk_path'] = node['gitlab-haproxy']['frontend']['web']['httpchk_path']
+default['gitlab-haproxy']['frontend']['canary_web']['check_opts'] = node['gitlab-haproxy']['frontend']['web']['check_opts']
+default['gitlab-haproxy']['frontend']['canary_web']['tcp_check_enable'] = node['gitlab-haproxy']['frontend']['web']['tcp_check_enable']
+default['gitlab-haproxy']['frontend']['canary_web']['server_port'] = node['gitlab-haproxy']['frontend']['web']['server_port']
+default['gitlab-haproxy']['frontend']['canary_web']['ssl_verify'] = node['gitlab-haproxy']['frontend']['web']['ssl_verify']
+
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only_enabled'] = false

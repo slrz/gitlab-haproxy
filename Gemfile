@@ -11,7 +11,7 @@ group :test do
   gem 'kitchen-inspec'
   gem 'kitchen-vagrant'
   gem 'rubocop'
-  gem 'test-kitchen'
+  gem 'test-kitchen', '~> 2.12.0'
   gem 'dbus-systemd'
 end
 
