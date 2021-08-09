@@ -1,75 +1,82 @@
 DEPENDENCIES
+  ark (~> 5)
   gitlab-exporters
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-exporters.git
-    revision: b0374411813677ec2b096e9191f08b022bc10dc6
+    revision: 4e0deab0ba5aa9f2f4ebdef70d23ab81d7e23091
   gitlab-haproxy
     path: .
     metadata: true
   gitlab-mtail
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-mtail.git
-    revision: aef5ef48a05ef8dba020bf9416a58b1cb95bb8e2
+    revision: 143756c66f9a816c3719f66a4c60d3778d4f8d35
   gitlab-server
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-server.git
-    revision: 759438afc68513179d3f0a710c70a49e55784385
+    revision: 87d664ce02a17d6ef8fe541a787389b621780cab
   gitlab_secrets
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab_secrets.git
-    revision: 887867c3e6ee29d6e7c66cd20e7a434d681d7c2b
+    revision: eb3f36a047f09255a14097fe266427731015b6b0
+  golang (~> 1)
+  logrotate (~> 2)
+  users (~> 5)
 
 GRAPH
-  apt (7.3.0)
-  ark (5.0.0)
-    seven_zip (>= 0.0.0)
+  apt (7.4.0)
+  ark (5.1.1)
+    seven_zip (~> 3.2.0)
   build-essential (8.2.1)
     mingw (>= 1.1)
     seven_zip (>= 0.0.0)
-  chef-client (11.5.0)
+  chef-client (12.3.4)
     cron (>= 4.2.0)
     logrotate (>= 1.9.0)
   chef-vault (3.1.2)
-  chef_client_updater (3.10.0)
-  consul (4.0.1)
+  chef_client_updater (3.11.1)
+  consul (4.5.1)
     build-essential (>= 5.0.0)
     golang (>= 0.0.0)
     nssm (>= 4.0.0)
     poise (~> 2.2)
     poise-archive (~> 1.3)
     poise-service (~> 1.4)
-  cron (6.3.0)
-  gitlab-exporters (3.5.4)
+  cron (7.0.2)
+  gitlab-exporters (3.7.36)
     ark (>= 0.0.0)
     chef-vault (>= 0.0.0)
     consul (>= 0.0.0)
-    gitlab-server (~> 1.11.0)
+    gitlab-server (~> 1.14)
     gitlab-vault (~> 0.2)
     gitlab_secrets (~> 0.0)
     runit (>= 0.0.0)
-  gitlab-haproxy (4.2.14)
+  gitlab-haproxy (4.2.15)
     apt (>= 0.0.0)
     gitlab-exporters (>= 0.0.0)
     gitlab-mtail (>= 0.0.0)
     gitlab-vault (>= 0.0.0)
     gitlab_secrets (>= 0.0.0)
-  gitlab-mtail (2.5.0)
+  gitlab-mtail (2.5.10)
     runit (>= 0.0.0)
-  gitlab-server (1.11.0)
+  gitlab-server (1.17.1)
     apt (>= 0.0.0)
+    ark (>= 0.0.0)
     chef-client (>= 0.0.0)
     chef-vault (~> 3.0)
     chef_client_updater (>= 0.0.0)
     gitlab-vault (>= 0.0.0)
     gitlab_secrets (>= 0.0.0)
     hostsfile (>= 0.0.0)
+    iptables (~> 4.3)
     sudo (>= 0.0.0)
     systemd (>= 0.0.0)
     users (>= 0.0.0)
   gitlab-vault (0.2.0)
     chef-vault (>= 0.0.0)
-  gitlab_secrets (0.0.7)
+  gitlab_secrets (0.0.10)
     chef-vault (>= 0.0.0)
-  golang (1.7.0)
+  golang (1.7.2)
   hostsfile (3.0.1)
-  logrotate (2.2.2)
-  mingw (2.1.0)
+  iptables (4.5.0)
+  logrotate (2.3.0)
+  mingw (2.1.1)
     seven_zip (>= 0.0.0)
   nssm (4.0.1)
     windows (>= 0.0.0)
@@ -79,13 +86,13 @@ GRAPH
     poise (~> 2.6)
   poise-service (1.5.2)
     poise (~> 2.0)
-  runit (5.1.3)
+  runit (5.1.6)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  seven_zip (3.1.2)
+  seven_zip (3.2.0)
     windows (>= 0.0.0)
-  sudo (5.4.5)
-  systemd (3.2.4)
-  users (5.4.0)
-  windows (7.0.0)
-  yum-epel (3.3.0)
+  sudo (5.4.6)
+  systemd (3.2.5)
+  users (5.7.0)
+  windows (7.0.2)
+  yum-epel (4.1.3)
