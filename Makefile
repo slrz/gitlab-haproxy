@@ -81,10 +81,11 @@ else
 		ssh-keygen -N '' -t ed25519 -C '' -f "$(KEY_FILE)"
 
 	@# Third, register it on DO via API
-	curl -sS --fail --header "Authorization: Bearer $$DIGITALOCEAN_ACCESS_TOKEN" \
+	echo "{\"name\":\"$(KEY_NAME)\", \"public_key\":\"$$(cat $(KEY_FILE).pub)\"}" \
+	| curl -sS --fail --header "Authorization: Bearer $$DIGITALOCEAN_ACCESS_TOKEN" \
+                --header "Content-Type: application/json" \
 		--request POST $(DO_KEYS_API) \
-		--data-urlencode "name=$(KEY_NAME)" \
-		--data-urlencode "public_key@$(KEY_FILE).pub" \
+                --data @- \
 		> "$(KEY_FILE).json"		# and save it for later tasks
 
 	@# Fourth, run kitchen test, wrapped in key setup/destroy routines
