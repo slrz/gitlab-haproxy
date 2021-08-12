@@ -119,6 +119,7 @@ default['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['he
 default['gitlab-haproxy']['frontend']['web']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['web']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['web']['servers'] = {}
+default['gitlab-haproxy']['frontend']['web_k8s']['servers'] = {}
 
 # These defaults are set so that we can have different defaults for the canary
 default['gitlab-haproxy']['frontend']['canary_web']['httpchk_host'] = node['gitlab-haproxy']['frontend']['web']['httpchk_host']
@@ -127,6 +128,11 @@ default['gitlab-haproxy']['frontend']['canary_web']['check_opts'] = node['gitlab
 default['gitlab-haproxy']['frontend']['canary_web']['tcp_check_enable'] = node['gitlab-haproxy']['frontend']['web']['tcp_check_enable']
 default['gitlab-haproxy']['frontend']['canary_web']['server_port'] = node['gitlab-haproxy']['frontend']['web']['server_port']
 default['gitlab-haproxy']['frontend']['canary_web']['ssl_verify'] = node['gitlab-haproxy']['frontend']['web']['ssl_verify']
+
+# These defaults are set so we that we can have different defaults for k8s nodes from web nodes in the web backend
+default['gitlab-haproxy']['frontend']['web_k8s']['check_opts'] = node['gitlab-haproxy']['frontend']['web']['check_opts']
+default['gitlab-haproxy']['frontend']['web_k8s']['server_port'] = node['gitlab-haproxy']['frontend']['web']['server_port']
+default['gitlab-haproxy']['frontend']['web_k8s']['ssl_verify'] = node['gitlab-haproxy']['frontend']['web']['ssl_verify']
 
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_enabled'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['content_security_policy'] = " default-src 'self';"
@@ -152,6 +158,7 @@ default['gitlab-haproxy']['frontend']['asset_proxy']['server_port'] = '443'
 
 default['gitlab-haproxy']['frontend']['altssh']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['web_k8s']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['api']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['https_git']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
@@ -190,6 +197,7 @@ default['gitlab-haproxy']['frontend']['backend']['servers']['default']['api'] = 
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['https_git'] = node['gitlab-haproxy']['frontend']['https_git']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ssh'] = node['gitlab-haproxy']['frontend']['ssh']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web'] = node['gitlab-haproxy']['frontend']['web']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web_k8s'] = node['gitlab-haproxy']['frontend']['web_k8s']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets'] = node['gitlab-haproxy']['frontend']['websockets']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_web'] = node['gitlab-haproxy']['frontend']['canary_web']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_websockets'] = node['gitlab-haproxy']['frontend']['canary_websockets']['servers']
