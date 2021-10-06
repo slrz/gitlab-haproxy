@@ -412,7 +412,7 @@ backend api
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% @backend_servers['all']['api'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['asset_proxy']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['api']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['api'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['api']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['api']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['api'].key?(name) ? '' : ' backup' %>
     <% end %>
     <% @backend_servers['all']['canary_api'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['api']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_api']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['canary_api'].key?(name) ? '' : ' backup' %>
