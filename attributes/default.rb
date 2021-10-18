@@ -228,6 +228,8 @@ default['gitlab-haproxy']['canary_altssh']['backend']['servers']['default']['can
 #
 #####################################################################
 
+default['gitlab-haproxy']['pages']['default_weight'] = '100'
+default['gitlab-haproxy']['canary_pages']['default_weight'] = '0'
 default['gitlab-haproxy']['pages']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
 default['gitlab-haproxy']['pages']['http_custom_config'] = nil
@@ -244,6 +246,7 @@ default['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = false
 # is complete
 
 default['gitlab-haproxy']['pages']['backend']['servers']['default']['pages'] = node['gitlab-haproxy']['pages']['servers']
+default['gitlab-haproxy']['pages']['backend']['servers']['default']['canary_pages'] = {}
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['pages']['backend']['essential'] = %w(pages)
 
