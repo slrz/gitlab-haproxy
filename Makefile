@@ -68,32 +68,27 @@ ifeq ($(GITLAB_CI),)
 else
 	@# On CI, wrap kitchen test into setup/cleanup key routines
 
-	@# First, check for DO access token env var
-	@if [ -z "$$DIGITALOCEAN_ACCESS_TOKEN" ]; then \
-		echo "Please set DIGITALOCEAN_ACCESS_TOKEN in CI/CD settings for this repo"; \
+	@# Check for GCP service account
+	@if [ -z "$$GCP_SERVICE_ACCOUNT" ]; then \
+		echo "Please set GCP_SERVICE_ACCOUNT in CI/CD settings for this repo"; \
 		exit 1; \
 	fi
 
-	@# Second, disable strict host checking and generate ephemeral key
+	@# Create the service account credential file
+	mkdir -p $$HOME/.config/gcloud/ && \
+		cp "$$GCP_SERVICE_ACCOUNT" $$HOME/.config/gcloud/application_default_credentials.json
+
+	@# Disable strict host checking and generate ephemeral key
 	umask 0077 && \
 		mkdir -p $$HOME/.ssh && \
 		echo "$$ssh_config" > $$HOME/.ssh/config && \
 		ssh-keygen -N '' -t ed25519 -C '' -f "$(KEY_FILE)"
 
-	@# Third, register it on DO via API
-	echo "{\"name\":\"$(KEY_NAME)\", \"public_key\":\"$$(cat $(KEY_FILE).pub)\"}" \
-	| curl -sS --fail --header "Authorization: Bearer $$DIGITALOCEAN_ACCESS_TOKEN" \
-                --header "Content-Type: application/json" \
-		--request POST $(DO_KEYS_API) \
-                --data @- \
-		> "$(KEY_FILE).json"		# and save it for later tasks
-
-	@# Fourth, run kitchen test, wrapped in key setup/destroy routines
-	export DIGITALOCEAN_SSH_KEY_IDS="$$(jq '.ssh_key.id' $(KEY_FILE).json)"; \
+	@# Run kitchen test, wrapped in key setup/destroy routines
+	export SSH_KEY="$(KEY_FILE)" \
+		export KITCHEN_YAML=kitchen.ci.yml; \
 		bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE); \
 		r=$$?; \
-		curl -sS --fail --header "Authorization: Bearer $$DIGITALOCEAN_ACCESS_TOKEN" \
-			--request DELETE "$(DO_KEYS_API)/$$DIGITALOCEAN_SSH_KEY_IDS"; \
 		exit $$r	# and passing kitchen error, so that we still fail pipeline if its not zero \
 				# and if key deletion fails, Makefile will exit with error and tell us.
 endif

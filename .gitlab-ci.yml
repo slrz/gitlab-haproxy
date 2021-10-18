@@ -2,9 +2,8 @@ image: ruby:2.6
 
 variables:
   DEBIAN_FRONTEND: "noninteractive"
-  KITCHEN_YAML: ".kitchen.ci.yml"
+  KITCHEN_YAML: "kitchen.ci.yml"
   BUNDLE_PATH: "$CI_PROJECT_DIR/.bundle"
-  DIGITALOCEAN_TESTBOX_FQDN: "template.${CI_PROJECT_NAMESPACE}.ci.gitlab.test"
 
 stages:
   - tests
@@ -41,7 +40,6 @@ rspec-test-job:
     when: on_failure
     paths:
       - .kitchen/
-
   cache:
     paths:
       - $BUNDLE_PATH
