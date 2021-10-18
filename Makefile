@@ -87,7 +87,7 @@ else
 	@# Run kitchen test, wrapped in key setup/destroy routines
 	export SSH_KEY="$(KEY_FILE)" \
 		export KITCHEN_YAML=kitchen.ci.yml; \
-		bundle exec kitchen test --destroy=always $(KITCHEN_PLATFORM); \
+		bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE); \
 		r=$$?; \
 		exit $$r	# and passing kitchen error, so that we still fail pipeline if its not zero \
 				# and if key deletion fails, Makefile will exit with error and tell us.
