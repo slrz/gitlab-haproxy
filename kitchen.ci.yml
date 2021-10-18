@@ -15,6 +15,7 @@ provisioner:
   production_name: chef
   product_version: 14.12.3
   data_bags_path: "test/integration/data_bags"
+  require_chef_omnibus: "14"
 
 platforms:
   - name: ubuntu-16-04-x64
