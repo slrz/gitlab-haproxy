@@ -229,7 +229,6 @@ default['gitlab-haproxy']['canary_altssh']['backend']['servers']['default']['can
 #####################################################################
 
 default['gitlab-haproxy']['pages']['default_weight'] = '100'
-default['gitlab-haproxy']['canary_pages']['default_weight'] = '0'
 default['gitlab-haproxy']['pages']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
 default['gitlab-haproxy']['pages']['http_custom_config'] = nil
@@ -240,6 +239,9 @@ default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 default['gitlab-haproxy']['pages']['https_proxyv2_backend_listen_port'] = 2443
 default['gitlab-haproxy']['pages']['enable_https_proxyv2'] = false
 default['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = false
+default['gitlab-haproxy']['canary_pages']['default_weight'] = '0'
+default['gitlab-haproxy']['canary_pages']['http_backend_listen_port'] = node['gitlab-haproxy']['pages']['http_backend_listen_port']
+default['gitlab-haproxy']['canary_pages']['https_backend_listen_port'] = node['gitlab-haproxy']['pages']['https_backend_listen_port']
 
 # Servers for HAProxy backends, defaulted to legacy server configuration that can
 # be removed once https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/9766
