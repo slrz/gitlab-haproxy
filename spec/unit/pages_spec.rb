@@ -85,7 +85,7 @@ describe 'gitlab-haproxy::pages' do
           expect(content).to include('server pages-01.stg.gitlab.com 127.0.0.1:1443 weight 100 check inter 3s fastinter 1s downinter 5s fall 3 port 1080')
           # HTTP servers in both backends
           expect(content).to include('server pages-01.stg.gitlab.com 127.0.0.1:1080 weight 100 check inter 3s fastinter 1s downinter 5s fall 3')
-          expect(content).to include('server pages-cny-01.stg.gitlab.com 127.0.0.1:80 weight 100 check inter 3s fastinter 1s downinter 5s fall 3 backup')
+          expect(content).to include('server pages-cny-01.stg.gitlab.com 127.0.0.1:80 weight 5 check inter 3s fastinter 1s downinter 5s fall 3 backup')
         }
       end
     end
