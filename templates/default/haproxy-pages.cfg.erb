@@ -130,7 +130,7 @@ backend pages_http
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %> weight <%= node['gitlab-haproxy']['pages']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %>
     <% end %>
     <% @backend_servers['all']['canary_pages'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['canary_pages']['http_backend_listen_port'] %> weight <%= node['gitlab-haproxy']['pages']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['canary_pages']['http_backend_listen_port'] %> weight <%= node['gitlab-haproxy']['canary_pages']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend pages_https
