@@ -1,0 +1,11 @@
+    mode http
+    balance roundrobin
+<% unless @cloudflare_enable %>
+    option forwardfor
+<% end %>
+    option splice-auto
+    timeout server-fin <%= @timeout_server_fin %>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => @frontend['api'], :ha_global => @ha_global } -%>
+    <% @backend_servers['all']['api'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= @frontend['api']['server_port'] %> weight <%= @frontend['api']['default_weight'] %> check <%= @frontend['api']['check_opts'] %> <%= @frontend['default_check_opts'] %> <%= @frontend['api']['ssl_verify'] %><%= @backend_servers['active']['api'].key?(name) ? '' : ' backup' %>
+    <% end %>
