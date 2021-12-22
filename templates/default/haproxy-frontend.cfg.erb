@@ -215,6 +215,7 @@ frontend https
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
 
     ## ipv6 routing rules for canary API
+    use_backend main_api if is_gitlab_com_api is_ipv6 canary_disabled
     use_backend api if is_gitlab_com_api is_ipv6 no_be_srvs_canary_api
     use_backend canary_api if is_gitlab_com_api is_ipv6 is_canary
     use_backend canary_api if is_gitlab_com_api is_ipv6 is_canary_path !canary_disabled
@@ -256,6 +257,8 @@ frontend https
     # Web routing rules, if we have gotten this far we use the default
     # web or canary_web backend
     <% if node['gitlab-haproxy']['frontend']['canary_web']['enable'] %>
+    # If the canary cookie is set to false, use the main web backend
+    use_backend main_web if canary_disabled
     # If there are no healthy canary servers default to the web backend
     use_backend web if no_be_srvs_canary_web
     # Use the canary for internal request paths like /gitlab-com/, unless
@@ -376,6 +379,8 @@ frontend api_rate_limit
     ###############################################################
     # API routing rules
     <% if node['gitlab-haproxy']['frontend']['canary_api']['enable'] %>
+    # If the canary cookie is set to false, use the main api backend
+    use_backend main_api if canary_disabled
     # If there are no healthy canary servers default to the api backend
     use_backend api if no_be_srvs_canary_api
     # Use the canary for internal request paths like /gitlab-com/, unless
@@ -403,20 +408,25 @@ backend asset_proxy
 <% end %>
 
 backend api
-    mode http
-    balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
-    option forwardfor
-<% end %>
-    option splice-auto
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
-    <% @backend_servers['all']['api'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['api']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['api']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['api'].key?(name) ? '' : ' backup' %>
-    <% end %>
+<%= render 'partial_backend_api.erb', :variables => {
+  :backend_servers => @backend_servers,
+  :frontend => node['gitlab-haproxy']['frontend'],
+  :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
+  :ha_global => node['gitlab-haproxy']['global'],
+  :cloudflare_enable => node['gitlab-haproxy']['cloudflare']['enable'],
+} -%>
     <% @backend_servers['all']['canary_api'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['api']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_api']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['canary_api'].key?(name) ? '' : ' backup' %>
     <% end %>
+
+backend main_api
+<%= render 'partial_backend_api.erb', :variables => {
+  :backend_servers => @backend_servers,
+  :frontend => node['gitlab-haproxy']['frontend'],
+  :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
+  :ha_global => node['gitlab-haproxy']['global'],
+  :cloudflare_enable => node['gitlab-haproxy']['cloudflare']['enable'],
+} -%>
 
 backend api_rate_limit
     option splice-auto
@@ -440,37 +450,25 @@ backend https_git
     <% end %>
 
 backend web
-    mode http
-    balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
-    option forwardfor
-<% end %>
-    option splice-auto
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-    <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_enabled'] %>
-    rspadd Content-Security-Policy:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
-    <% end %>
-    <% if node['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only_enabled'] %>
-    rspadd Content-Security-Policy-Report-Only:<%= node['gitlab-haproxy']['frontend']['web']['content_security_policy_report_only'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
-    <% end %>
-    <% if node['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['enable'] %>
-    rspadd Access-Control-Allow-Headers:<%= node['gitlab-haproxy']['frontend']['web']['access_control_allow_headers']['headers'].gsub(/ /, '\ ').gsub("'"){"\\'"} %> if { capture.req.hdr(0) -m found }
-    <% end %>
-    <% if node['gitlab-haproxy']['frontend']['root_page_redirect']['enable'] %>
-    acl redirect_request_path path /
-    acl has_session_cookie req.cook(<%= node['gitlab-haproxy']['frontend']['root_page_redirect']['session_cookie'] %>) -m found
-    redirect location <%= node['gitlab-haproxy']['frontend']['root_page_redirect']['url'] %> code <%= node['gitlab-haproxy']['frontend']['root_page_redirect']['status_code'] %> if redirect_request_path !has_session_cookie
-    <% end %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
-    <% @backend_servers['all']['web'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['web']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['web']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['web']['ssl_verify'] %><%= @backend_servers['active']['web'].key?(name) ? '' : ' backup' %>
-    <% end %>
-    <% @backend_servers['all']['web_k8s'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['web_k8s']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['web_k8s']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['web_k8s']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['web_k8s']['ssl_verify'] %><%= @backend_servers['active']['web_k8s'].key?(name) ? '' : ' backup' %>
-    <% end %>
+<%= render 'partial_backend_web.erb', :variables => {
+  :backend_servers => @backend_servers,
+  :frontend => node['gitlab-haproxy']['frontend'],
+  :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
+  :ha_global => node['gitlab-haproxy']['global'],
+  :cloudflare_enable => node['gitlab-haproxy']['cloudflare']['enable'],
+} -%>
     <% @backend_servers['all']['canary_web'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['canary_web']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_web']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['canary_web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['canary_web']['ssl_verify'] %><%= @backend_servers['active']['canary_web'].key?(name) ? '' : ' backup' %>
     <% end %>
+
+backend main_web
+<%= render 'partial_backend_web.erb', :variables => {
+  :backend_servers => @backend_servers,
+  :frontend => node['gitlab-haproxy']['frontend'],
+  :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
+  :ha_global => node['gitlab-haproxy']['global'],
+  :cloudflare_enable => node['gitlab-haproxy']['cloudflare']['enable'],
+} -%>
 
 backend canary_web
     mode http

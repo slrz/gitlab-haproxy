@@ -164,6 +164,7 @@ frontend https
     use_backend api if is_gitlab_com_api api_rate_limit_whitelist
 
     ## ipv6 routing rules for canary API
+    use_backend main_api if is_gitlab_com_api is_ipv6 canary_disabled
     use_backend api if is_gitlab_com_api is_ipv6 no_be_srvs_canary_api
     use_backend canary_api if is_gitlab_com_api is_ipv6 is_canary
     use_backend canary_api if is_gitlab_com_api is_ipv6 is_canary_path !canary_disabled
@@ -202,6 +203,8 @@ frontend https
     ###############################################################
     # Web routing rules, if we have gotten this far we use the default
     # web or canary_web backend
+    # If the canary cookie is set to false, use the main web backend
+    use_backend main_web if canary_disabled
     # If there are no healthy canary servers default to the web backend
     use_backend web if no_be_srvs_canary_web
     # Use the canary for internal request paths like /gitlab-com/, unless
@@ -286,6 +289,8 @@ frontend api_rate_limit
 
     ###############################################################
     # API routing rules
+    # If the canary cookie is set to false, use the main api backend
+    use_backend main_api if canary_disabled
     # If there are no healthy canary servers default to the api backend
     use_backend api if no_be_srvs_canary_api
     # Use the canary for internal request paths like /gitlab-com/, unless
@@ -316,6 +321,16 @@ backend api
     server api-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
     server api-cny-02.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
+backend main_api
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server api01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server api02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
 backend api_rate_limit
     option splice-auto
     mode http
@@ -345,6 +360,17 @@ backend web
     server web02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
     server web-cny-02.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
+backend main_web
+    mode http
+    balance roundrobin
+    option forwardfor
+    option splice-auto
+    timeout server-fin 5s
+    rspadd Content-Security-Policy:\ default-src\ \'self\';
+    option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
+    server web01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
+    server web02.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
 
 backend canary_web
     mode http
