@@ -721,6 +721,17 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with ci-gateway enabled' do
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['ci-gateway']['enabled'] = true
+
+    it 'includes the https_git_ci_gateway frontend' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include(File.read('spec/fixtures/ci-gateway-frontend.template'))
+      }
+    end
+  end
+
   def tcp_check
     <<-'CHK_WEB'
     option tcp-check

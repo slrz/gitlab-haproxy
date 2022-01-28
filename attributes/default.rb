@@ -285,3 +285,5 @@ default['gitlab-haproxy']['cloudflare']['enable'] = false
 
 default['gitlab-haproxy']['close_client_connections'] = false
 
+default['gitlab-haproxy']['ci-gateway']['enabled'] = false
+default['gitlab-haproxy']['ci-gateway']['listen_port'] = 8989

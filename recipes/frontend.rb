@@ -47,6 +47,14 @@ file '/etc/haproxy/ssl/canary.pem' do
   only_if { use_canary }
 end
 
+file '/etc/haproxy/ssl/ci-gateway.pem' do
+  sensitive true
+  mode '0600'
+  content "#{haproxy_secrets['ssl']['ci_gateway_crt']}\n#{haproxy_secrets['ssl']['ci_gateway_key']}\n"
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  only_if { node['gitlab-haproxy']['ci-gateway']['enabled'] }
+end
+
 template '/etc/haproxy/blacklist-uris.lst' do
   source 'blacklist-uris.lst.erb'
   mode '0600'
