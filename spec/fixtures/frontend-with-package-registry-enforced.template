@@ -109,7 +109,7 @@ frontend https
     acl is_gitlab_com_ci_artifacts_api path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\/)
     acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
     acl is_ancient_ci_runner path_beg -i /ci/api/
-    acl is_gitlab_com_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
+    acl is_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_gitlab_com_jwt_auth path -i /jwt/auth
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
     acl has_multiple_slash path_reg /{2,}
@@ -185,14 +185,14 @@ frontend https
     # see https://gitlab.com/gitlab-com/gl-infra/delivery/-/issues/1182
     # If it is an https git request and there are no healthy canary
     # servers, route request to the https_git backend
-    use_backend https_git if is_gitlab_com_https_git no_be_srvs_canary_https_git
+    use_backend https_git if is_https_git no_be_srvs_canary_https_git
     # Use the canary backend if the cookie gitlab_canary=true is set or if the request
     # is sent to canary.gitlab.com
-    use_backend canary_https_git if is_gitlab_com_https_git is_canary
-    use_backend canary_https_git if is_gitlab_com_https_git is_canary_host
+    use_backend canary_https_git if is_https_git is_canary
+    use_backend canary_https_git if is_https_git is_canary_host
     # Finally, if no canary rules match, route requests to the normal
     # https_git backend
-    use_backend https_git if is_gitlab_com_https_git
+    use_backend https_git if is_https_git
     ###############################################################
 
     ###############################################################
