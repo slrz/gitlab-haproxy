@@ -59,16 +59,6 @@ kitchen-haproxy-frontend-cloudflare:
   variables:
     SUITE: haproxy-frontend-cloudflare-ubuntu
 
-kitchen-haproxy-ci:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-ci-ubuntu
-
-kitchen-haproxy-ci-fallback:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-ci-fallback-ubuntu
-
 kitchen-haproxy-pages:
   extends: .kitchen_template
   variables:
