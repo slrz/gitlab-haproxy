@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/test-kitchen/kitchen-docker/
-  revision: 8d2a6f04e77b76bc9f77e0bb8cc52542743b7b6a
-  specs:
-    kitchen-docker (2.11.0)
-      test-kitchen (>= 1.0.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -355,7 +348,7 @@ GEM
       faraday (~> 1.0)
     fauxhai (7.4.0)
       net-ssh
-    ffi (1.15.4)
+    ffi (1.15.5)
     ffi-yajl (2.4.0)
       libyajl2 (>= 1.2)
     fuzzyurl (0.9.0)
@@ -425,6 +418,8 @@ GEM
     jmespath (1.4.0)
     json (2.6.0)
     jwt (2.3.0)
+    kitchen-docker (2.12.0)
+      test-kitchen (>= 1.0.0)
     kitchen-google (1.5.0)
       gcewinpass (~> 1.1)
       google-api-client (~> 0.19)
@@ -771,7 +766,7 @@ DEPENDENCIES
   chefspec (~> 7.2)
   cookstyle
   dbus-systemd
-  kitchen-docker!
+  kitchen-docker
   kitchen-google (~> 1.0)
   kitchen-inspec
   kitchen-vagrant
