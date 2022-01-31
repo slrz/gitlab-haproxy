@@ -47,6 +47,14 @@ file '/etc/haproxy/ssl/canary.pem' do
   only_if { use_canary }
 end
 
+file '/etc/haproxy/ssl/ci-gateway.pem' do
+  sensitive true
+  mode '0600'
+  content "#{haproxy_secrets['ssl']['ci_gateway_crt']}\n#{haproxy_secrets['ssl']['ci_gateway_key']}\n"
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  only_if { node['gitlab-haproxy']['ci-gateway']['enabled'] }
+end
+
 template '/etc/haproxy/blacklist-uris.lst' do
   source 'blacklist-uris.lst.erb'
   mode '0600'
@@ -92,6 +100,7 @@ template '/etc/haproxy/haproxy.cfg' do
     use_canary: use_canary,
     enforce_cf_origin_pull: enforce_cf_origin_pull,
     https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port'],
+    https_git_acl_format: node['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] ? 'verbose' : 'condensed',
     backend_servers: Gitlab::TemplateHelpers.backend_servers_for_lb_zone(
       node['gitlab-haproxy']['frontend']['backend'],
       node.to_h.dig('gce', 'instance', 'zone')

@@ -288,7 +288,8 @@ describe 'gitlab-haproxy::frontend' do
                 'web_k8s' => {},
                 'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
               },
-            }
+            },
+            https_git_acl_format: 'condensed'
           }
         )
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -343,7 +344,8 @@ describe 'gitlab-haproxy::frontend' do
               'web_k8s' => {},
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
-          }
+          },
+          https_git_acl_format: 'condensed'
         }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -391,7 +393,8 @@ describe 'gitlab-haproxy::frontend' do
               'web_k8s' => {},
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
-          }
+          },
+          https_git_acl_format: 'condensed'
         }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -445,7 +448,8 @@ describe 'gitlab-haproxy::frontend' do
               'web_k8s' => {},
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
-          }
+          },
+          https_git_acl_format: 'condensed'
         }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -493,7 +497,8 @@ describe 'gitlab-haproxy::frontend' do
               'web_k8s' => {},
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1', 'web02.stg.gitlab.com' => '127.0.0.1' },
             },
-          }
+          },
+          https_git_acl_format: 'condensed'
         }
       )
 
@@ -545,7 +550,8 @@ describe 'gitlab-haproxy::frontend' do
               'web_k8s' => {},
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
-          }
+          },
+          https_git_acl_format: 'condensed'
         }
       )
 
@@ -648,7 +654,7 @@ describe 'gitlab-haproxy::frontend' do
 
         expect(frontend_https).to include('http-request set-header X-GitLab-RateLimit-Bypass 0')
 
-        %w(whitelist_api api_rate_limit_whitelist is_gitlab_com_https_git).each do |acl|
+        %w(whitelist_api api_rate_limit_whitelist is_https_git).each do |acl|
           expect(frontend_https).to include(set_bypass(acl))
         end
 
@@ -718,6 +724,27 @@ describe 'gitlab-haproxy::frontend' do
           )
         ).to_not be_empty
       }
+    end
+  end
+
+  context 'with ci-gateway enabled' do
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['ci-gateway']['enabled'] = true
+
+    it 'includes the https_git_ci_gateway frontend' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include(File.read('spec/fixtures/ci-gateway-frontend.template'))
+      }
+    end
+
+    context 'when https_git_acl_format is verbose' do
+      normal_attributes['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] = true
+
+      it 'includes the verbose https_git ACLs' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).to include(File.read('spec/fixtures/https_git_acl_verbose.template'))
+        }
+      end
     end
   end
 

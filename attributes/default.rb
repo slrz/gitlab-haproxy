@@ -71,6 +71,7 @@ default['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['https_git']['servers'] = {}
 default['gitlab-haproxy']['frontend']['https_git']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['https_git']['ssl_verify'] = 'ssl verify none'
+default['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] = false
 
 # These defaults are set so that we can have different defaults for the canary
 # backend and can be removed once https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3465
@@ -285,31 +286,5 @@ default['gitlab-haproxy']['cloudflare']['enable'] = false
 
 default['gitlab-haproxy']['close_client_connections'] = false
 
-###### CI Configuration
-default['gitlab-haproxy']['ci']['backend']['essential'] = %w(api https_git)
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['api'] = {}
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['https_git'] = {}
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_api'] = {}
-default['gitlab-haproxy']['ci']['backend']['servers']['default']['canary_https_git'] = {}
-default['gitlab-haproxy']['ci']['default_check_opts'] = 'inter 3s fastinter 1s downinter 5s fall 3'
-default['gitlab-haproxy']['ci']['api']['check_opts'] = 'check-ssl'
-default['gitlab-haproxy']['ci']['https_git']['check_opts'] = 'check-ssl'
-
-# This will add a duplicate fallback_* backend for git and api with identical configuration.
-# When this is enabled a request, that failed matching will be routed to those backends.
-# This is designed to be a quick-fix during an incident instead of a permanent setting.
-default['gitlab-haproxy']['ci']['enable_fallback'] = false
-
-default['gitlab-haproxy']['ci']['default_weight'] = '100'
-
-default['gitlab-haproxy']['ci']['canary_api']['enable'] = true
-default['gitlab-haproxy']['ci']['canary_https_git']['enable'] = true
-default['gitlab-haproxy']['ci']['api']['default_weight'] = '100'
-default['gitlab-haproxy']['ci']['https_git']['default_weight'] = '100'
-default['gitlab-haproxy']['ci']['canary_api']['default_weight'] = '0'
-default['gitlab-haproxy']['ci']['canary_https_git']['default_weight'] = '0'
-
-default['gitlab-haproxy']['ci']['api']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['ci']['api']['httpchk_path'] = '/-/health'
-default['gitlab-haproxy']['ci']['https_git']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['ci']['https_git']['httpchk_path'] = '/-/health'
+default['gitlab-haproxy']['ci-gateway']['enabled'] = false
+default['gitlab-haproxy']['ci-gateway']['listen_port'] = 8989
