@@ -24,6 +24,7 @@ haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 
 use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
 use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['canary_crt']
+use_ci_gateway = node['gitlab-haproxy']['ci-gateway']['enabled']
 enforce_cf_origin_pull = node['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull']
 
 file '/etc/haproxy/ssl/gitlab.pem' do
@@ -54,7 +55,7 @@ file '/etc/haproxy/ssl/ci-gateway.pem' do
   mode '0600'
   content "#{haproxy_secrets['ssl']['ci_gateway_crt']}\n#{haproxy_secrets['ssl']['ci_gateway_key']}\n"
   notifies :run, 'execute[test-haproxy-config]', :delayed
-  only_if { node['gitlab-haproxy']['ci-gateway']['enabled'] }
+  only_if { use_ci_gateway }
 end
 
 template '/etc/haproxy/blacklist-uris.lst' do
@@ -100,6 +101,7 @@ template '/etc/haproxy/haproxy.cfg' do
     admin_password: haproxy_secrets['admin_password'],
     use_internal: use_internal,
     use_canary: use_canary,
+    use_ci_gateway: use_ci_gateway,
     enforce_cf_origin_pull: enforce_cf_origin_pull,
     https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port'],
     https_git_acl_format: node['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] ? 'verbose' : 'condensed',

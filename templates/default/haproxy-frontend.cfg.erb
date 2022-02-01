@@ -99,7 +99,7 @@ frontend http
     http-request redirect scheme https code 301
 
 frontend https
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %><% if @use_canary %> crt /etc/haproxy/ssl/canary.pem<% end %> no-sslv3<% if @enforce_cf_origin_pull %> verify required ca-file /etc/haproxy/ssl/cf-origin-pull.pem<% end %>
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:443 ssl crt /etc/haproxy/ssl/gitlab.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %><% if @use_canary %> crt /etc/haproxy/ssl/canary.pem<% end %> no-sslv3<% if @enforce_cf_origin_pull %> verify required ca-file /etc/haproxy/ssl/cf-origin-pull.pem<% end %><% if @use_ci_gateway %> ssl crt /etc/haproxy/ssl/ci-gateway.pem<% end %>
     <% if @https_extra_bind_port %>
     # To be used internally within the GCP netwrok, mainly to bypass client certificate verification (if enabled) above
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= @https_extra_bind_port %> ssl crt /etc/haproxy/ssl/gitlab.pem<% if @use_internal %> crt /etc/haproxy/ssl/internal.pem<% end %><% if @use_canary %> crt /etc/haproxy/ssl/canary.pem<% end %> no-sslv3
@@ -400,7 +400,7 @@ frontend api_rate_limit
     <% end %>
     default_backend api
     ###############################################################
-<% if node['gitlab-haproxy']['ci-gateway']['enabled'] %>
+<% if @use_ci_gateway %>
 frontend https_git_ci_gateway
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['ci-gateway']['listen_port'] %> ssl crt /etc/haproxy/ssl/ci-gateway.pem
     mode http
