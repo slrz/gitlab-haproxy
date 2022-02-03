@@ -207,6 +207,7 @@ default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_s
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_https_git'] = node['gitlab-haproxy']['frontend']['canary_https_git']['servers']
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git ssh web websockets)
+default['gitlab-haproxy']['frontend']['canonical_host'] = 'gitlab.com'
 
 #####################################################################
 #
