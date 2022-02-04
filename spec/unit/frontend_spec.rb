@@ -744,6 +744,7 @@ describe 'gitlab-haproxy::frontend' do
   context 'with ci-gateway enabled' do
     populate_node_properties
     normal_attributes['gitlab-haproxy']['ci-gateway']['enabled'] = true
+    normal_attributes['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = ['10.1.5.0/24']
 
     it 'includes the https_git_ci_gateway frontend' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|

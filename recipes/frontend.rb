@@ -16,6 +16,8 @@ if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
   node.default['gitlab-haproxy']['frontend']['asset_proxy']['host'] = "gitlab-#{env}-assets.storage.googleapis.com"
 end
 
+node.default['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = ['10.0.0.0/8'] if node['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'].empty?
+
 include_recipe 'gitlab-haproxy::default'
 
 haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
