@@ -87,6 +87,8 @@ default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] = '4444'
 default['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] = '10'
 default['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] = '127.0.0.1'
+default['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['enable'] = false
+default['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['useragent'] = nil
 default['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = nil
 default['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] = false
 # Only has effect if the enable_ratelimit_bypass_header is also set to true
