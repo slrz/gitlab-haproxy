@@ -133,6 +133,9 @@ frontend https
 <%= render "partial_is_https_git_#{@https_git_acl_format}.erb" -%>
     acl is_gitlab_com_jwt_auth path -i /jwt/auth
     acl is_legacy_ci_runner hdr_reg(User-Agent) -i gitlab-ci-multi-runner\ 1\.
+    <% if node['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['enable'] -%>
+    acl is_qa_useragent hdr(User-Agent) <%= node['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['useragent'] %>
+    <% end -%>
     acl has_multiple_slash path_reg /{2,}
     acl is_canary req.cook(gitlab_canary) -m str -i true
     acl canary_disabled req.cook(gitlab_canary) -m str -i false
@@ -224,6 +227,9 @@ frontend https
     use_backend api if is_gitlab_com_internal_api
     use_backend api if is_gitlab_com_api whitelist_internal
     use_backend api if is_gitlab_com_api whitelist_api
+    <% if node['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['enable'] -%>
+    use_backend api if is_gitlab_com_api is_qa_useragent
+    <% end -%>
     # API routing rules for rate limiting, canary
     # routing is handled in the api_rate_limit frontend
     # This backend is a proxy for the api_rate_limit frontend

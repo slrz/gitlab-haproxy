@@ -638,6 +638,20 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'with api rate limit bypass enabled for QA useragent' do
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['enable'] = true
+    normal_attributes['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['useragent'] = 'custom_qa_agent'
+
+    it 'includes acl and use_backend rules for header-based bypass' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        frontend_https = parse_config(content)['frontend https']
+        expect(frontend_https).to include('acl is_qa_useragent hdr(User-Agent) custom_qa_agent')
+        expect(frontend_https).to include('use_backend api if is_gitlab_com_api is_qa_useragent')
+      }
+    end
+  end
+
   context 'with bypass rate limit header enabled' do
     populate_node_properties
     normal_attributes['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header'] = true
