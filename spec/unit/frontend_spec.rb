@@ -289,7 +289,8 @@ describe 'gitlab-haproxy::frontend' do
                 'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
               },
             },
-            https_git_acl_format: 'condensed'
+            https_git_acl_format: 'condensed',
+            use_ci_gateway: false
           }
         )
         expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -345,7 +346,8 @@ describe 'gitlab-haproxy::frontend' do
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
           },
-          https_git_acl_format: 'condensed'
+          https_git_acl_format: 'condensed',
+          use_ci_gateway: false
         }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -394,7 +396,8 @@ describe 'gitlab-haproxy::frontend' do
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
           },
-          https_git_acl_format: 'condensed'
+          https_git_acl_format: 'condensed',
+          use_ci_gateway: false
         }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -449,7 +452,8 @@ describe 'gitlab-haproxy::frontend' do
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
           },
-          https_git_acl_format: 'condensed'
+          https_git_acl_format: 'condensed',
+          use_ci_gateway: false
         }
       )
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -498,7 +502,8 @@ describe 'gitlab-haproxy::frontend' do
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1', 'web02.stg.gitlab.com' => '127.0.0.1' },
             },
           },
-          https_git_acl_format: 'condensed'
+          https_git_acl_format: 'condensed',
+          use_ci_gateway: false
         }
       )
 
@@ -551,7 +556,8 @@ describe 'gitlab-haproxy::frontend' do
               'websockets' => { 'web01.stg.gitlab.com' => '127.0.0.1' },
             },
           },
-          https_git_acl_format: 'condensed'
+          https_git_acl_format: 'condensed',
+          use_ci_gateway: false
         }
       )
 
@@ -749,6 +755,12 @@ describe 'gitlab-haproxy::frontend' do
     it 'includes the https_git_ci_gateway frontend' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include(File.read('spec/fixtures/ci-gateway-frontend.template'))
+      }
+    end
+
+    it 'adds ci-gateway certificate to the https frontend' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('bind 0.0.0.0:443 ssl crt /etc/haproxy/ssl/gitlab.pem no-sslv3 ssl crt /etc/haproxy/ssl/ci-gateway.pem')
       }
     end
 
