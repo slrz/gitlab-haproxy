@@ -773,6 +773,18 @@ describe 'gitlab-haproxy::frontend' do
         }
       end
     end
+
+    context 'when redirect_all_traffic_externally is set to true' do
+      normal_attributes['gitlab-haproxy']['ci-gateway']['redirect_all_traffic_externally'] = true
+
+      it 'uses ci_gateway_catch_all backend exclusively' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).not_to include('use_backend api if is_runner_manager')
+          expect(content).not_to include('use_backend https_git if is_https_git is_git_method')
+          expect(content).to include('default_backend ci_gateway_catch_all')
+        }
+      end
+    end
   end
 
   def tcp_check
