@@ -105,7 +105,6 @@ frontend https
 
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['registry']['peers']['servers'].any? -%>peers registry-peers<% end -%>
     tcp-request connection track-sc1 src
-
     <% if node['gitlab-haproxy']['registry']['rate_limit']['enable'] %>
     stick-table type ip size 1m expire 1h store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['registry']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     http-request track-sc0 src
