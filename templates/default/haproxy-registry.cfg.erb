@@ -106,6 +106,12 @@ frontend https
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['registry']['peers']['servers'].any? -%>peers registry-peers<% end -%>
     tcp-request connection track-sc1 src
 
+    <% if node['gitlab-haproxy']['registry']['rate_limit']['enable'] %>
+    stick-table type ip size 1m expire 1h store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['registry']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
+    http-request track-sc0 src
+    acl is_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['registry']['rate_limit']['rate_limit_http_rate_per_hour'] %>
+    <% end %>
+
     acl has_multiple_slash path_reg /{2,}
 
     http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if has_multiple_slash
@@ -182,3 +188,11 @@ backend canary_registry
     <% @backend_servers['all']['canary_registry'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
     <% end %>
+
+<% if node['gitlab-haproxy']['registry']['rate_limit']['enable'] %>
+backend 429_slow_down
+    mode http
+    timeout tarpit 2s
+    errorfile 429 /etc/haproxy/errors/429.http
+    http-request tarpit deny_status 429
+<% end %>
