@@ -283,7 +283,7 @@ default['gitlab-haproxy']['registry']['backend']['servers']['default']['canary_r
 default['gitlab-haproxy']['registry']['backend']['essential'] = %w(registry)
 
 default['gitlab-haproxy']['registry']['rate_limit']['enable'] = false
-default['gitlab-haproxy']['registry']['rate_limit']['rate_limit_http_rate_per_hour'] = 10000
+default['gitlab-haproxy']['registry']['rate_limit']['rate_limit_http_rate_per_hour'] = 40000
 
 default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
