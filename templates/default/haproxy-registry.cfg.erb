@@ -187,8 +187,8 @@ backend canary_registry
     <% @backend_servers['all']['canary_registry'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
     <% end %>
-
 <% if node['gitlab-haproxy']['registry']['rate_limit']['enable'] %>
+
 backend 429_slow_down
     mode http
     timeout tarpit 2s
