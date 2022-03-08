@@ -54,7 +54,7 @@ package 'hatop'
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
 node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
 
-%w(/etc/haproxy/ssl /etc/haproxy/errors /etc/haproxy/state /etc/systemd/system/haproxy.service.d).each do |dir|
+%w(/etc/haproxy/ssl /etc/haproxy/errors /etc/haproxy/state /etc/systemd/system/haproxy.service.d /etc/haproxy/scripts).each do |dir|
   directory dir do
     mode '0700'
     recursive true
