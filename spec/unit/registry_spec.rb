@@ -20,6 +20,30 @@ describe 'gitlab-haproxy::registry' do
     end
   end
 
+  context 'with rate limiting' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+        node.normal['gitlab-haproxy']['registry']['rate_limit']['enable'] = true
+        node.normal['gitlab-haproxy']['registry']['rate_limit']['rate_limit_http_rate_per_hour'] = 5000
+      end.converge(described_recipe)
+    end
+
+    it 'adds the right rate limit.' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('acl is_rate_abuse src_http_req_rate gt 5000')
+      }
+    end
+
+    it 'adds a 429 backend.' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('backend 429_slow_down')
+      }
+    end
+  end
+
   context 'with internal request routing' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
