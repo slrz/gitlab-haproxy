@@ -50,7 +50,9 @@ debug:	### Debug Makefile itself
 .PHONY: gems
 gems:	### Install latest versions of all gems
 	rm -f Gemfile.lock
-	bundle install --jobs $$(nproc) --clean --path $(BUNDLE_PATH)
+	bundle config set clean 'true'
+	bundle config set path $(BUNDLE_PATH)
+	bundle install --jobs $$(nproc)
 
 .PHONY: check
 check:	### Check style of all ruby files
