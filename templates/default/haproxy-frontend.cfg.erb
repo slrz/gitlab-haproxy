@@ -405,7 +405,7 @@ frontend api_rate_limit
     ###############################################################
 <% if @use_ci_gateway %>
 frontend https_git_ci_gateway
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['ci-gateway']['listen_port'] %> ssl crt /etc/haproxy/ssl/ci-gateway.pem
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['ci-gateway']['listen_port'] %> ssl crt /etc/haproxy/ssl/ci-gateway.pem no-sslv3
     mode http
     option splice-auto
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
