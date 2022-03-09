@@ -18,6 +18,9 @@ global
 <% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
     server-state-file /etc/haproxy/state/global
 <% end %>
+<% if node['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] %>
+    lua-load /etc/haproxy/scripts/ci-gateway-redirect.lua
+<% end %>
 
     # Default SSL material locations
     ca-base /etc/ssl/certs
@@ -402,7 +405,7 @@ frontend api_rate_limit
     ###############################################################
 <% if @use_ci_gateway %>
 frontend https_git_ci_gateway
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['ci-gateway']['listen_port'] %> ssl crt /etc/haproxy/ssl/ci-gateway.pem
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['ci-gateway']['listen_port'] %> ssl crt /etc/haproxy/ssl/ci-gateway.pem no-sslv3
     mode http
     option splice-auto
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
@@ -418,8 +421,12 @@ frontend https_git_ci_gateway
 <%= render "partial_is_https_git_#{@https_git_acl_format}.erb" -%>
     acl is_git_method method GET POST
 
+    # Prevent users from setting bypass header
+    http-request set-header X-GitLab-RateLimit-Bypass 0
+
     ###############################################################
     # HTTPS git routing
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git is_git_method
     use_backend https_git if is_https_git is_git_method
     ###############################################################
 
@@ -599,5 +606,9 @@ backend ci_gateway_catch_all
     mode http
     # Code 307 is important as it hints to the client to redirect keeping the original method,
     # necessary for requests like POST /api/v4/jobs/:id/artifacts which won't be captured by the frontend.
+    <% if node['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] %>
+    http-request use-service lua.ci-gateway-redirect-307
+    <% else %>
     http-request redirect code 307 location https://<%= node['gitlab-haproxy']['frontend']['canonical_host'] %>%[capture.req.uri]
+    <% end %>
 <% end %>

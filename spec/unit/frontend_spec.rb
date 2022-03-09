@@ -785,6 +785,22 @@ describe 'gitlab-haproxy::frontend' do
         }
       end
     end
+
+    context 'when redirect_using_lua is set to true' do
+      normal_attributes['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] = true
+
+      it 'creates a Lua script called ci-gateway-redirect.lua' do
+        expect(chef_run).to render_file('/etc/haproxy/scripts/ci-gateway-redirect.lua').with_content(File.read('spec/fixtures/ci-gateway-redirect.template'))
+      end
+
+      it 'uses Lua to return the redirects' do
+        expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+          expect(content).to include('lua-load /etc/haproxy/scripts/ci-gateway-redirect.lua')
+          expect(content).to include('http-request use-service lua.ci-gateway-redirect-307')
+          expect(content).not_to include('http-request redirect code 307 location https://gitlab.com%[capture.req.uri]')
+        }
+      end
+    end
   end
 
   def tcp_check

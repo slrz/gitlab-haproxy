@@ -25,6 +25,7 @@ haproxy_secrets = gitlab_haproxy_secrets['gitlab-haproxy']
 use_internal = haproxy_secrets['ssl']['internal_key'] && haproxy_secrets['ssl']['internal_crt']
 use_canary = haproxy_secrets['ssl']['canary_key'] && haproxy_secrets['ssl']['canary_crt']
 use_ci_gateway = node['gitlab-haproxy']['ci-gateway']['enabled']
+ci_gateway_redirect_using_lua = node['gitlab-haproxy']['ci-gateway']['redirect_using_lua']
 enforce_cf_origin_pull = node['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull']
 
 file '/etc/haproxy/ssl/gitlab.pem' do
@@ -91,6 +92,12 @@ git '/etc/haproxy/recaptcha' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
   timeout 15
   ignore_failure true
+end
+
+template '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
+  source 'ci-gateway-redirect.lua.erb'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  only_if { ci_gateway_redirect_using_lua }
 end
 
 # we are only passing in the secrets as variables

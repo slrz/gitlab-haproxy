@@ -296,3 +296,4 @@ default['gitlab-haproxy']['ci-gateway']['enabled'] = false
 default['gitlab-haproxy']['ci-gateway']['listen_port'] = 8989
 default['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = []
 default['gitlab-haproxy']['ci-gateway']['redirect_all_traffic_externally'] = false
+default['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] = false
