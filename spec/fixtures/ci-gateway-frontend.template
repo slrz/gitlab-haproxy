@@ -14,8 +14,12 @@ frontend https_git_ci_gateway
     acl is_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_git_method method GET POST
 
+    # Prevent users from setting bypass header
+    http-request set-header X-GitLab-RateLimit-Bypass 0
+
     ###############################################################
     # HTTPS git routing
+    http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git is_git_method
     use_backend https_git if is_https_git is_git_method
     ###############################################################
 
