@@ -803,6 +803,17 @@ describe 'gitlab-haproxy::frontend' do
     end
   end
 
+  context 'extra cipher suites is set' do
+    populate_node_properties
+    normal_attributes['gitlab-haproxy']['global']['extra-default-bind-ciphers'] = 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-CCM8'
+
+    it 'prepends the extra chiper suites to the ssl-default-bind-ciphers option' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('ssl-default-bind-ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-CCM8:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES')
+      }
+    end
+  end
+
   def tcp_check
     <<-'CHK_WEB'
     option tcp-check

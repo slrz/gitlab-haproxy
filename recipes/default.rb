@@ -11,6 +11,11 @@ include_recipe 'apt::unattended-upgrades'
 # Don't allow automatic upgrades.
 node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'
 
+# In case we wanted to support more cipher suites without copying the existing default one.
+unless (extra_ciphers = node['gitlab-haproxy']['global']['extra-default-bind-ciphers']).empty?
+  node.default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'].prepend(extra_ciphers + ':')
+end
+
 # Configure default secrets based on environment in GCE.
 env = node.chef_environment
 node.default['gitlab-haproxy']['secrets'] = {
