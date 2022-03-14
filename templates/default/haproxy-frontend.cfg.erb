@@ -623,5 +623,5 @@ backend ci_gateway_catch_all
 backend ci_gateway_git_repo_redirection
     mode http
     http-request set-var(req.repo_path) path,regsub(\/info\/refs$,.git/info/refs)
-    http-request redirect code 307 location https://%[hdr(host)]:<%= node['gitlab-haproxy']['ci-gateway']['listen_port'] %>%[var(req.repo_path)]?%[query]
+    http-request redirect code 307 location %[var(req.repo_path)]?%[query]
 <% end %>
