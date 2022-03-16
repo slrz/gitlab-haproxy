@@ -427,6 +427,10 @@ frontend https_git_ci_gateway
     # Prevent users from setting bypass header
     http-request set-header X-GitLab-RateLimit-Bypass 0
 
+    # Set the canonical host as Host header so that ci-gateway
+    # is transparent for GitLab backends
+    http-request set-header Host <%= node['gitlab-haproxy']['frontend']['canonical_host'] %>
+
     ###############################################################
     # Redirect git requests missing .git suffix in the repo url
     use_backend ci_gateway_git_repo_redirection if is_git_legacy_initial_request !is_git_new_initial_request is_git_method
