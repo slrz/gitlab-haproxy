@@ -14,8 +14,20 @@ frontend https_git_ci_gateway
     acl is_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
     acl is_git_method method GET POST
 
+    acl is_git_legacy_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\/info\/refs$
+    acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
+
     # Prevent users from setting bypass header
     http-request set-header X-GitLab-RateLimit-Bypass 0
+
+    # Set the canonical host as Host header so that ci-gateway
+    # is transparent for GitLab backends
+    http-request set-header Host gitlab.com
+
+    ###############################################################
+    # Redirect git requests missing .git suffix in the repo url
+    use_backend ci_gateway_git_repo_redirection if is_git_legacy_initial_request !is_git_new_initial_request is_git_method
+    ###############################################################
 
     ###############################################################
     # HTTPS git routing

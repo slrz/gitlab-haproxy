@@ -421,8 +421,20 @@ frontend https_git_ci_gateway
 <%= render "partial_is_https_git_#{@https_git_acl_format}.erb" -%>
     acl is_git_method method GET POST
 
+    acl is_git_legacy_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\/info\/refs$
+    acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
+
     # Prevent users from setting bypass header
     http-request set-header X-GitLab-RateLimit-Bypass 0
+
+    # Set the canonical host as Host header so that ci-gateway
+    # is transparent for GitLab backends
+    http-request set-header Host <%= node['gitlab-haproxy']['frontend']['canonical_host'] %>
+
+    ###############################################################
+    # Redirect git requests missing .git suffix in the repo url
+    use_backend ci_gateway_git_repo_redirection if is_git_legacy_initial_request !is_git_new_initial_request is_git_method
+    ###############################################################
 
     ###############################################################
     # HTTPS git routing
@@ -611,4 +623,9 @@ backend ci_gateway_catch_all
     <% else %>
     http-request redirect code 307 location https://<%= node['gitlab-haproxy']['frontend']['canonical_host'] %>%[capture.req.uri]
     <% end %>
+
+backend ci_gateway_git_repo_redirection
+    mode http
+    http-request set-var(req.repo_path) path,regsub(\/info\/refs$,.git/info/refs)
+    http-request redirect code 307 location %[var(req.repo_path)]?%[query]
 <% end %>
