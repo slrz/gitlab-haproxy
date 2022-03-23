@@ -37,6 +37,12 @@ describe 'gitlab-haproxy::registry' do
       }
     end
 
+    it 'includes an internal allow list.' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('acl registry_allowlist src -f /etc/haproxy/registry-allowlist.lst')
+      }
+    end
+
     it 'adds a 429 backend.' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include('backend 429_slow_down')

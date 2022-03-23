@@ -51,3 +51,15 @@ template '/etc/haproxy/canary-request-paths.lst' do
   mode '0600'
   notifies :run, 'execute[test-haproxy-config]', :delayed
 end
+
+template '/etc/haproxy/internal-allowlist.lst' do
+  source 'internal-allowlist.lst.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
+
+template '/etc/haproxy/registry-allowlist.lst' do
+  source 'registry-allowlist.lst.erb'
+  mode '0600'
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+end
