@@ -108,14 +108,14 @@ frontend https
     <% if node['gitlab-haproxy']['registry']['rate_limit']['enable'] %>
     stick-table type ip size 1m expire 1h store gpc0,http_req_rate(1m) <% if node['gitlab-haproxy']['registry']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
     http-request track-sc0 src
-    acl is_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['registry']['rate_limit']['rate_limit_http_rate_per_hour'] %>
-    use_backend 429_slow_down if is_rate_abuse
     acl default_allowlist src <%= node['gitlab-haproxy']['registry']['rate_limit']['allowlist'] %>
     use_backend registry if default_allowlist
     acl internal_allowlist src -f /etc/haproxy/internal-allowlist.lst
     use_backend registry if internal_allowlist
     acl registry_allowlist src -f /etc/haproxy/registry-allowlist.lst
     use_backend registry if registry_allowlist
+    acl is_rate_abuse src_http_req_rate gt <%= node['gitlab-haproxy']['registry']['rate_limit']['rate_limit_http_rate_per_hour'] %>
+    use_backend 429_slow_down if is_rate_abuse
     <% end %>
 
     acl has_multiple_slash path_reg /{2,}
