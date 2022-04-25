@@ -580,9 +580,8 @@ backend canary_api
 
 backend ssh
     mode tcp
-    balance <%= node['gitlab-haproxy']['frontend']['ssh']['balance'] %>
+    balance roundrobin
     option splice-auto
-    hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['ssh'], :ha_global => node['gitlab-haproxy']['global'] } -%>
