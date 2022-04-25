@@ -92,9 +92,8 @@ frontend check_ssh
 
 backend altssh
     mode tcp
-    balance <%= node['gitlab-haproxy']['altssh']['balance'] %>
+    balance roundrobin
     option splice-auto
-    hash-type consistent
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
     <% @backend_servers['all']['altssh'].each do |name, ip| %>

@@ -403,9 +403,8 @@ backend canary_api
 
 backend ssh
     mode tcp
-    balance source
+    balance roundrobin
     option splice-auto
-    hash-type consistent
     timeout server-fin 5s
     timeout server 2h
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com

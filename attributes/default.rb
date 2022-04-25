@@ -107,7 +107,6 @@ default['gitlab-haproxy']['frontend']['ssh']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
-default['gitlab-haproxy']['frontend']['ssh']['balance'] = 'source'
 
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
@@ -223,7 +222,6 @@ default['gitlab-haproxy']['altssh']['backend']['essential'] = %w(altssh)
 default['gitlab-haproxy']['canary_altssh']['backend']['essential'] = %w()
 
 default['gitlab-haproxy']['altssh']['backend']['servers']['default']['altssh'] = {}
-default['gitlab-haproxy']['altssh']['balance'] = 'source'
 default['gitlab-haproxy']['altssh']['custom_config'] = nil
 default['gitlab-haproxy']['canary_altssh']['backend']['servers']['default']['canary_altssh'] = {}
 
