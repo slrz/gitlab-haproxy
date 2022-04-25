@@ -106,8 +106,7 @@ frontend check_https
 
 backend pages_http
     mode http
-    balance source
-    hash-type consistent
+    balance roundrobin
     option forwardfor
     option splice-auto
     option httpchk GET /-/readiness HTTP/1.1\r\nHost:\ gitlab.com
@@ -116,7 +115,7 @@ backend pages_http
 backend pages_https
     mode tcp
     option splice-auto
-    balance source
+    balance roundrobin
     hash-type consistent
     option httpchk GET /-/readiness HTTP/1.1\r\nHost:\ gitlab.com
     server pages-01.stg.gitlab.com 127.0.0.1:1443 weight 100 check inter 3s fastinter 1s downinter 5s fall 3 port 1080
