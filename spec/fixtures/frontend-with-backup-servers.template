@@ -407,7 +407,7 @@ backend canary_api
 
 backend ssh
     mode tcp
-    balance source
+    balance roundrobin
     option splice-auto
     timeout server-fin 5s
     timeout server 2h
