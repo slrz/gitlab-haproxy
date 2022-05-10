@@ -90,11 +90,10 @@ frontend pages_http
 <%- if node['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] -%>
     acl mark_seen sc0_inc_gpc0 gt 0
     acl domain_deny sc0_conn_rate gt <%= node['gitlab-haproxy']['domain_rate_limit_per_second'] %>
-    stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers frontend-peers
+    stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers pages-peers
     tcp-request content track-sc0 hdr(host)
     use_backend deny_http if domain_deny mark_seen
 <%- end -%>
-
     capture request header Host len 40
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
@@ -108,18 +107,17 @@ frontend pages_https
     option splice-auto
 
     tcp-request inspect-delay 5s
-    acl ip_deny src -f /etc/haproxy/front-end-security/deny-403-ips.lst
-    tcp-request content reject if ip_deny
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    use_backend deny_https if deny-403-ip
 <%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
-    acl domain_deny req_ssl_sni -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
-    use_backend deny_https if domain_deny
+    acl deny-403-domain req_ssl_sni -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
+    use_backend deny_https if deny-403-domain
 <%- end -%>
-
 <%- if node['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] -%>
     acl mark_seen sc0_inc_gpc0 gt 0
     acl domain_deny sc0_conn_rate gt <%= node['gitlab-haproxy']['domain_rate_limit_per_second'] %>
 
-    stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers frontend-peers
+    stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers pages-peers
     tcp-request content track-sc0 req_ssl_sni
     use_backend deny_https if mark_seen domain_deny
 <%- end -%>
