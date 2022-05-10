@@ -55,6 +55,12 @@ listen stats
     stats auth admin:this-is-a-test-password
     stats admin if TRUE
 
+#---------------------------------------------------------------------
+# Sync data between the pages nodes
+#---------------------------------------------------------------------
+peers pages-peers
+    peer fe-pages01.sv.gitlab.com 10.65.1.101:32768
+
 frontend pages_http
     bind 0.0.0.0:80
     mode http
@@ -64,7 +70,6 @@ frontend pages_http
     http-request deny if deny-403-ip
 
     capture request header Host len 40
-
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
@@ -78,7 +83,7 @@ frontend pages_https
 
     tcp-request inspect-delay 5s
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
-    tcp-request content reject if deny-403-ip
+    use_backend deny_https if deny-403-ip
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
     use_backend pages_https
@@ -114,3 +119,11 @@ backend pages_https
     balance roundrobin
     option httpchk GET /-/readiness HTTP/1.1\r\nHost:\ gitlab.com
     server pages-01.stg.gitlab.com 127.0.0.1:1443 weight 100 check inter 3s fastinter 1s downinter 5s fall 3 port 1080
+
+backend deny_https
+    mode tcp
+    tcp-request content reject
+
+backend deny_http
+    mode http
+    http-request deny
