@@ -71,7 +71,6 @@ frontend pages_http
     acl deny-403-domain req.hdr(host) -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
     use_backend deny_http if deny-403-domain
 
-
     capture request header Host len 40
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com

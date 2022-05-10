@@ -86,7 +86,6 @@ frontend pages_http
     use_backend deny_http if deny-403-domain
 <%- end -%>
 
-
 <%- if node['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] -%>
     acl mark_seen sc0_inc_gpc0 gt 0
     acl domain_deny sc0_conn_rate gt <%= node['gitlab-haproxy']['domain_rate_limit_per_second'] %>

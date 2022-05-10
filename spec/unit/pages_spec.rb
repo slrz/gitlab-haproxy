@@ -138,6 +138,24 @@ describe 'gitlab-haproxy::pages' do
     end
   end
 
+  context 'when domain rate limiting is enabled' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+        node.normal['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = true
+        node.normal['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] = true
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'includes the pages domain blacklisting options' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to eq(IO.read('spec/fixtures/pages-domain-rate-limiting.template'))
+      }
+    end
+  end
+
   context 'when PROXY protocol is enabled' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|
