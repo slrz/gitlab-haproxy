@@ -61,6 +61,16 @@ listen stats
     stats auth admin:<%= @admin_password %>
     stats admin if TRUE
 
+<% if node['gitlab-haproxy']['pages']['peers']['servers'].any? -%>
+#---------------------------------------------------------------------
+# Sync data between the pages nodes
+#---------------------------------------------------------------------
+peers pages-peers
+    <% node['gitlab-haproxy']['pages']['peers']['servers'].each do |name, network| %>
+    peer <%= name %> <%= network[0] %>:<%= network[1] %>
+    <% end %>
+<% end -%>
+
 frontend pages_http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http
@@ -73,11 +83,19 @@ frontend pages_http
     http-request deny if deny-403-ip
 <%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
     acl deny-403-domain req.hdr(host) -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
-    http-request deny if deny-403-domain
+    use_backend deny_http if deny-403-domain
+<%- end -%>
+
+
+<%- if node['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] -%>
+    acl mark_seen sc0_inc_gpc0 gt 0
+    acl domain_deny sc0_conn_rate gt <%= node['gitlab-haproxy']['domain_rate_limit_per_second'] %>
+    stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers frontend-peers
+    tcp-request content track-sc0 hdr(host)
+    use_backend deny_http if domain_deny mark_seen
 <%- end -%>
 
     capture request header Host len 40
-
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
     http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
@@ -90,11 +108,20 @@ frontend pages_https
     option splice-auto
 
     tcp-request inspect-delay 5s
-    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
-    tcp-request content reject if deny-403-ip
+    acl ip_deny src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    tcp-request content reject if ip_deny
 <%- if node['gitlab-haproxy']['pages']['enable_domain_blacklisting'] -%>
-    acl deny-403-domain req_ssl_sni -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
-    tcp-request content reject if deny-403-domain
+    acl domain_deny req_ssl_sni -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst
+    use_backend deny_https if domain_deny
+<%- end -%>
+
+<%- if node['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] -%>
+    acl mark_seen sc0_inc_gpc0 gt 0
+    acl domain_deny sc0_conn_rate gt <%= node['gitlab-haproxy']['domain_rate_limit_per_second'] %>
+
+    stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers frontend-peers
+    tcp-request content track-sc0 req_ssl_sni
+    use_backend deny_https if mark_seen domain_deny
 <%- end -%>
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
@@ -142,4 +169,12 @@ backend pages_https
     <% end %>
     <% @backend_servers['all']['canary_pages'].each do |name, ip| %>
     server <%= name %><%= node['gitlab-haproxy']['pages']['enable_https_proxyv2'] ? '-proxyv2' : '' %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['enable_https_proxyv2'] ? node['gitlab-haproxy']['canary_pages']['https_proxyv2_backend_listen_port'] : node['gitlab-haproxy']['canary_pages']['https_backend_listen_port'] %> weight <%= node['gitlab-haproxy']['canary_pages']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> port <%= node['gitlab-haproxy']['canary_pages']['http_backend_listen_port'] %><%= @backend_servers['active']['canary_pages'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['pages']['enable_https_proxyv2'] ? ' send-proxy-v2' : '' %>
-    <% end %>
+<% end %>
+
+backend deny_https
+    mode tcp
+    tcp-request content reject
+
+backend deny_http
+    mode http
+    http-request deny
