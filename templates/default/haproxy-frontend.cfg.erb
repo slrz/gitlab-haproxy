@@ -286,7 +286,7 @@ frontend ssh
     mode tcp
     option splice-auto
 
-    <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <% if node['gitlab-haproxy']['cloudflare']['enable'] && ! node['gitlab-haproxy']['cloudflare']['ignore-proxy'] %>
     acl from_cf src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst
     # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
     tcp-request connection expect-proxy layer4 if from_cf
@@ -586,10 +586,10 @@ backend ssh
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['ssh'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% @backend_servers['all']['ssh'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['ssh']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['ssh'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['ssh']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['ssh'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['frontend']['ssh']['send-proxy-v2'] ? ' send-proxy-v2' : '' %>
     <% end %>
     <% @backend_servers['all']['canary_ssh'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['canary_ssh'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['canary_ssh'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['frontend']['canary_ssh']['send-proxy-v2'] ? ' send-proxy-v2' : '' %>
     <% end %>
 
 backend websockets

@@ -107,6 +107,11 @@ default['gitlab-haproxy']['frontend']['ssh']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['ssh']['servers'] = {}
 default['gitlab-haproxy']['frontend']['ssh']['custom_config'] = []
 default['gitlab-haproxy']['frontend']['ssh']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['ssh']['send-proxy-v2'] = false
+default['gitlab-haproxy']['frontend']['canary_ssh']['send-proxy-v2'] = false
+
+default['gitlab-haproxy']['frontend']['altssh']['send-proxy-v2'] = false
+default['gitlab-haproxy']['frontend']['canary_altssh']['send-proxy-v2'] = false
 
 default['gitlab-haproxy']['frontend']['web']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['web']['httpchk_path'] = '/-/health'
@@ -293,6 +298,7 @@ default['gitlab-haproxy']['camoproxy']['server_port'] = 8080
 default['gitlab-haproxy']['camoproxy']['httpchk_path'] = '/status'
 
 default['gitlab-haproxy']['cloudflare']['enable'] = false
+default['gitlab-haproxy']['cloudflare']['ignore-proxy'] = false
 
 default['gitlab-haproxy']['close_client_connections'] = false
 
