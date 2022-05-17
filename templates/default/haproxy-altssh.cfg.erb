@@ -67,7 +67,7 @@ frontend altssh
     mode tcp
     option splice-auto
 
-    <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <% if node['gitlab-haproxy']['cloudflare']['enable'] && ! node['gitlab-haproxy']['cloudflare']['ignore-proxy'] %>
     acl from_cf src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst
     # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
     tcp-request connection expect-proxy layer4 if from_cf
@@ -97,8 +97,8 @@ backend altssh
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
     <% @backend_servers['all']['altssh'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['altssh']['default_weight'] %> check port <%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> inter 5000 fall 3 verify none<%= @backend_servers['active']['altssh'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['altssh']['default_weight'] %> check port <%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> inter 5000 fall 3 verify none<%= @backend_servers['active']['altssh'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['frontend']['altssh']['send-proxy-v2'] ? ' send-proxy-v2' : '' %>
     <% end %>
     <% @backend_canary_servers['all']['canary_altssh'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_altssh']['default_weight'] %> check port <%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> inter 5000 fall 3 verify none<%= @backend_canary_servers['active']['canary_altssh'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_altssh']['default_weight'] %> check port <%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> inter 5000 fall 3 verify none<%= @backend_canary_servers['active']['canary_altssh'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['frontend']['canary_altssh']['send-proxy-v2'] ? ' send-proxy-v2' : '' %>
     <% end %>
