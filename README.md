@@ -1,4 +1,4 @@
-[![build status](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/badges/master/build.svg)](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/commits/master)
+[![build status](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/badges/master/pipeline.svg)](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/pipelines)
 
 # gitlab-haproxy
 
