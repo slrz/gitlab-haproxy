@@ -1,5 +1,4 @@
 [![build status](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/badges/master/build.svg)](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/commits/master)
-[![coverage report](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/badges/master/coverage.svg)](https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/commits/master)
 
 # gitlab-haproxy
 
