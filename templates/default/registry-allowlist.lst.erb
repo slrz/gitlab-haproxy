@@ -1,9 +1,0 @@
-#---------------------------------------------------------------------
-# Allowlisted IP Address Blocks for External Registry Usage
-#---------------------------------------------------------------------
-<% if node['gitlab-haproxy']['registry']['allowlist']['registry'].any? -%>
-    <% node['gitlab-haproxy']['registry']['allowlist']['registry'].each do |network, comment| %>
-# <%= comment %>
-<%= network %>
-    <% end %>
-<% end -%>
