@@ -46,25 +46,13 @@ You can run `rspec` or `kitchen` tests directly without using provided
      _Note_ that `.kitchen.yml` is left as a default Vagrant setup and is not
      used by Makefile.
 
-1. In order to use DigitalOcean for integration testing locally, by using
-   `make kitchen` or running `bundle exec kitchen test --destroy=always`,
-   export the following variables according to the
-   [kitchen-digitalocean](https://github.com/test-kitchen/kitchen-digitalocean)
-   documentation:
-
-   - `DIGITALOCEAN_ACCESS_TOKEN`
-   - `DIGITALOCEAN_SSH_KEY_IDS`
-
 ### On CI
 
 Alternatively, you can just push to your branch and let CI handle the testing.
-To setup it, add the `DIGITALOCEAN_ACCESS_TOKEN` secret variable under your
-project settings, `make kitchen` target will:
+`make kitchen` target will:
 
 - detect the CI environment
 - generate ephemeral SSH ed25519 keypair
-- register them on DigitalOcean
-- export the resulting key as `DIGITALOCEAN_SSH_KEY_IDS` environment variable
 - run the kitchen test
 - clean up the ephemeral key from DigitalOcean after pipeline is done
 
