@@ -6,7 +6,7 @@
 UNAME		:= $(shell uname -s)
 ROOT_DIR	:= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUNDLE_PATH	?= $(ROOT_DIR)/.bundle
-KITCHEN_YAML	?= .kitchen.do.yml
+KITCHEN_YAML	?= kitchen.yml
 # just match from /^suites:$/ line to the end of file, and output count of all the '- name: blah' lines
 # which is actually the count of our suites
 KITCHEN_TESTS	?= $(shell awk '/^suites:$$/,0{$$2~/^name:/&&c++} END {print c}' $(KITCHEN_YAML))
@@ -63,10 +63,17 @@ rspec:	### Run rspec tests
 	bundle exec rspec -f d
 
 .PHONY: kitchen
-kitchen:	### Run kitchen tests on DigitalOcean
+kitchen:	### Run kitchen tests
 ifeq ($(GITLAB_CI),)
 	@# Locally, just fire up kitchen test, as we're not using ephemeral keys
-	bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE)
+	ssh-keygen -N '' -t ed25519 -C '' -f "$(KEY_FILE)"
+
+	@# Run kitchen test, wrapped in key setup/destroy routines
+	export SSH_KEY="$(KEY_FILE)"; \
+		bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE); \
+		r=$$?; \
+		exit $$r	# and passing kitchen error, so that we still fail pipeline if its not zero \
+				# and if key deletion fails, Makefile will exit with error and tell us.
 else
 	@# On CI, wrap kitchen test into setup/cleanup key routines
 
@@ -87,8 +94,7 @@ else
 		ssh-keygen -N '' -t ed25519 -C '' -f "$(KEY_FILE)"
 
 	@# Run kitchen test, wrapped in key setup/destroy routines
-	export SSH_KEY="$(KEY_FILE)" \
-		export KITCHEN_YAML=kitchen.ci.yml; \
+	export SSH_KEY="$(KEY_FILE)"; \
 		bundle exec kitchen test --concurrency=$(KITCHEN_TESTS) --destroy=always $(KITCHEN_SUITE); \
 		r=$$?; \
 		exit $$r	# and passing kitchen error, so that we still fail pipeline if its not zero \

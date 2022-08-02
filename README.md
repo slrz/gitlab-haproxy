@@ -63,7 +63,7 @@ Since `make check` is a prerequisite for `make rspec`, current CI configuration
 basically enforces all of the following to succeed, in defined order, for a
 pipeline to pass:
 
-- Rubocop should be happy with every ruby file and exit with dcode zero,
+- Rubocop should be happy with every ruby file and exit with code zero,
   without any warnings or errors.
 - Rspec tests must all pass.
 - Integration tests must all pass.

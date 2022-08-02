@@ -2,7 +2,7 @@ image: ruby:2.6
 
 variables:
   DEBIAN_FRONTEND: "noninteractive"
-  KITCHEN_YAML: "kitchen.ci.yml"
+  KITCHEN_YAML: "kitchen.yml"
   BUNDLE_PATH: "$CI_PROJECT_DIR/.bundle"
 
 stages:
@@ -64,20 +64,10 @@ kitchen-haproxy-pages:
   variables:
     SUITE: haproxy-pages-ubuntu
 
-kitchen-haproxy-altssh:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-altssh-ubuntu
-
 kitchen-haproxy-registry:
   extends: .kitchen_template
   variables:
     SUITE: haproxy-registry-ubuntu
-
-kitchen-haproxy-camoproxy:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-camoproxy-ubuntu
 
 push-cookbook:
   stage: publish
