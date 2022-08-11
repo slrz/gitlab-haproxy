@@ -217,6 +217,7 @@ frontend https
     default_backend web
     ###############################################################
 
+
 frontend ssh
     bind 0.0.0.0:2222
     mode tcp
@@ -404,6 +405,7 @@ backend canary_api
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server api-cny-01.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none
     server api-cny-02.stg.gitlab.com 127.0.0.1:443 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none backup
+
 
 backend ssh
     mode tcp

@@ -281,6 +281,25 @@ frontend https
     default_backend web
     ###############################################################
 
+<%- if node['gitlab-haproxy']['kas']['enable'] -%>
+frontend kas
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['kas']['port'] %>
+    mode tcp
+    option splice-auto
+
+    acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
+    tcp-request content reject if deny-403-ip
+
+    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
+
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+    stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
+
+<%= formatted_custom_config(node['gitlab-haproxy']['frontend']['kas']['custom_config']) %>
+
+    use_backend kas
+<%- end -%>
+
 frontend ssh
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['ssh']['port'] %>
     mode tcp
@@ -577,6 +596,19 @@ backend canary_api
     <% @backend_servers['all']['canary_api'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['api']['server_port'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['canary_api'].key?(name) ? '' : ' backup' %>
     <% end %>
+
+<%- if node['gitlab-haproxy']['kas']['enable'] -%>
+backend kas
+    mode tcp
+    balance roundrobin
+    option splice-auto
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server_kas'] %>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+    <% @backend_servers['all']['kas'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['kas'].key?(name) ? '' : ' backup' %>
+    <% end %>
+<%- end -%>
 
 backend ssh
     mode tcp
