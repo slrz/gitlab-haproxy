@@ -31,6 +31,7 @@ default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '5m'
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
 default['gitlab-haproxy']['timeout_check'] = '30000'
+default['gitlab-haproxy']['timeout_server_kas'] = '2h'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_server_camoproxy'] = '10s'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
@@ -96,6 +97,18 @@ default['gitlab-haproxy']['frontend']['https']['enable_ratelimit_bypass_header']
 default['gitlab-haproxy']['frontend']['https']['enable_jwt_auth_ratelimit_bypass'] = false
 default['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimit_bypass'] = false
 default['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass'] = false
+
+default['gitlab-haproxy']['kas']['enable'] = false
+default['gitlab-haproxy']['frontend']['kas']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['kas']['httpchk_path'] = '/-/health'
+default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'check-ssl port 443 verify none'
+default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = false
+default['gitlab-haproxy']['frontend']['kas']['port'] = '8150'
+default['gitlab-haproxy']['frontend']['kas']['server_port'] = '8150'
+default['gitlab-haproxy']['frontend']['kas']['ssl_verify'] = 'ssl verify none'
+default['gitlab-haproxy']['frontend']['kas']['servers'] = {}
+default['gitlab-haproxy']['frontend']['kas']['custom_config'] = []
+default['gitlab-haproxy']['frontend']['kas']['default_weight'] = '100'
 
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/-/health'
@@ -203,6 +216,7 @@ default['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'] = false
 
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['api'] = node['gitlab-haproxy']['frontend']['api']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['https_git'] = node['gitlab-haproxy']['frontend']['https_git']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['kas'] = node['gitlab-haproxy']['frontend']['kas']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ssh'] = node['gitlab-haproxy']['frontend']['ssh']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web'] = node['gitlab-haproxy']['frontend']['web']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web_k8s'] = node['gitlab-haproxy']['frontend']['web_k8s']['servers']
