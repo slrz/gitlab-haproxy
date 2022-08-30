@@ -101,8 +101,8 @@ default['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass']
 default['gitlab-haproxy']['kas']['enable'] = false
 default['gitlab-haproxy']['frontend']['kas']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['kas']['httpchk_path'] = '/-/health'
-default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'check-ssl port 443 verify none'
-default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = false
+default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'port 8150'
+default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = true
 default['gitlab-haproxy']['frontend']['kas']['port'] = '8150'
 default['gitlab-haproxy']['frontend']['kas']['server_port'] = '8150'
 default['gitlab-haproxy']['frontend']['kas']['ssl_verify'] = 'ssl verify none'
