@@ -99,16 +99,21 @@ default['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimi
 default['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass'] = false
 
 default['gitlab-haproxy']['kas']['enable'] = false
-default['gitlab-haproxy']['frontend']['kas']['httpchk_host'] = 'gitlab.com'
-default['gitlab-haproxy']['frontend']['kas']['httpchk_path'] = '/-/health'
-default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'port 8150'
-default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = true
-default['gitlab-haproxy']['frontend']['kas']['port'] = '8150'
-default['gitlab-haproxy']['frontend']['kas']['server_port'] = '8150'
-default['gitlab-haproxy']['frontend']['kas']['ssl_verify'] = 'ssl verify none'
-default['gitlab-haproxy']['frontend']['kas']['servers'] = {}
-default['gitlab-haproxy']['frontend']['kas']['custom_config'] = []
+default['gitlab-haproxy']['frontend']['kas']['bind_options'] = 'ssl crt /etc/haproxy/ssl/kas.pem npn spdy/3.1,http/1.1'
+default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'port 8151'
+default['gitlab-haproxy']['frontend']['kas']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['kas']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['kas']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['kas']['httpchk_path'] = '/liveness'
+default['gitlab-haproxy']['frontend']['kas']['port'] = '8150'
+default['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] = '/k8s-proxy'
+default['gitlab-haproxy']['frontend']['kas']['proxy_port'] = '8154'
+default['gitlab-haproxy']['frontend']['kas']['server_port'] = '8150'
+default['gitlab-haproxy']['frontend']['kas']['servers'] = {}
+default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = false
+
+default['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] = '100'
+default['gitlab-haproxy']['frontend']['canary_kas']['servers'] = {}
 
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['ssh']['httpchk_path'] = '/-/health'
@@ -217,6 +222,7 @@ default['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'] = false
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['api'] = node['gitlab-haproxy']['frontend']['api']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['https_git'] = node['gitlab-haproxy']['frontend']['https_git']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['kas'] = node['gitlab-haproxy']['frontend']['kas']['servers']
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_kas'] = node['gitlab-haproxy']['frontend']['canary_kas']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ssh'] = node['gitlab-haproxy']['frontend']['ssh']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web'] = node['gitlab-haproxy']['frontend']['web']['servers']
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web_k8s'] = node['gitlab-haproxy']['frontend']['web_k8s']['servers']

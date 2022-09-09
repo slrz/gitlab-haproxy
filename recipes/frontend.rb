@@ -59,6 +59,14 @@ file '/etc/haproxy/ssl/ci-gateway.pem' do
   only_if { use_ci_gateway }
 end
 
+file '/etc/haproxy/ssl/kas.pem' do
+  sensitive true
+  mode '0600'
+  content "#{haproxy_secrets['ssl']['kas_crt']}\n#{haproxy_secrets['ssl']['kas_key']}\n"
+  notifies :run, 'execute[test-haproxy-config]', :delayed
+  action node['gitlab-haproxy']['kas']['enable'] ? :create : :delete
+end
+
 template '/etc/haproxy/blacklist-uris.lst' do
   source 'blacklist-uris.lst.erb'
   mode '0600'

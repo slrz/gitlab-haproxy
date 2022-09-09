@@ -118,12 +118,15 @@ describe 'gitlab-haproxy::frontend' do
     populate_node_properties
     normal_attributes['gitlab-haproxy']['kas']['enable'] = true
     normal_attributes['gitlab-haproxy']['frontend']['kas']['servers']['kas01.stg.gitlab.com'] = '127.0.0.1'
+    normal_attributes['gitlab-haproxy']['frontend']['canary_kas']['servers']['kas-canary01.stg.gitlab.com'] = '127.0.0.1'
 
     it 'renders frontend and backend configuration' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
         expect(content).to include('frontend kas')
         expect(content).to include('backend kas')
         expect(content).to include('server kas01.stg.gitlab.com 127.0.0.1')
+        expect(content).to include('backend canary_kas')
+        expect(content).to include('server kas-canary01.stg.gitlab.com 127.0.0.1')
       }
     end
   end
@@ -136,6 +139,8 @@ describe 'gitlab-haproxy::frontend' do
         expect(content).to_not include('frontend kas')
         expect(content).to_not include('backend kas')
         expect(content).to_not include('server kas01.stg.gitlab.com 127.0.0.1')
+        expect(content).to_not include('backend canary_kas')
+        expect(content).to_not include('server kas-canary01.stg.gitlab.com 127.0.0.1')
       }
     end
   end
@@ -292,6 +297,7 @@ describe 'gitlab-haproxy::frontend' do
                 'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+                'canary_kas' => {},
                 'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -306,6 +312,7 @@ describe 'gitlab-haproxy::frontend' do
                 'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+                'canary_kas' => {},
                 'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
                 'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -351,6 +358,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -365,6 +373,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -403,6 +412,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -417,6 +427,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -461,6 +472,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => {},
@@ -475,6 +487,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -513,6 +526,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-default-server' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -527,6 +541,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1', 'api02.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1', 'api-cny-02.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-02.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1', 'git-cny-02.stg.gitlab.com' => '127.0.0.1', 'git-cny-default-server' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1', 'web-cny-02.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1', 'web-cny-02.stg.gitlab.com' => '127.0.0.1' },
@@ -569,6 +584,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -583,6 +599,7 @@ describe 'gitlab-haproxy::frontend' do
               'api' => { 'api01.stg.gitlab.com' => '127.0.0.1' },
               'canary_api' => { 'api-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_https_git' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
+              'canary_kas' => {},
               'canary_ssh' => { 'git-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_web' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
               'canary_websockets' => { 'web-cny-01.stg.gitlab.com' => '127.0.0.1' },
@@ -612,7 +629,7 @@ describe 'gitlab-haproxy::frontend' do
     normal_attributes['gce']['instance']['zone'] = 'projects/65580314219/zones/us-east1-c'
 
     it 'creates the template and runs correct notifications' do
-      expect { chef_run }.to raise_error(RuntimeError, 'Essential backend web has zero active servers configured: {"api"=>{"api01.stg.gitlab.com"=>"127.0.0.1"}, "https_git"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "kas"=>{}, "ssh"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "web"=>{}, "web_k8s"=>{}, "websockets"=>{"web01.stg.gitlab.com"=>"127.0.0.1"}, "canary_web"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_websockets"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_api"=>{"api-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_ssh"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_https_git"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}}, aborting!')
+      expect { chef_run }.to raise_error(RuntimeError, 'Essential backend web has zero active servers configured: {"api"=>{"api01.stg.gitlab.com"=>"127.0.0.1"}, "https_git"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "kas"=>{}, "canary_kas"=>{}, "ssh"=>{"git01.stg.gitlab.com"=>"127.0.0.1"}, "web"=>{}, "web_k8s"=>{}, "websockets"=>{"web01.stg.gitlab.com"=>"127.0.0.1"}, "canary_web"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_websockets"=>{"web-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_api"=>{"api-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_ssh"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}, "canary_https_git"=>{"git-cny-01.stg.gitlab.com"=>"127.0.0.1"}}, aborting!')
     end
   end
 
