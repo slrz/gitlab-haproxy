@@ -283,8 +283,8 @@ frontend https
 
 <%- if node['gitlab-haproxy']['kas']['enable'] -%>
 frontend kas
-    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['kas']['port'] %>
-    mode tcp
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['kas']['port'] %> <%= node['gitlab-haproxy']['frontend']['kas']['bind_options'] %>
+    mode http
     option splice-auto
 
     acl from_cf src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst
@@ -295,12 +295,30 @@ frontend kas
 
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
 
-    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+    log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
 
 <%= formatted_custom_config(node['gitlab-haproxy']['frontend']['kas']['custom_config']) %>
+    acl no_be_srvs_canary_kas nbsrv(canary_kas) lt 1
+    acl is_canary req.cook(gitlab_canary) -m str -i true
+    acl canary_disabled req.cook(gitlab_canary) -m str -i false
 
+    ###############################################################
+    # KAS routing rules
+    # If the canary cookie is set to false, use the main kas backend
+    use_backend kas_k8s_proxy if { path_beg <%= node['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] %> } canary_disabled
+    use_backend kas if canary_disabled
+    # If there are no healthy canary servers default to the kas backend
+    use_backend kas_k8s_proxy if { path_beg <%= node['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] %> } no_be_srvs_canary_kas
+    use_backend kas if no_be_srvs_canary_kas
+    # Use the canary backend if the cookie gitlab_canary=true
+    use_backend canary_kas_k8s_proxy if is_canary { path_beg <%= node['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] %> }
+    use_backend canary_kas if is_canary
+    # Finally, if no canary rules match, route requests to the normal
+    # kas backends
+    use_backend kas_k8s_proxy if { path_beg <%= node['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] %> }
     use_backend kas
+    ###############################################################
 <%- end -%>
 
 frontend ssh
@@ -602,7 +620,7 @@ backend canary_api
 
 <%- if node['gitlab-haproxy']['kas']['enable'] -%>
 backend kas
-    mode tcp
+    mode http
     balance roundrobin
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
@@ -610,6 +628,39 @@ backend kas
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
     <% @backend_servers['all']['kas'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['kas'].key?(name) ? '' : ' backup' %>
+    <% end %>
+
+backend kas_k8s_proxy
+    mode http
+    balance roundrobin
+    option splice-auto
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server_kas'] %>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+    <% @backend_servers['all']['kas'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['proxy_port'] %> weight <%= node['gitlab-haproxy']['frontend']['kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['kas'].key?(name) ? '' : ' backup' %>
+    <% end %>
+
+backend canary_kas
+    mode http
+    balance roundrobin
+    option splice-auto
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server_kas'] %>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+    <% @backend_servers['all']['canary_kas'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['canary_kas'].key?(name) ? '' : ' backup' %>
+    <% end %>
+
+backend canary_kas_k8s_proxy
+    mode http
+    balance roundrobin
+    option splice-auto
+    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
+    timeout server <%= node['gitlab-haproxy']['timeout_server_kas'] %>
+<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+    <% @backend_servers['all']['canary_kas'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['proxy_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['canary_kas'].key?(name) ? '' : ' backup' %>
     <% end %>
 <%- end -%>
 
