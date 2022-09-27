@@ -31,7 +31,6 @@ default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '5m'
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
 default['gitlab-haproxy']['timeout_check'] = '30000'
-default['gitlab-haproxy']['timeout_server_kas'] = '2h'
 default['gitlab-haproxy']['timeout_server_ssh'] = '2h'
 default['gitlab-haproxy']['timeout_server_camoproxy'] = '10s'
 default['gitlab-haproxy']['timeout_client_fin'] = '5s'
@@ -99,8 +98,11 @@ default['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimi
 default['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass'] = false
 
 default['gitlab-haproxy']['kas']['enable'] = false
+default['gitlab-haproxy']['kas']['timeout_tunnel'] = '2h'
+default['gitlab-haproxy']['kas']['timeout_server'] = node['gitlab-haproxy']['timeout_server']
 default['gitlab-haproxy']['frontend']['kas']['bind_options'] = 'ssl crt /etc/haproxy/ssl/kas.pem npn spdy/3.1,http/1.1'
 default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'port 8151'
+default['gitlab-haproxy']['frontend']['kas']['timeout_http_request'] = '5s'
 default['gitlab-haproxy']['frontend']['kas']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['kas']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['kas']['httpchk_host'] = 'gitlab.com'

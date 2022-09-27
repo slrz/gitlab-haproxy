@@ -117,8 +117,10 @@ describe 'gitlab-haproxy::frontend' do
   context 'kas is enabled' do
     populate_node_properties
     normal_attributes['gitlab-haproxy']['kas']['enable'] = true
+    normal_attributes['gitlab-haproxy']['kas']['timeout_tunnel'] = '3h'
     normal_attributes['gitlab-haproxy']['frontend']['kas']['servers']['kas01.stg.gitlab.com'] = '127.0.0.1'
     normal_attributes['gitlab-haproxy']['frontend']['canary_kas']['servers']['kas-canary01.stg.gitlab.com'] = '127.0.0.1'
+    normal_attributes['gitlab-haproxy']['frontend']['kas']['timeout_http_request'] = '7s'
 
     it 'renders frontend and backend configuration' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
@@ -127,6 +129,8 @@ describe 'gitlab-haproxy::frontend' do
         expect(content).to include('server kas01.stg.gitlab.com 127.0.0.1')
         expect(content).to include('backend canary_kas')
         expect(content).to include('server kas-canary01.stg.gitlab.com 127.0.0.1')
+        expect(content).to include('timeout tunnel 3h')
+        expect(content).to include('timeout http-request 7s')
       }
     end
   end
