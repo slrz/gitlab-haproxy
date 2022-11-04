@@ -164,10 +164,10 @@ backend registry
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['registry'] } -%>
     <% @backend_servers['all']['registry'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['registry'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= " #{node['gitlab-haproxy']['registry']['ssl_verify']}".rstrip %><%= @backend_servers['active']['registry'].key?(name) ? '' : ' backup' %>
     <% end %>
     <% @backend_servers['all']['canary_registry'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> weight <%= node['gitlab-haproxy']['canary_registry']['default_weight'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> weight <%= node['gitlab-haproxy']['canary_registry']['default_weight'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= " #{node['gitlab-haproxy']['registry']['ssl_verify']}".rstrip %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
     <% end %>
 
 backend canary_registry
@@ -180,5 +180,5 @@ backend canary_registry
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
 <%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['registry'] } -%>
     <% @backend_servers['all']['canary_registry'].each do |name, ip| %>
-    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
+    server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= " #{node['gitlab-haproxy']['registry']['ssl_verify']}".rstrip %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
     <% end %>

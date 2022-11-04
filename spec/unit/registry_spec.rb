@@ -113,6 +113,24 @@ describe 'gitlab-haproxy::registry' do
     end
   end
 
+  context 'ssl_verify set to ssl verify none' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new do |node|
+        populate_node_properties(node)
+
+        node.normal['gitlab-haproxy']['registry']['ssl_verify'] = 'ssl verify none'
+        node.normal['gitlab-haproxy']['chef_vault'] = 'secrets'
+        node.normal['gitlab-haproxy']['chef_vault_item'] = 'certs'
+      end.converge(described_recipe)
+    end
+
+    it 'configures backends with ssl verify none' do
+      expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
+        expect(content).to include('ssl verify none')
+      }
+    end
+  end
+
   context 'using hard-stop' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new do |node|

@@ -298,6 +298,7 @@ default['gitlab-haproxy']['canary_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
 default['gitlab-haproxy']['registry']['custom_config'] = nil
 default['gitlab-haproxy']['registry']['backend_port'] = '5000'
+default['gitlab-haproxy']['registry']['ssl_verify'] = nil
 default['gitlab-haproxy']['registry']['httpchk_host'] = 'registry.gitlab.com'
 default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['tcp_check_enable'] = false
