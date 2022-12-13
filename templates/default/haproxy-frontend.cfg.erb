@@ -286,6 +286,8 @@ frontend kas
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['kas']['port'] %> <%= node['gitlab-haproxy']['frontend']['kas']['bind_options'] %>
     mode http
     option splice-auto
+    no option http-pretend-keepalive
+    no option forceclose
 
     acl from_cf src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst
     # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
@@ -624,6 +626,9 @@ backend kas
     mode http
     balance roundrobin
     option splice-auto
+    no option http-pretend-keepalive
+    no option forceclose
+
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
@@ -636,6 +641,9 @@ backend kas_k8s_proxy
     mode http
     balance roundrobin
     option splice-auto
+    no option http-pretend-keepalive
+    no option forceclose
+
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
