@@ -26,7 +26,7 @@ default['gitlab-haproxy']['global']['nbthread'] = node['cpu']['total']
 # this helps to prevent presistent TCP connections from keeping haproxy
 # processes lingering for a long time after reload
 default['gitlab-haproxy']['global']['hard-stop']['enable'] = true
-default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '5m'
+default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '10m'
 
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
@@ -98,9 +98,11 @@ default['gitlab-haproxy']['frontend']['https']['enable_package_registry_ratelimi
 default['gitlab-haproxy']['frontend']['https']['enable_go_get_ratelimit_bypass'] = false
 
 default['gitlab-haproxy']['kas']['enable'] = false
+default['gitlab-haproxy']['kas']['timeout_http_keep_alive'] = '30s'
 default['gitlab-haproxy']['kas']['timeout_tunnel'] = '2h'
-default['gitlab-haproxy']['kas']['timeout_server'] = node['gitlab-haproxy']['timeout_server']
-default['gitlab-haproxy']['frontend']['kas']['bind_options'] = 'ssl crt /etc/haproxy/ssl/kas.pem npn spdy/3.1,http/1.1'
+default['gitlab-haproxy']['kas']['timeout_client'] = '1h'
+default['gitlab-haproxy']['kas']['timeout_server'] = '1h'
+default['gitlab-haproxy']['frontend']['kas']['bind_options'] = 'ssl crt /etc/haproxy/ssl/kas.pem alpn h2,http/1.1,spdy/3.1'
 default['gitlab-haproxy']['frontend']['kas']['check_opts'] = 'port 8151'
 default['gitlab-haproxy']['frontend']['kas']['timeout_http_request'] = '5s'
 default['gitlab-haproxy']['frontend']['kas']['custom_config'] = nil

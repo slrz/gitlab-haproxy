@@ -286,8 +286,8 @@ frontend kas
     bind <%= node['gitlab-haproxy']['listen_address'] %>:<%= node['gitlab-haproxy']['frontend']['kas']['port'] %> <%= node['gitlab-haproxy']['frontend']['kas']['bind_options'] %>
     mode http
     option splice-auto
+    option http-keep-alive
     no option http-pretend-keepalive
-    no option forceclose
 
     acl from_cf src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst
     # This sets the `src` variable to the CF-Connecting-IP when the request comes from Cloudflare
@@ -296,6 +296,8 @@ frontend kas
     tcp-request content reject if deny-403-ip
 
     timeout http-request <%= node['gitlab-haproxy']['frontend']['kas']['timeout_http_request'] %>
+    timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
+    timeout client <%= node['gitlab-haproxy']['kas']['timeout_client'] %>
     timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
@@ -626,8 +628,9 @@ backend kas
     mode http
     balance roundrobin
     option splice-auto
+    option http-keep-alive
     no option http-pretend-keepalive
-    no option forceclose
+    timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
@@ -640,8 +643,9 @@ backend kas_k8s_proxy
     mode http
     balance roundrobin
     option splice-auto
+    option http-keep-alive
     no option http-pretend-keepalive
-    no option forceclose
+    timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
@@ -654,8 +658,9 @@ backend canary_kas
     mode http
     balance roundrobin
     option splice-auto
+    option http-keep-alive
     no option http-pretend-keepalive
-    no option forceclose
+    timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
@@ -668,8 +673,9 @@ backend canary_kas_k8s_proxy
     mode http
     balance roundrobin
     option splice-auto
+    option http-keep-alive
     no option http-pretend-keepalive
-    no option forceclose
+    timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
