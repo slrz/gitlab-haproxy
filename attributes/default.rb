@@ -26,7 +26,7 @@ default['gitlab-haproxy']['global']['nbthread'] = node['cpu']['total']
 # this helps to prevent presistent TCP connections from keeping haproxy
 # processes lingering for a long time after reload
 default['gitlab-haproxy']['global']['hard-stop']['enable'] = true
-default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '5m'
+default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '10m'
 
 default['gitlab-haproxy']['delay_speed_ms'] = '1000'
 default['gitlab-haproxy']['timeout_connect'] = '5000'
