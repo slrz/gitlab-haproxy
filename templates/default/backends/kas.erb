@@ -2,8 +2,8 @@
   name: 'kas',
   description: 'Targets the KAS fleet WITHOUT a weighted mixin of canary backends',
   mode: 'http',
-  health_check: get_attribute('gitlab-haproxy', flavour, 'kas'),
+  health_check: get_attribute('gitlab-haproxy', flavor, 'kas'),
   override_host: nil,
   source_nodes: ['kas'],
-  check_port_override: get_attribute('gitlab-haproxy', flavour, 'kas', 'check_port'),
+  check_port_override: get_attribute('gitlab-haproxy', flavor, 'kas', 'check_port'),
 } -%>

@@ -1,11 +1,11 @@
-#### Backend <%= @name %> (flavour <%= flavour %>)
+#### Backend <%= @name %> (flavor <%= flavor %>)
 # start boilerplate/backend_definition (<%= @name %>)
 backend <%= @name %>
   description "<%= @description.sub('"', '``') %>"
   mode <%= @mode %>
 
   # Chef attribute controlled settings ############
-  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['backend']['<%= @name %>']['<config key>'] = '<config value>'
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavor %>']['backend']['<%= @name %>']['<config key>'] = '<config value>'
 <%- backend_settings = chef_attribute_settings('backend', @name) -%>
 <% unless backend_settings.nil? %>
   <% backend_settings.each do |name, value| %>
@@ -21,7 +21,7 @@ backend <%= @name %>
   http-request set-header Host <%= @override_host  %>
 <% end %>
 <% unless @source_nodes.nil? || @source_nodes.empty? %>
-  <%- default_check_opts = get_attribute('gitlab-haproxy',flavour,'default_check_opts') -%>
+  <%- default_check_opts = get_attribute('gitlab-haproxy',flavor,'default_check_opts') -%>
   <%- fallback_pool_name =  @fallback_values_from_pool || @source_nodes.first -%>
   <%- first_check_opts = build_check_opts(fallback_pool_name) -%>
   <%- first_ssl_opts = build_ssl_opts(@source_nodes.first, fallback_pool_name) -%>

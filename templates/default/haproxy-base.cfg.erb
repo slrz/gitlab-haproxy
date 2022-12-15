@@ -1,4 +1,4 @@
-# HAProxy configuration file (<%= node['hostname'] %>, flavour <%= flavour %>, cookbook version <%= cookbook_version %>)
+# HAProxy configuration file (<%= node['hostname'] %>, flavor <%= flavor %>, cookbook version <%= cookbook_version %>)
 # Enabled frontends: <%= enabled_frontends.join(', ') %>
 # check_* frontends: <%= check_frontends.keys.join(', ') %>
 # Enabled backends: <%= enabled_backends.join(', ') %>
@@ -9,7 +9,7 @@
 
 global
   # Chef attribute controlled settings ############
-  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['global']['<config key>'] = '<config value>' | nil to disable
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavor %>']['global']['<config key>'] = '<config value>' | nil to disable
 <% chef_attribute_settings('global').each do |name, value| %>
   <%= name %> <%= value %>
 <% end %>
@@ -52,7 +52,7 @@ http-errors gitlab-errorcodes
 
 defaults
   # Chef attribute controlled settings ############
-  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['defaults']['<config key>'] = '<config value>' | nil to disable
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavor %>']['defaults']['<config key>'] = '<config value>' | nil to disable
   <% chef_attribute_settings('defaults').each do |name, value| %>
   <%= name %> <%= value %>
 <% end %>
@@ -70,7 +70,7 @@ defaults
   timeout client-fin 5s                 # Close connections in FIN_WAIT after 5 sec.
   timeout server-fin 2s                 # Close broken connections to backend servers within 2 sec.
   timeout server 90s                    # from 1h. This timeout specifies the time the server can spend processing the request. No idea why this was 1 hour, but this captures the time between the full request has been sent, and the backend server responding with data. NOT the timeout for a full request. This is overridden for HTTPS-git requests.
-  timeout client 30s                    # from 90s. This is the time spent between the request and the client sending more data (PUT/POST) or starting to receive data. Not the request.
+  timeout client 90s                    # This is the time spent between the request and the client sending more data (PUT/POST) or starting to receive data. Not the request.
   timeout connect 5s
   timeout check 30s
   maxconn <%= node['gitlab-haproxy']['maxconn'] %>       # HAProxy recommends 1GB RAM / 5000 concurrent TLS connections
@@ -91,9 +91,9 @@ listen stats
 
 <% if peers.any? -%>
 #---------------------------------------------------------------------
-# Sync data between the <%= flavour %> nodes
+# Sync data between the <%= flavor %> nodes
 #---------------------------------------------------------------------
-peers <%= flavour %>-peers
+peers <%= flavor %>-peers
   bind 0.0.0.0:32769   # Different port from old HAProxy config, to prevent cross version replication
   # local peer must not have IP:port config
   # every other peer must be listed by IP.

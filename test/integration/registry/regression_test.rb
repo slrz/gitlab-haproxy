@@ -1,7 +1,7 @@
 
 control 'haproxy-registry-regression-check' do
   impact 1.0
-  title 'Tests HAProxy configuration regressions (registry flavour, ubuntu 18.04)'
+  title 'Tests HAProxy configuration regressions (registry flavor, ubuntu 18.04)'
   ref 'production registry haproxy.cfg', url: 'https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/-/merge_requests/335#note_1194908460'
   only_if { command('lsb_release -rs').stdout =~ /18\.04/ }
   desc '

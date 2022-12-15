@@ -1,13 +1,13 @@
 #
 # Cookbook:: gitlab-haproxy
-# Recipe:: primary
+# Recipe:: main
 #
 # Copyright:: (C) 2022 GitLab Inc.
 #
 # License: MIT
 #
 
-node.default['gitlab-haproxy']['flavour'] = 'primary'
+node.default['gitlab-haproxy']['flavor'] = 'main'
 include_recipe 'gitlab-haproxy::prerequisites'
 
 git '/etc/haproxy/recaptcha' do

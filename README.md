@@ -8,19 +8,19 @@ This is gitlab-haproxy cookbook to base your cookbook on.
 
 ## Run order
 
-For compatibility with legacy 18.04 systems, the `default` (empty) and `frontend` (includes `primary`) recipes are still included. These are deprecated.  
+For compatibility with legacy 18.04 systems, the `default` (empty) and `frontend` (includes `main`) recipes are still included. These are deprecated.  
 
-Every flavour of HAProxy nodes (`primary` - former `frontend`, `registry` and `pages`) has their own starting point recipe of the same name, that does some initial configuration of the cookbook.
+Every flavor of HAProxy nodes (`main` - former `frontend`, `registry` and `pages`) has their own starting point recipe of the same name, that does some initial configuration of the cookbook.
 
-After installing the `prerequisites` (which includes all the `internal_*` recipes), the flavour might do some specific additional configuration before installing and configuring HAProxy via the `install` recipe.
+After installing the `prerequisites` (which includes all the `internal_*` recipes), the flavor might do some specific additional configuration before installing and configuring HAProxy via the `install` recipe.
 
 NOTE: Any code, scoped to only execute when the system is running `bionic`, is to be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/848.
 
-## Configuring flavours
+## Configuring flavors
 
-Every flavour now shares the same base configuration. Differences can be made via node attributes either set in the cookbook for general configuration (preferred if possible) or on a role level (which should be moved to the cookbook if applicable).
+Every flavor now shares the same base configuration. Differences can be made via node attributes either set in the cookbook for general configuration (preferred if possible) or on a role level (which should be moved to the cookbook if applicable).
 
-Selecting options to set for the `global` and `defaults` sections, as well as each frontend name for each flavour works this way:
+Selecting options to set for the `global` and `defaults` sections, as well as each frontend name for each flavor works this way:
 
 There is a general default value set.
 
@@ -28,7 +28,7 @@ There is a general default value set.
 default['gitlab-haproxy']['config']['default']['global']['no-memory-trimming'] = ''
 ```
 
-This value can be overridden by flavour (in this example `registry`) in this way:
+This value can be overridden by flavor (in this example `registry`) in this way:
 
 ```ruby
 default['gitlab-haproxy']['config']['registry']['global']['no-memory-trimming'] = nil
@@ -36,12 +36,12 @@ default['gitlab-haproxy']['config']['registry']['global']['no-memory-trimming'] 
 
 It follows the general schema of
 ```ruby
-default['gitlab-haproxy']['config'][<flavour>][<section>][<setting>] = <value>
+default['gitlab-haproxy']['config'][<flavor>][<section>][<setting>] = <value>
 ```
 
 Value can be either a string, number, or `nil`.
 - A string will set the value of the setting in the configuration file to the selected value. If a setting does not take a value (such as `no-memory-trimming`) an empty string can be provided. In general this string will be entered into the configuration verbatim.
-- `nil` will remove the value from the flavour, if it was previously set.
+- `nil` will remove the value from the flavor, if it was previously set.
 
 NOTE: Options (such as `option redispatch`) should be in the settings field as a string with space. `redispatch` is not a value to the setting `option`.
 (e.g. `default['gitlab-haproxy']['config']['defaults']['defaults']['option redispatch'] = 1` is valid)  
@@ -49,10 +49,10 @@ NOTE: Options (such as `option redispatch`) should be in the settings field as a
 Timeouts are statically set in the `defaults` section by design.
 If they should be adjusted, it MUST be done in the backend configuration. Generally they should not be changed, unless there is a very good reason, and you're sure of what changing the timeout in question does.
 
-## Configuring backends for flavours
+## Configuring backends for flavors
 
 Every backend itself is a self-contianed template in `templates/default/backend/<backend_name>.erb`.  
-This template will be enabled when it is contained in the `default['gitlab-haproxy']['enabled_backends'][<flavour>]` node attribute array.
+This template will be enabled when it is contained in the `default['gitlab-haproxy']['enabled_backends'][<flavor>]` node attribute array.
 
 Each template will receive the following variables:
 
@@ -84,19 +84,19 @@ Should `source_nodes` not be defined, there will be no backend servers rendered.
 The backends can have settings set similar to the `defaults` and `global` sections. This will be rendered as part of the backend definition.
 You SHOULD NOT add settings in the template! If in doubt, do it in attributes!
 ```ruby
-default['gitlab-haproxy']['config']['<flavour>']['backend']['<backend name>']['<config key>'] = '<config value>'
+default['gitlab-haproxy']['config']['<flavor>']['backend']['<backend name>']['<config key>'] = '<config value>'
 ```
 
 For example
 ```ruby
-default['gitlab-haproxy']['config']['primary']['backend']['https_git']['timeout server'] = '1h'
+default['gitlab-haproxy']['config']['main']['backend']['https_git']['timeout server'] = '1h'
 ```
 NOTE: Settings set on backends are NOT inheriting anything. These are included verbatim in the backend and should be used if value from the `defaults` section should be changed on a backend basis. Setting a value to `nil` here will NOT undo the effects of the `defaults` counterpart. You need to set the opposing option according to the HAProxy documentation.
 
-## Configuring frontends for flavours
+## Configuring frontends for flavors
 
 Every frontend itself is a self-contianed template in `templates/default/frontends/<frontend_name>.erb`.  
-This template will be enabled when it is contained in the `default['gitlab-haproxy']['enabled_frontends'][<flavour>]` node attribute array.
+This template will be enabled when it is contained in the `default['gitlab-haproxy']['enabled_frontends'][<flavor>]` node attribute array.
 
 Each template will receive the following variables:
 
@@ -134,7 +134,7 @@ Each frontend template has access to template helpers, which are [#template-help
 The frontend definition will render the following ACLs for use in the template (unless disabled via parameters)
 - `canary_opt_in`: This will evaluate to `true` if the request has an explicit opt-in from [next.gitlab.com]. If the user has not explicitly opted in, this is `false`.
 - `canary_opt_out`: This will evaluate to `true` if the request has an explicit opt-out from [next.gitlab.com]. If the user has explicitly opted in, this is `false`. If the user did not decide either way, this is also `false`.
-- `backend_available_<backend_name>`: For each enabled backend of the flavour this ACL will be generated. If the amount of available backend servers is `> 0`, this will evaluate to `true`. Thus, when this is `false` no backend server is available on the specific backend.
+- `backend_available_<backend_name>`: For each enabled backend of the flavor this ACL will be generated. If the amount of available backend servers is `> 0`, this will evaluate to `true`. Thus, when this is `false` no backend server is available on the specific backend.
 
 #### Automatic headers (`mode == http` only, unless `skip_headers == true`):
 - `Client-Ip` is deleted if provided.
@@ -164,12 +164,12 @@ For an HTTP frontend the standards internal allowlist is automatically exempt fr
 The frontends can have settings set similar to the `defaults` and `global` sections. This will be rendered as part of the frontend definition.
 You SHOULD NOT add settings in the template! If in doubt, do it in attributes!
 ```ruby
-default['gitlab-haproxy']['config']['<flavour>']['frontend']['<frontend name>']['<config key>'] = '<config value>'
+default['gitlab-haproxy']['config']['<flavor>']['frontend']['<frontend name>']['<config key>'] = '<config value>'
 ```
 
 For example
 ```ruby
-default['gitlab-haproxy']['config']['primary']['frontend']['https']['timeout client'] = '1337s'
+default['gitlab-haproxy']['config']['main']['frontend']['https']['timeout client'] = '1337s'
 ```
 NOTE: Settings set on frontends are NOT inheriting anything. These are included verbatim in the frontend and should be used if value from the `defaults` section should be changed on a frontend basis. Setting a value to `nil` here will NOT undo the effects of the `defaults` counterpart. You need to set the opposing option according to the HAProxy documentation.
 
@@ -178,13 +178,13 @@ NOTE: Settings set on frontends are NOT inheriting anything. These are included 
 Each template (backend and frontend) has access to these template helpers. They can be accessed directly in any erb expression.
 
 - `cookbook_version`: Return the current version of the cookbook as defined in `metadata.rb`
-- `get_attribute(*query)`: A `.dig()`-like function to retrieve a node attribute. For example `get_attribute('gitlab-haproxy', 'flavour')` would return the same as `node['gitlab-haproxy']['flavour']`.
-- `peers` returns an array of peer nodes for the current HA cluster flavour.
-- `flavour` returns the current flavour.
+- `get_attribute(*query)`: A `.dig()`-like function to retrieve a node attribute. For example `get_attribute('gitlab-haproxy', 'flavor')` would return the same as `node['gitlab-haproxy']['flavor']`.
+- `peers` returns an array of peer nodes for the current HA cluster flavor.
+- `flavor` returns the current flavor.
 - `enabled_backends` returns an array of the names of currently enabled backends.
 - `enabled_frontends` returns an array of the names of currently enabled frontends.
 - `check_frontends` returns an array of the names of currently enabled `check_*` frontends.
-- `chef_attribute_settings(*query)`: `.dig()`-like access to merged settings for the current flavour to embed into the HAProxy configuration sections, backends, and frontends.
+- `chef_attribute_settings(*query)`: `.dig()`-like access to merged settings for the current flavor to embed into the HAProxy configuration sections, backends, and frontends.
 - `admin_password` returns the password to set for the stats endpoint.
 - `filter_certificates(wanted)`: Checks the passed array of wanted filenames against the available certificates on the node. Raises an error if one cannot be found.
 - `build_check_opts(backend_name)` returns the `check` options for a given `backend_name`.

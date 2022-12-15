@@ -1,8 +1,8 @@
 # rubocop:disable Lint/ImplicitStringConcatenation
-control 'haproxy-primary-regression-check' do
+control 'haproxy-main-regression-check' do
   impact 1.0
-  title 'Tests HAProxy configuration regressions (primary flavour, ubuntu 18.04)'
-  ref 'production primary haproxy.cfg', url: 'https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/-/merge_requests/335#note_1194904230'
+  title 'Tests HAProxy configuration regressions (main flavor, ubuntu 18.04)'
+  ref 'production main haproxy.cfg', url: 'https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/-/merge_requests/335#note_1194904230'
   only_if { command('lsb_release -rs').stdout =~ /18\.04/ }
   desc '
     This control ensures that:
@@ -77,7 +77,7 @@ control 'haproxy-primary-regression-check' do
     stats admin if TRUE'
     end
     its('content') { should include 'peers frontend-peers' }
-    its('content') { should match /peer tk-haproxy-primary-ubuntu-18-04-x64-\S+ 0.0.0.0:32768/ }
+    its('content') { should match /peer tk-haproxy-main-ubuntu-18-04-x64-\S+ 0.0.0.0:32768/ }
     its('content') do
       should include 'peer fe-01-lb-gprd example.com:32768
     peer fe-02-lb-gprd example.com:32768'
@@ -180,7 +180,7 @@ control 'haproxy-primary-regression-check' do
     # Package registries https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
     http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_go_get'
     end
-    its('content') { should match /http-response set-header GitLab-LB tk-haproxy-primary-ubuntu-18-04-x64-\S+/ }
+    its('content') { should match /http-response set-header GitLab-LB tk-haproxy-main-ubuntu-18-04-x64-\S+/ }
     its('content') do
       should include 'http-response set-header GitLab-SV %s
 

@@ -2,7 +2,7 @@
   name: 'canary_registry',
   description: 'Targets the registry fleet consisting only of canary backends',
   mode: 'http',
-  health_check: get_attribute('gitlab-haproxy', flavour, 'health_check'), # We use a new HTTP check
+  health_check: get_attribute('gitlab-haproxy', flavor, 'health_check'), # We use a new HTTP check
   override_host: nil,
   source_nodes: ['canary_registry'],
   fallback_values_from_pool: 'registry',

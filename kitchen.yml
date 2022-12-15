@@ -54,13 +54,13 @@ verifier:
 
 # `make kitchen` will parse the number of suites and fire up corresponding number of threads
 suites:
-  - name: haproxy-primary
+  - name: haproxy-main
     run_list:
       - recipe[gitlab-haproxy::frontend]
     verifier:
       inspec_tests:
         - test/integration/default
-        - test/integration/primary
+        - test/integration/main
     attributes:
       gitlab-haproxy:
         api_address: 0.0.0.0  # for integration tests

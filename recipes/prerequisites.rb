@@ -54,7 +54,7 @@ node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v
 # endregion set required node attributes
 
 ###### Attribute mapping for backwards compatibility
-node.default['gitlab-haproxy']['primary'] = node['gitlab-haproxy']['frontend']
+node.default['gitlab-haproxy']['main'] = node['gitlab-haproxy']['frontend']
 ###### END Attribute mapping
 
 %w(/etc/haproxy/errors /etc/haproxy/scripts).each do |dir|

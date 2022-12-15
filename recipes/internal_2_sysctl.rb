@@ -17,11 +17,6 @@ sysctl 'net.ipv4.tcp_max_syn_backlog' do
   value '10240'
 end
 
-# Allow more throughput in queues.
-sysctl 'net.core.netdev_max_backlog' do
-  value '10240'
-end
-
 # Increase maximum connections to allow connection bursts.
 sysctl 'net.core.somaxconn' do
   value '65535'

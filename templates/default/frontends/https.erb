@@ -3,9 +3,9 @@
   :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
   :bind_port=> 443,
   :bind_extra_options => '',
-  :https_extra_bind_port => get_attribute('gitlab-haproxy', flavour, 'https', 'extra_bind_port'),
-  :enforce_cf_origin_pull => get_attribute('gitlab-haproxy', flavour, 'enforce_cloudflare_origin_pull'),
-  :listen_certificates => (flavour == 'registry') ? [
+  :https_extra_bind_port => get_attribute('gitlab-haproxy', flavor, 'https', 'extra_bind_port'),
+  :enforce_cf_origin_pull => get_attribute('gitlab-haproxy', flavor, 'enforce_cloudflare_origin_pull'),
+  :listen_certificates => (flavor == 'registry') ? [
     '/etc/haproxy/ssl/registry.pem',
     '/etc/haproxy/ssl/internal.pem',
   ] : [
@@ -16,16 +16,16 @@
   :mode => 'http',
   :expect_proxy => 'HTTP',
 } -%>
-<%- https_git_acl_format = get_attribute('gitlab-haproxy', flavour, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
+<%- https_git_acl_format = get_attribute('gitlab-haproxy', flavor, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
 
-<% if flavour == 'registry' %>
-  stick-table type ipv6 size 1m expire 5m store gpc0,conn_rate(1m) <% if peers.any? %>peers <%= flavour %>-peers <% end %>
+<% if flavor == 'registry' %>
+  stick-table type ipv6 size 1m expire 5m store gpc0,conn_rate(1m) <% if peers.any? %>peers <%= flavor %>-peers <% end %>
   tcp-request connection track-sc1 src
 <% end %>
 
   capture request header User-Agent len 64
   acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
-<% if flavour == 'primary' %>
+<% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
   acl is_websocket path_end -i .ws
   acl is_api_request path_beg -i /api/
@@ -33,7 +33,7 @@
   acl is_asset_request path_beg /assets/
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
   acl allowlist_internal src -f /etc/haproxy/allowlist-internal.lst
-  acl allowlist_api_rate_limit src -f /etc/haproxy/allowlist-api.lst <%= get_attribute('gitlab-haproxy', flavour, 'https', 'rate_limit_allowlist') %>
+  acl allowlist_api_rate_limit src -f /etc/haproxy/allowlist-api.lst <%= get_attribute('gitlab-haproxy', flavor, 'https', 'rate_limit_allowlist') %>
   <%= render 'partial_package_acl.erb'  -%>
   acl is_gitlab_com_go_get query -m str "go-get=1"
   acl is_gitlab_com_go_get query -m beg "go-get=1&"
@@ -55,21 +55,21 @@
 <% end %>
   http-request redirect code 308 location https://%[hdr(host)]%[url,regsub(/+,/,g)] if { path_reg /{2,} }
 
-<% if flavour == 'primary' %>
+<% if flavor == 'main' %>
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
 <% end %>
 
 <%= render 'boilerplate/http_front-end-security.erb' %>
 
   ### Injected custom configuration ###########################################
-  <% if flavour == 'primary' %>
-<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavour, 'https', 'custom_config'), 2) %>
+  <% if flavor == 'main' %>
+<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavor, 'https', 'custom_config'), 2) %>
   <% else %>
-<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavour, 'custom_config'), 2) %>
+<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavor, 'custom_config'), 2) %>
   <%end %>
   ### End injected custom configuration #######################################
 
-<% if flavour == 'primary' %>
+<% if flavor == 'main' %>
 <% if enabled_backends.include? 'asset_proxy' -%>
   ###############################################################
   # Asset routing, all requests for /assets/ are routes to the

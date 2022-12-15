@@ -49,7 +49,7 @@ cookstyle:
     paths:
       - $BUNDLE_PATH
   script:
-    - make kitchen KITCHEN_SUITE=haproxy-$FLAVOUR-$PLATFORM
+    - make kitchen KITCHEN_SUITE=haproxy-$FLAVOR-$PLATFORM
   only:
     variables:
       - $CI_PRIVATE_KEY
@@ -58,8 +58,8 @@ test-kitchen:
   extends: .kitchen_template
   parallel:
     matrix:
-      - FLAVOUR:
-          - primary
+      - FLAVOR:
+          - main
           - pages
           - registry
         PLATFORM:

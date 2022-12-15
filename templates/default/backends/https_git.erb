@@ -2,7 +2,7 @@
   name: 'https_git',
   description: 'Targets the HTTPS-git fleet with a weighted mixin of canary backends',
   mode: 'http',
-  health_check: get_attribute('gitlab-haproxy', flavour, 'https_git'),
+  health_check: get_attribute('gitlab-haproxy', flavor, 'https_git'),
   override_host: nil,
   source_nodes: ['https_git'],
   mixin_nodes: ['canary_https_git'],
