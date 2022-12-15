@@ -1,27 +1,27 @@
 #### This file is currently heavily worked on.
 # Any attribute suffixed with a `# legacy` comment, will be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-# The old verbiage `frontend` (meaning the main HAProxy fleet, not the frontend of HAProxy) is deprecated and replaced with `primary`.
-# E.g. fe-01-lb-gprd is a node in the `primary` fleet of HAProxy nodes.
+# The old verbiage `frontend` (meaning the main HAProxy fleet, not the frontend of HAProxy) is deprecated and replaced with `main`.
+# E.g. fe-01-lb-gprd is a node in the `main` fleet of HAProxy nodes.
 
-default['gitlab-haproxy']['flavour'] = nil # This determines whether it will become 'primary', 'pages', or 'registry'
+default['gitlab-haproxy']['flavor'] = nil # This determines whether it will become 'main', 'pages', or 'registry'
 
 # This is a list of enabled backends. This means they are present in the rendered configuration, not necessarily that there is traffic routed towards them.
-default['gitlab-haproxy']['enabled_backends']['primary'] = %w(asset_proxy api main_api https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 
 # This is a list of enabled frontends. This means they are present in the rendered configuration.
 # Please see `templates/frontend/<name>.erb for details on the frontend.`
 # Please enable check_* frontends by setting a backend on `check_frontends` below.
-default['gitlab-haproxy']['enabled_frontends']['primary'] = %w(http https kas ssh https_git_ci_gateway)
-default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http https) # These backends are flavoured.
+default['gitlab-haproxy']['enabled_frontends']['main'] = %w(http https kas ssh https_git_ci_gateway)
+default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http https) # These backends are flavored.
 default['gitlab-haproxy']['enabled_frontends']['pages'] = %w(pages_http pages_https) # Explicitly enable the check_* variants as their name does not match.
 
 # This is the check_* frontend configuration
 # If a check_* frontend has no backends to check, it will not be rendered.
-# By default no check_* frontend will have backends. These are set in the flavours. This is to allow maximum flexibility without duplication.
+# By default no check_* frontend will have backends. These are set in the flavors. This is to allow maximum flexibility without duplication.
 #
-#                                              |--------This is the flavour. Specifics will override `default`.
+#                                              |--------This is the flavor. Specifics will override `default`.
 #                                              |          |- The check frontend to enable
 #                                              V          V            V- `backends`(array of backends required to be available), `uri` (`monitor uri` value), `port` Listen port
 # default URIs
@@ -32,14 +32,14 @@ default['gitlab-haproxy']['check_frontends']['default']['check_ssh']['uri'] = '/
 default['gitlab-haproxy']['check_frontends']['default']['check_http']['port'] = 8001
 default['gitlab-haproxy']['check_frontends']['default']['check_https']['port'] = 8002
 default['gitlab-haproxy']['check_frontends']['default']['check_ssh']['port'] = 8003
-# primary flavour overrides
-default['gitlab-haproxy']['check_frontends']['primary']['check_http']['backends'] = %w(web)
-default['gitlab-haproxy']['check_frontends']['primary']['check_https']['backends'] = %w(web api)
-default['gitlab-haproxy']['check_frontends']['primary']['check_ssh']['backends'] = %w(ssh)
-# pages flavour overrides
+# main flavor overrides
+default['gitlab-haproxy']['check_frontends']['main']['check_http']['backends'] = %w(web)
+default['gitlab-haproxy']['check_frontends']['main']['check_https']['backends'] = %w(web api)
+default['gitlab-haproxy']['check_frontends']['main']['check_ssh']['backends'] = %w(ssh)
+# pages flavor overrides
 default['gitlab-haproxy']['check_frontends']['pages']['check_http']['backends'] = %w(pages_http)
 default['gitlab-haproxy']['check_frontends']['pages']['check_https']['backends'] = %w(pages_https)
-# registry flavour overrides
+# registry flavor overrides
 default['gitlab-haproxy']['check_frontends']['registry']['check_http']['backends'] = %w(registry)
 default['gitlab-haproxy']['check_frontends']['registry']['check_https']['backends'] = %w(registry)
 
@@ -51,7 +51,7 @@ default['gitlab-haproxy']['check_frontends']['registry']['check_https']['backend
 # If they should be adjusted, it MUST be done in the backend configuration. Generally they should not be changed,
 # unless there is a very good reason, and you're sure of what changing the timeout in question does.
 #
-#                                      |--------This is the flavour. Specifics will override `default`.
+#                                      |--------This is the flavor. Specifics will override `default`.
 #                                      |          |- this is the area `global`/`defaults`
 #                                      V          V            V- this is the config value. Set this to `nil` to remove it when overriding. Otherwise this can be an empty string, number, or even a comment (with # prefix)
 # Default global section:
@@ -67,29 +67,34 @@ default['gitlab-haproxy']['config']['default']['defaults']['option redispatch'] 
 default['gitlab-haproxy']['config']['default']['defaults']['option splice-auto'] = '' # Instead of specifying this in every frontend, set it in defaults.
 default['gitlab-haproxy']['config']['default']['defaults']['option tcpka'] = '' # Enable TCP keepalive. Useful for HTTPS-git requests, that might have long delays between data bursts.
 default['gitlab-haproxy']['config']['default']['defaults']['option tcp-smart-connect'] = '' # Ask the kernel to directly send data to HAProxy. Saves context switches, as data is immediately available.
-# primary flavour overrides
-# pages flavour overrides
+# main flavor overrides
+# pages flavor overrides
 default['gitlab-haproxy']['config']['pages']['global']['ssl-mode-async'] = nil # We don't do TLS on pages, and this might interfere with the inspect delay.
 default['gitlab-haproxy']['config']['pages']['defaults']['option redispatch'] = nil # TLS is not terminated on the pages LBs, so this is useless.
-# registry flavour overrides
+# registry flavor overrides
 
 # Similarly to above, you can also set frontend/backend options:
 #
-#                                      |--------This is the flavour. Specifics will override `default`.
+#                                      |--------This is the flavor. Specifics will override `default`.
 #                                      |          |- `frontend`/`backend`
 #                                      V          V           |- frontend/backend name
 #                                      V          V           V               V- this is the config value. Setting to nil will not disable any settings from defaults.
-# primary flavour overrides:
-default['gitlab-haproxy']['config']['primary']['backend']['canary_https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
-default['gitlab-haproxy']['config']['primary']['backend']['https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
-default['gitlab-haproxy']['config']['primary']['backend']['canary_kas']['timeout tunnel'] = '2h'
-default['gitlab-haproxy']['config']['primary']['backend']['canary_kas_k8s_proxy']['timeout tunnel'] = '2h'
-default['gitlab-haproxy']['config']['primary']['backend']['kas']['timeout tunnel'] = '2h'
-default['gitlab-haproxy']['config']['primary']['backend']['kas_k8s_proxy']['timeout tunnel'] = '2h'
-default['gitlab-haproxy']['config']['primary']['backend']['ssh']['no option redispatch'] = '# Redispatching a TLS connection does not make sense. This would only happen after a connection was established, so the tunnel would be dead anyways.'
-default['gitlab-haproxy']['config']['primary']['backend']['websockets']['cookie _gitlab_session'] = 'prefix nocache'
-default['gitlab-haproxy']['config']['primary']['backend']['websockets']['option http-server-close'] = '# Copied from old config. But why do we need this?'
-default['gitlab-haproxy']['config']['primary']['backend']['websockets']['timeout tunnel'] = '8s' # copied from default['gitlab-haproxy']['timeout_tunnel'] = '8s'
+# main flavor overrides:
+default['gitlab-haproxy']['config']['main']['backend']['canary_https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
+default['gitlab-haproxy']['config']['main']['backend']['canary_kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
+default['gitlab-haproxy']['config']['main']['backend']['canary_kas']['timeout tunnel'] = '2h'
+default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['timeout server'] = '1h # KAS specific tuning for SPDY'
+default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['timeout tunnel'] = '2h'
+default['gitlab-haproxy']['config']['main']['backend']['https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
+default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
+default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout tunnel'] = '2h'
+default['gitlab-haproxy']['config']['main']['backend']['kas_k8s_proxy']['timeout server'] = '1h # KAS specific tuning for SPDY'
+default['gitlab-haproxy']['config']['main']['backend']['kas_k8s_proxy']['timeout tunnel'] = '2h'
+default['gitlab-haproxy']['config']['main']['backend']['ssh']['no option redispatch'] = '# Redispatching a TLS connection does not make sense. This would only happen after a connection was established, so the tunnel would be dead anyways.'
+default['gitlab-haproxy']['config']['main']['backend']['websockets']['cookie _gitlab_session'] = 'prefix nocache'
+default['gitlab-haproxy']['config']['main']['backend']['websockets']['option http-server-close'] = '# Copied from old config. But why do we need this?'
+default['gitlab-haproxy']['config']['main']['backend']['websockets']['timeout tunnel'] = '8s' # copied from default['gitlab-haproxy']['timeout_tunnel'] = '8s'
+default['gitlab-haproxy']['config']['main']['frontend']['kas']['timeout client'] = '1h # KAS specific tuning for SPDY'
 
 # New healthcheck config only used in HAProxy 2.6+
 default['gitlab-haproxy']['registry']['health_check']['httpchk_host'] = 'registry.gitlab.com'

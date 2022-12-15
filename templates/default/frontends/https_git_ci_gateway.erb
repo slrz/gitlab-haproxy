@@ -7,7 +7,7 @@
   ],
   :mode => 'http',
 } -%>
-<%- https_git_acl_format = get_attribute('gitlab-haproxy', flavour, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
+<%- https_git_acl_format = get_attribute('gitlab-haproxy', flavor, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
 
   capture request header User-Agent len 64
 
@@ -27,7 +27,7 @@
 
   # Set the canonical host as Host header so that ci-gateway
   # is transparent for GitLab backends
-  http-request set-header Host <%= get_attribute('gitlab-haproxy', flavour, 'canonical_host') %>
+  http-request set-header Host <%= get_attribute('gitlab-haproxy', flavor, 'canonical_host') %>
 
   ###############################################################
   # Redirect git requests missing .git suffix in the repo url

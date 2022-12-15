@@ -6,7 +6,7 @@
 #
 # License: MIT
 
-node.default['gitlab-haproxy']['flavour'] = 'registry'
+node.default['gitlab-haproxy']['flavor'] = 'registry'
 include_recipe 'gitlab-haproxy::prerequisites'
 
 include_recipe 'gitlab-haproxy::install'

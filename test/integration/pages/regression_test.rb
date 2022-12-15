@@ -1,7 +1,7 @@
 
 control 'haproxy-pages-regression-check' do
   impact 1.0
-  title 'Tests HAProxy configuration regressions (pages flavour, ubuntu 18.04)'
+  title 'Tests HAProxy configuration regressions (pages flavor, ubuntu 18.04)'
   ref 'production pages haproxy.cfg', url: 'https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/-/merge_requests/335#note_1194915753'
   only_if { command('lsb_release -rs').stdout =~ /18\.04/ }
   desc '

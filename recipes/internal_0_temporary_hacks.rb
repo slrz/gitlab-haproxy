@@ -15,7 +15,7 @@ node.default['gitlab-haproxy']['frontend']['allowlist']['api'] = node['gitlab-ha
 node.default['gitlab-haproxy']['frontend']['https']['rate_limit_allowlist'] = node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist']
 node.default['gitlab-haproxy']['config']['default']['global']['hard-stop-after'] = node['gitlab-haproxy']['global']['hard-stop']['timeout']
 
-# Pages does not have their own check config, but the old HAP config just used the one from the primary:
+# Pages does not have their own check config, but the old HAP config just used the one from the main:
 # Fix this in roles!
 node.default['gitlab-haproxy']['pages']['default_check_opts'] = node['gitlab-haproxy']['frontend']['default_check_opts']
 

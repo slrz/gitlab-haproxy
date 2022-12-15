@@ -7,7 +7,7 @@
 # License: MIT
 #
 
-node.default['gitlab-haproxy']['flavour'] = 'pages'
+node.default['gitlab-haproxy']['flavor'] = 'pages'
 include_recipe 'gitlab-haproxy::prerequisites'
 
 include_recipe 'gitlab-haproxy::install'

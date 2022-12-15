@@ -1,10 +1,10 @@
-control 'haproxy-flavour-checks' do
+control 'haproxy-flavor-checks' do
   impact 1.0
-  title 'Tests HAProxy settings for flavour specific configuration (flavour: primary)'
+  title 'Tests HAProxy settings for flavor specific configuration (flavor: main)'
   only_if { command('lsb_release -rs').stdout !~ /18\.04/ }
   desc '
     This control ensures that:
-      * specific configuration settings for the primary flavour
+      * specific configuration settings for the main flavor
     are present in the HAProxy configuration'
 
   [
@@ -69,10 +69,12 @@ control 'haproxy-flavour-checks' do
     # override for kas backends
     its('content') do
       should include 'timeout tunnel 2h'
+      should include('timeout client 1h # KAS specific tuning for SPDY').exactly(:once)
+      should include('timeout server 1h # KAS specific tuning for SPDY').exactly(4).times # kas, kas k8s proxy + canary each
     end
   end
 
-  # General config related flavour differences
+  # General config related flavor differences
   describe file('/etc/haproxy/haproxy.cfg') do
     # ssh backend should use the TCP logstring
     its('content') do
@@ -81,12 +83,12 @@ control 'haproxy-flavour-checks' do
 
     # Peer section is being included
     its('content') do
-      should include('peers primary-peers
+      should include('peers main-peers
   bind 0.0.0.0:32769',
                      'server fe-02-lb-gprd 93.184.216.34:32769')
     end
     # Validates that local peer detection works, and no IP:port pair is inserted for it
-    its('content') { should match /32769\n  server tk-haproxy-primary-ubuntu-20-04-x64-\S+ \n/ }
+    its('content') { should match /32769\n  server tk-haproxy-main-ubuntu-20-04-x64-\S+ \n/ }
 
     # backend availability. Tests Gitlab::TemplateHelpers::select_backends
     %w(asset_proxy api main_api https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection).each do |backend|

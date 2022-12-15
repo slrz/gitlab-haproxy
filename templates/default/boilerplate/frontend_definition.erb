@@ -1,4 +1,4 @@
-#### Frontend <%= @name %> (flavour <%= flavour %>)
+#### Frontend <%= @name %> (flavor <%= flavor %>)
 # start boilerplate/frontend_definition (<%= @name %>)
 <%- certificates = filter_certificates(@listen_certificates) -%>
 frontend <%= @name %>
@@ -9,7 +9,7 @@ frontend <%= @name %>
 <% end %>
   mode <%= @mode %>
   # Chef attribute controlled settings ############
-  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['frontend']['<%= @name %>']['<config key>'] = '<config value>'
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavor %>']['frontend']['<%= @name %>']['<config key>'] = '<config value>'
 <%- frontend_settings = chef_attribute_settings('frontend', @name) -%>
 <% unless frontend_settings.nil? %>
 <% frontend_settings.each do |name, value| %>

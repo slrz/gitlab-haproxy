@@ -8,4 +8,4 @@
 #
 ###### THIS FILE IS FOR COMPATIBILITY ONLY
 
-include_recipe 'gitlab-haproxy::primary'
+include_recipe 'gitlab-haproxy::main'

@@ -1,10 +1,10 @@
-control 'haproxy-flavour-checks' do
+control 'haproxy-flavor-checks' do
   impact 1.0
-  title 'Tests HAProxy settings for flavour specific configuration (flavour: pages)'
+  title 'Tests HAProxy settings for flavor specific configuration (flavor: pages)'
   only_if { command('lsb_release -rs').stdout !~ /18\.04/ }
   desc '
     This control ensures that:
-      * specific configuration settings for the pages flavour
+      * specific configuration settings for the pages flavor
     are present in the HAProxy configuration'
 
   [
@@ -60,7 +60,7 @@ control 'haproxy-flavour-checks' do
     end
   end
 
-  # General config related flavour differences
+  # General config related flavor differences
   describe file('/etc/haproxy/haproxy.cfg') do
     # pages backend should use the TCP logstring
     its('content') do

@@ -13,7 +13,7 @@ directory '/etc/haproxy/ssl' do
   recursive true
 end
 
-case node['gitlab-haproxy']['flavour']
+case node['gitlab-haproxy']['flavor']
 when 'registry'
   file '/etc/haproxy/ssl/registry.pem' do
     sensitive true
@@ -28,7 +28,7 @@ when 'registry'
     content "#{haproxy_secrets['ssl']['internal_crt']}\n#{haproxy_secrets['ssl']['internal_key']}\n"
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
-when 'primary'
+when 'main'
   file '/etc/haproxy/ssl/gitlab.pem' do
     sensitive true
     mode '0600'
@@ -71,5 +71,5 @@ when 'primary'
 when 'pages'
   # no certificates
 else
-  raise 'unsupported flavour!'
+  raise 'unsupported flavor!'
 end

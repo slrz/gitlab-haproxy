@@ -4,7 +4,7 @@
 
 control 'haproxy-config-checks' do
   impact 1.0
-  title 'Basic health checks for HAProxy (pages flavour)'
+  title 'Basic health checks for HAProxy (pages flavor)'
   desc '
     This control ensures that:
       * correct ports are bound'
