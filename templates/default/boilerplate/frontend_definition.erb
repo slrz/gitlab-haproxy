@@ -1,0 +1,66 @@
+#### Frontend <%= @name %> (flavour <%= flavour %>)
+# start boilerplate/frontend_definition (<%= @name %>)
+<%- certificates = filter_certificates(@listen_certificates) -%>
+frontend <%= @name %>
+  bind <%= @bind_addr %>:<%= @bind_port%> tfo<% if certificates.any? %> ssl<% certificates.each do | cert| %> crt <%= cert %><% end %><%if @enforce_cf_origin_pull %> verify required ca-file /etc/haproxy/ssl/cf-origin-pull.ca<% end %><% end %><% if @bind_extra_options %> <%= @bind_extra_options %><% end %>
+<% if @https_extra_bind_port %>
+  # To be used internally within the GCP network, mainly to bypass client certificate verification (if enabled) above
+  bind <%= @bind_addr %>:<%= @https_extra_bind_port %> tfo <% if certificates.any? %>ssl<% certificates.each do | cert| %> crt <%= cert %><% end %><% end %><% if @bind_extra_options %> <%= @bind_extra_options %><% end %>
+<% end %>
+  mode <%= @mode %>
+  # Chef attribute controlled settings ############
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['frontend']['<%= @name %>']['<config key>'] = '<config value>'
+<%- frontend_settings = chef_attribute_settings('frontend', @name) -%>
+<% unless frontend_settings.nil? %>
+<% frontend_settings.each do |name, value| %>
+  <%= name %> <%= value %>
+<% end %>
+<% end %>
+  #################################################
+
+<% if @mode == "tcp" %>
+  # mode is not `http`. Overriding log-format to TCP logs
+  log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+<% end -%>
+
+<% if @expect_proxy == 'HTTP' %><%= render 'boilerplate/cloudflare_HTTP.erb' %><% end %>
+<% if @expect_proxy == 'TCP' %><%= render 'boilerplate/cloudflare_TCP.erb' %><% end %>
+
+<% if @mode == "http" and (@skip_headers.nil? or @skip_headers == false) %>
+  # Adjust headers for backend use.
+  http-request del-header Client-Ip
+  http-request set-header X-Forwarded-For %[src]
+  http-request set-header GitLab-Real-IP %[src]
+  <% if certificates.any? %>
+  http-request set-header X-Forwarded-Proto https
+  http-request set-header X-SSL true
+  <% else %>
+  http-request set-header X-Forwarded-Proto http
+  http-request set-header X-SSL false
+  <% end %>
+
+  <% if @minimal.nil? or @minimal == false %>
+  http-request set-header X-GitLab-RateLimit-Bypass 0
+
+  # Canary opt in/out (`gitlab_canary=true` = canary_opt_in, `gitlab_canary=false` = canary_opt_out)
+  acl canary_opt_in   req.cook(gitlab_canary) -m str -i true
+  acl canary_opt_out  req.cook(gitlab_canary) -m str -i false
+  <% end %>
+
+  # Set response headers
+  http-response set-header GitLab-LB %H
+  http-response set-header GitLab-SV %s
+
+<% end %>
+<% if @mode == "http"%>
+  # Exempt internal requests from blocklists.
+  http-request allow if { src -f /etc/haproxy/allowlist-internal.lst }
+<% end %>
+<% unless enabled_backends.nil? || @skip_availability_acls %>
+
+  # Backend availability
+<% enabled_backends.each do | backend_name | %>
+  acl backend_available_<%= backend_name %> nbsrv(<%= backend_name %>) gt 0
+<% end %>
+<% end %>
+  # end boilerplate/frontend_definition (<%= @name %>)

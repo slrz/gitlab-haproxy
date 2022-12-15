@@ -1,0 +1,10 @@
+<%= render 'boilerplate/frontend_definition.erb', :variables => {
+  :name => @name,
+  :bind_addr => '0.0.0.0',
+  :bind_port => @cfg['port'],
+  :mode => 'http',
+  :skip_headers => true,
+} -%>
+
+  monitor-uri <%= @cfg['uri'] %>
+  monitor fail if !backend_available_<%= @cfg['backends'].join(' !backend_available_') %>

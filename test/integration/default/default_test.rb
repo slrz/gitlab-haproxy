@@ -4,14 +4,24 @@
 
 control 'general-haproxy-checks' do
   impact 1.0
-  title 'General tests for Haroxy service'
+  title 'Basic health checks for HAProxy'
   desc '
     This control ensures that:
-      * haproxy package is installed
-      * haproxy service in enabled and running'
+      * haproxy package is installed (1.8 for 18.04, 2.6+ for 20.04+)
+      * haproxy service in enabled and running
+      * essential supplemental files are present
+      * the configuration is valid'
+
+  is_bionic = command('lsb_release -rs').stdout =~ /18\.04/
 
   describe package('haproxy') do
     it { should be_installed }
+    if command('lsb_release -rs').stdout =~ /18\.04/
+      its('version') { should cmp >= '1.8' }
+      its('version') { should cmp <= '1.9' }
+    else
+      its('version') { should cmp >= '2.6' }
+    end
   end
 
   describe service('haproxy') do
@@ -19,11 +29,93 @@ control 'general-haproxy-checks' do
     it { should be_enabled }
     it { should be_running }
   end
+
+  describe command('haproxy -c -f /etc/haproxy/haproxy.cfg') do
+    its('stdout') { should include 'Configuration file is valid' }
+    its('exit_status') { should eq 0 }
+  end
+
+  describe file('/etc/haproxy/haproxy.cfg') do
+    its('mode') { should cmp '0600' }
+    # Only applicable to new configuration
+    unless is_bionic
+      its('content') { should include 'log stdout len 4096 format raw daemon' }
+      its('content') { should include 'http-errors gitlab-errorcodes' } # error file definition
+      its('content') { should include 'errorfiles gitlab-errorcodes' } # default loading of errorfiles
+      its('content') { should include 'master-worker no-exit-on-failure' }
+      its('content') { should include 'http-request use-service prometheus-exporter' } # native prometheus
+      # Default HTTP log format
+      its('content') { should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r' }
+    end
+  end
+
+  describe file('/etc/haproxy/cloudflare_ips_v4.lst') do
+    it { should be_file }
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
+    its('mode') { should cmp '0644' }
+  end
+
+  describe file('/etc/haproxy/cloudflare_ips_v6.lst') do
+    it { should be_file }
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
+    its('mode') { should cmp '0644' }
+  end
+
+  ca_ext = is_bionic ? 'pem' : 'ca'
+  describe file("/etc/haproxy/ssl/cf-origin-pull.#{ca_ext}") do
+    it { should be_file }
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
+    its('mode') { should cmp '0600' }
+  end
+
+  %w(400 403 429 500 502 503 504 bad_ref).each do |error_page|
+    describe file("/etc/haproxy/errors/#{error_page}.http") do
+      it { should be_file }
+    end
+  end
+
+  %w(deny-403-ips deny-403-pages-domains).each do |list|
+    describe file("/etc/haproxy/front-end-security/#{list}.lst") do
+      it { should be_file }
+    end
+  end
+
+  describe file('/usr/local/sbin/drain_haproxy.sh') do
+    it { should be_file }
+    its('type') { should eq :file }
+    its('owner') { should eq 'root' }
+    its('group') { should eq 'root' }
+    its('mode') { should cmp '0750' }
+  end
+
+  if is_bionic
+    %w(blacklist-uris whitelist-api whitelist-internal canary-request-paths).each do |list|
+      describe file("/etc/haproxy/#{list}.lst") do
+        it { should be_file }
+      end
+    end
+  else
+    %w(blocklist-uris allowlist-api allowlist-internal canary-request-paths).each do |list|
+      describe file("/etc/haproxy/#{list}.lst") do
+        it { should be_file }
+      end
+    end
+  end
 end
 
 control 'logrotate-config-valid' do
   impact 1.0
-  title 'cron for logrotate is dropped off'
+  title 'Logrotate configuration'
+
+  describe package('logrotate') do
+    it { should be_installed }
+  end
 
   describe file('/etc/cron.hourly/logrotate') do
     it { should be_file }

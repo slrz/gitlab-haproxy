@@ -1,0 +1,159 @@
+control 'haproxy-flavour-checks' do
+  impact 1.0
+  title 'Tests HAProxy settings for flavour specific configuration (flavour: primary)'
+  only_if { command('lsb_release -rs').stdout !~ /18\.04/ }
+  desc '
+    This control ensures that:
+      * specific configuration settings for the primary flavour
+    are present in the HAProxy configuration'
+
+  [
+    7331, # stats
+    80, # http
+    443, # https
+    2222, # ssh. remapped because kitchen listens on port 22. In production this port would be 22.
+    8001, # check_http
+    8002, # check_https
+    8003, # check_ssh
+  ].each do |nr|
+    describe port(nr) do
+      its('processes') { should eq ['haproxy'] }
+      its('addresses') { should eq ['0.0.0.0'] }
+      its('protocols') { should eq ['tcp'] }
+    end
+  end
+
+  # Tests Gitlab::TemplateHelpers::merge_settings and its property merging
+  describe file('/etc/haproxy/haproxy.cfg') do
+    # global section
+    its('content') do
+      should include 'timeout server 90s' # default in template
+    end
+    its('content') do
+      should include 'no-memory-trimming'
+    end
+    its('content') do
+      should include 'ssl-mode-async'
+    end
+    its('content') do
+      should include 'tune.ssl.lifetime 900'
+    end
+    its('content') do
+      should include 'spread-checks 4'
+    end
+    its('content') do
+      should include 'hard-stop-after 10m'
+    end
+    # defaults section
+    its('content') do
+      should include 'retry-on conn-failure'
+    end
+    its('content') do
+      should include 'option redispatch'
+    end
+    its('content') do
+      should include 'option splice-auto'
+    end
+    its('content') do
+      should include 'option tcpka'
+    end
+    its('content') do
+      should include 'option tcp-smart-connect'
+    end
+
+    # override for https_git backends
+    its('content') do
+      should include 'timeout server 1h'
+    end
+
+    # override for kas backends
+    its('content') do
+      should include 'timeout tunnel 2h'
+    end
+  end
+
+  # General config related flavour differences
+  describe file('/etc/haproxy/haproxy.cfg') do
+    # ssh backend should use the TCP logstring
+    its('content') do
+      should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq'
+    end
+
+    # Peer section is being included
+    its('content') do
+      should include('peers primary-peers
+  bind 0.0.0.0:32769',
+                     'server fe-02-lb-gprd 93.184.216.34:32769')
+    end
+    # Validates that local peer detection works, and no IP:port pair is inserted for it
+    its('content') { should match /32769\n  server tk-haproxy-primary-ubuntu-20-04-x64-\S+ \n/ }
+
+    # backend availability. Tests Gitlab::TemplateHelpers::select_backends
+    %w(asset_proxy api main_api https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection).each do |backend|
+      its('content') do
+        should include "backend #{backend}"
+      end
+    end
+
+    # frontend availability. Tests Gitlab::TemplateHelpers::select_frontends
+    %w(http https kas ssh https_git_ci_gateway).each do |backend|
+      its('content') do
+        should include "frontend #{backend}"
+      end
+    end
+
+    # Tests Gitlab::TemplateHelpers::merge_check_frontends and its property merging
+    its('content') do
+      should include 'frontend check_https
+  bind 0.0.0.0:8002 tfo
+  mode http',
+  'monitor-uri /-/available-https
+  monitor fail if !backend_available_web !backend_available_api'
+    end
+
+    # Verifies correct template handling in frontend defintion
+    its('content') do
+      should include 'verify required ca-file /etc/haproxy/ssl/cf-origin-pull.ca',
+                     'http-request set-header X-Forwarded-Proto https',
+                     'acl canary_opt_in   req.cook(gitlab_canary) -m str -i true',
+                     'acl canary_opt_out  req.cook(gitlab_canary) -m str -i false',
+                     'http-response set-header GitLab-LB %H',
+                     'http-response set-header GitLab-SV %s',
+                     'acl backend_available_api nbsrv(api) gt 0'
+    end
+
+    # Verifies correct template handling in backend defintion
+    # Also verifies correct behaviour of
+    #  - Gitlab::TemplateHelpers::backend_servers_for_lb_zone
+    #  - Gitlab::TemplateHelpers::backend_servers_by_pool
+    #  - Gitlab::TemplateHelpers::build_ssl_opts
+    #  - Gitlab::TemplateHelpers::build_check_opts
+    its('content') do
+      should include(
+               # Check that ssh sends the traffic wrapped in PROXYv2
+               'server shell-gke-us-east1-b 10.221.13.40:2222 weight 100 send-proxy-v2',
+               # Check that websockets are cookie bound
+               'server ws-gke-us-east1-b 10.221.13.19:8181 weight 100 cookie ws-gke-us-east1-b',
+                     # Check the general template. This includes:
+                     # - dedupe of check opts and ssl opts
+                     # - weight & backup assignment
+                     #
+                     # - health check in new format
+                     'option httpchk
+  http-check send meth GET uri /-/k8s/api/-/readiness hdr Host gitlab.com
+  default-server check check-ssl inter 3s fastinter 1s downinter 5s fall 3
+  default-server ssl verify none
+  # node pool \'api\'
+  server api-gke-us-east1-b 10.221.13.25:443 weight 100
+  server api-gke-us-east1-c 10.221.14.23:443 weight 100 backup
+  server api-gke-us-east1-d 10.221.15.31:443 weight 100 backup
+  # node pool \'canary_api\'
+  server gke-cny-api 10.216.8.44:443 weight 5
+',
+               # Validates the TCP check variant of the healthcheck
+               'option tcp-check
+  default-server check inter 3s fastinter 1s downinter 5s fall 3
+  default-server ssl verify none')
+    end
+  end
+end

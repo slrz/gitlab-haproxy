@@ -93,7 +93,7 @@ frontend https
     option splice-auto
 
 <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
-<%= render 'partial_cloudflare.erb' -%>
+<%= render 'partial_cloudflare_legacy.erb' -%>
 <% end %>
 
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
@@ -162,7 +162,7 @@ backend registry
 <% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['registry'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['registry'] } -%>
     <% @backend_servers['all']['registry'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> weight <%= node['gitlab-haproxy']['registry']['default_weight'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= " #{node['gitlab-haproxy']['registry']['ssl_verify']}".rstrip %><%= @backend_servers['active']['registry'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -178,7 +178,7 @@ backend canary_registry
 <% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['registry'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['registry'] } -%>
     <% @backend_servers['all']['canary_registry'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['registry']['backend_port'] %> check <%= node['gitlab-haproxy']['registry']['default_check_opts'] %><%= " #{node['gitlab-haproxy']['registry']['ssl_verify']}".rstrip %><%= @backend_servers['active']['canary_registry'].key?(name) ? '' : ' backup' %>
     <% end %>

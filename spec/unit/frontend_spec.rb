@@ -292,7 +292,7 @@ describe 'gitlab-haproxy::frontend' do
 
       it 'creates the template and runs correct notifications' do
         expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-          source: 'haproxy-frontend.cfg.erb',
+          source: 'haproxy-base.cfg.erb',
           mode: '0600',
           variables: {
             admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
@@ -353,7 +353,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-        source: 'haproxy-frontend.cfg.erb',
+        source: 'haproxy-base.cfg.erb',
         mode: '0600',
         variables: {
           admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
@@ -407,7 +407,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-        source: 'haproxy-frontend.cfg.erb',
+        source: 'haproxy-base.cfg.erb',
         mode: '0600',
         variables: {
           admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
@@ -467,7 +467,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-        source: 'haproxy-frontend.cfg.erb',
+        source: 'haproxy-base.cfg.erb',
         mode: '0600',
         variables: {
           admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
@@ -521,7 +521,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-        source: 'haproxy-frontend.cfg.erb',
+        source: 'haproxy-base.cfg.erb',
         mode: '0600',
         variables: {
           admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,
@@ -579,7 +579,7 @@ describe 'gitlab-haproxy::frontend' do
 
     it 'creates the template and runs correct notifications' do
       expect(chef_run).to create_template('/etc/haproxy/haproxy.cfg').with(
-        source: 'haproxy-frontend.cfg.erb',
+        source: 'haproxy-base.cfg.erb',
         mode: '0600',
         variables: {
           admin_password: 'this-is-a-test-password', use_internal: nil, use_canary: nil, enforce_cf_origin_pull: false, https_extra_bind_port: nil,

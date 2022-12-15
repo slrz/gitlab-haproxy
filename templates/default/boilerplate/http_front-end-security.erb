@@ -1,0 +1,5 @@
+  # start boilerplate/http_front-end-security
+  # Static deny rules
+  http-request deny if { src -f /etc/haproxy/front-end-security/deny-403-ips.lst }
+  http-request deny if { path_beg -i -f /etc/haproxy/blocklist-uris.lst }
+  # end boilerplate/http_front-end-security

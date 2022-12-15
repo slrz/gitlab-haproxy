@@ -1,0 +1,9 @@
+#---------------------------------------------------------------------
+# Blocklisted URI paths
+#---------------------------------------------------------------------
+<% if node['gitlab-haproxy']['frontend']['blocklist']['uri'].any? -%>
+    <% node['gitlab-haproxy']['frontend']['blocklist']['uri'].each do |path, comment| %>
+# <%= comment %>
+<%= path %>
+    <% end %>
+<% end -%>

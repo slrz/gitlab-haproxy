@@ -1,0 +1,10 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'asset_proxy',
+  description: 'Used to proxy assets requested on /assets/ to GCS',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'asset_proxy'),
+  override_host: get_attribute('gitlab-haproxy', flavour, 'asset_proxy', 'host'),
+  source_backends: nil, # We define the servers in this template.
+} -%>
+
+  server asset-bucket <%= get_attribute('gitlab-haproxy', flavour, 'asset_proxy', 'server') %>:<%= get_attribute('gitlab-haproxy', flavour, 'asset_proxy', 'server_port') %> <%= get_attribute('gitlab-haproxy', flavour, 'asset_proxy', 'opts') %>

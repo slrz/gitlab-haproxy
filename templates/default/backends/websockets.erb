@@ -1,0 +1,10 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'websockets',
+  description: 'Targets the WebSockets fleet with a weighted mixin of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'websockets'),
+  override_host: nil,
+  source_nodes: ['websockets'],
+  mixin_nodes: ['canary_websockets'],
+  stick_with_cookie: true,
+} -%>

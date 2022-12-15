@@ -1,4 +1,4 @@
-image: ruby:2.6
+image: ruby:3.0
 
 variables:
   DEBIAN_FRONTEND: "noninteractive"
@@ -14,7 +14,7 @@ before_script:
   - ssh-add <(echo $CI_PRIVATE_KEY |base64 -d)
   - mkdir -p ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-  - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq
+  - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq libsodium-dev
   - make gems
 
 cookstyle:
@@ -22,52 +22,49 @@ cookstyle:
   script:
     - bundle exec cookstyle
 
-rspec-test-job:
-  stage: tests
-  cache:
-    paths:
-      - $BUNDLE_PATH
-  script:
-    - make rspec
-  only:
-    variables:
-      - $CI_PRIVATE_KEY
+# The ChefSpec tests are useless now, because the kitchen.yml represents a production environment, which the tests did not cover.
+# There will be InSpec tests for regression testing for the 18.04 instances to make sure they do not diverge from the expected state.
+#rspec-test-job:
+#  stage: tests
+#  cache:
+#    paths:
+#      - $BUNDLE_PATH
+#  script:
+#    - make rspec
+#  only:
+#    variables:
+#      - $CI_PRIVATE_KEY
 
 .kitchen_template:
   stage: tests
+  retry: 2
   artifacts:
     expire_in: '2d'
-    when: on_failure
+    when: always
     paths:
       - .kitchen/
+    reports:
+      junit: .kitchen/*_inspec.xml
   cache:
     paths:
       - $BUNDLE_PATH
   script:
-    - make kitchen KITCHEN_SUITE=$SUITE
+    - make kitchen KITCHEN_SUITE=haproxy-$FLAVOUR-$PLATFORM
   only:
     variables:
       - $CI_PRIVATE_KEY
 
-kitchen-haproxy-frontend:
+test-kitchen:
   extends: .kitchen_template
-  variables:
-    SUITE: haproxy-frontend-ubuntu
-
-kitchen-haproxy-frontend-cloudflare:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-frontend-cloudflare-ubuntu
-
-kitchen-haproxy-pages:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-pages-ubuntu
-
-kitchen-haproxy-registry:
-  extends: .kitchen_template
-  variables:
-    SUITE: haproxy-registry-ubuntu
+  parallel:
+    matrix:
+      - FLAVOUR:
+          - primary
+          - pages
+          - registry
+        PLATFORM:
+          - ubuntu-18
+          - ubuntu-20
 
 push-cookbook:
   stage: publish

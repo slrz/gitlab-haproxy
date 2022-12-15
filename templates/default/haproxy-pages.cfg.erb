@@ -77,7 +77,7 @@ frontend pages_http
     option splice-auto
 
 <% if node['gitlab-haproxy']['cloudflare']['enable'] %>
-<%= render 'partial_cloudflare.erb' -%>
+<%= render 'partial_cloudflare_legacy.erb' -%>
 <% end %>
     acl deny-403-ip src -f /etc/haproxy/front-end-security/deny-403-ips.lst
     http-request deny if deny-403-ip

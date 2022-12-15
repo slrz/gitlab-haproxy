@@ -1,0 +1,44 @@
+#### Backend <%= @name %> (flavour <%= flavour %>)
+# start boilerplate/backend_definition (<%= @name %>)
+backend <%= @name %>
+  description "<%= @description.sub('"', '``') %>"
+  mode <%= @mode %>
+
+  # Chef attribute controlled settings ############
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['backend']['<%= @name %>']['<config key>'] = '<config value>'
+<%- backend_settings = chef_attribute_settings('backend', @name) -%>
+<% unless backend_settings.nil? %>
+  <% backend_settings.each do |name, value| %>
+  <%= name %> <%= value %>
+  <% end %>
+<% end %>
+  #################################################
+
+<% if @health_check %>
+<%= render 'boilerplate/backend_healthcheck.erb', :variables => { :health_check => @health_check, } -%>
+<% end %>
+<% if @override_host %>
+  http-request set-header Host <%= @override_host  %>
+<% end %>
+<% unless @source_nodes.nil? || @source_nodes.empty? %>
+  <%- default_check_opts = get_attribute('gitlab-haproxy',flavour,'default_check_opts') -%>
+  <%- fallback_pool_name =  @fallback_values_from_pool || @source_nodes.first -%>
+  <%- first_check_opts = build_check_opts(fallback_pool_name) -%>
+  <%- first_ssl_opts = build_ssl_opts(@source_nodes.first, fallback_pool_name) -%>
+  <% if first_check_opts %>default-server check <%= first_check_opts %><% if @check_port_override %> port <%= @check_port_override %><% end %><% end %>
+  <% if first_ssl_opts %>default-server <%= first_ssl_opts %><% end %>
+  <% @source_nodes.each do |pool_name| %>
+  # node pool '<%= pool_name %>'
+    <% backend_servers_by_pool(pool_name, fallback_pool_name).each do |server| %>
+  server <%= server['name'] %> <%= server['ip'] %>:<%= @port_override || server['port'] %> weight <%= server['weight'] %><%= (server['check_opts'] != first_check_opts && server['check_opts'] != default_check_opts) ? server['check_opts'] : '' %><%= server['ssl_opts'] == first_ssl_opts ? '': " #{server['ssl_opts']}" %><%= @stick_with_cookie ? " cookie #{server['name']}" : '' %><%= server['active'] ? '' : ' backup' %><%= server['send_proxy_v2'] && @mode == 'tcp' ? ' send-proxy-v2' : '' %>
+    <% end %>
+  <% end %>
+  <% unless @mixin_nodes.nil? %>
+    <% @mixin_nodes.each do |pool_name| %>
+  # node pool '<%= pool_name %>'
+      <% backend_servers_by_pool(pool_name, fallback_pool_name).each do |server| %>
+  server <%= server['name'] %> <%= server['ip'] %>:<%= @port_override || server['port'] %> weight <%= server['weight'] %><%= (server['check_opts'] != first_check_opts && server['check_opts'] != default_check_opts) ? server['check_opts'] : '' %><%= server['ssl_opts'] == first_ssl_opts ? '': " #{server['ssl_opts']}" %><%= @stick_with_cookie ? " cookie #{server['name']}" : '' %><%= server['active'] ? '' : ' backup' %><%= server['send_proxy_v2'] && @mode == 'tcp' ? ' send-proxy-v2' : '' %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

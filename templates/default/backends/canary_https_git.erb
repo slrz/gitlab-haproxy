@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'canary_https_git',
+  description: 'Targets the HTTPS-git fleet consisting only of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'canary_https_git'),
+  override_host: nil,
+  source_nodes: ['canary_https_git'],
+  fallback_values_from_pool: 'https_git',
+} -%>

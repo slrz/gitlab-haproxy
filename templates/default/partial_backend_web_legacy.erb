@@ -1,0 +1,28 @@
+    mode http
+    balance roundrobin
+<% unless @cloudflare_enable %>
+    option forwardfor
+<% end %>
+    option splice-auto
+    timeout server-fin <%= @timeout_server_fin %>
+    <% if @frontend['web']['content_security_policy_enabled'] %>
+    rspadd Content-Security-Policy:<%= @frontend['web']['content_security_policy'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
+    <% end %>
+    <% if @frontend['web']['content_security_policy_report_only_enabled'] %>
+    rspadd Content-Security-Policy-Report-Only:<%= @frontend['web']['content_security_policy_report_only'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
+    <% end %>
+    <% if @frontend['web']['access_control_allow_headers']['enable'] %>
+    rspadd Access-Control-Allow-Headers:<%= @frontend['web']['access_control_allow_headers']['headers'].gsub(/ /, '\ ').gsub("'"){"\\'"} %> if { capture.req.hdr(0) -m found }
+    <% end %>
+    <% if @frontend['root_page_redirect']['enable'] %>
+    acl redirect_request_path path /
+    acl has_session_cookie req.cook(<%= @frontend['root_page_redirect']['session_cookie'] %>) -m found
+    redirect location <%= @frontend['root_page_redirect']['url'] %> code <%= @frontend['root_page_redirect']['status_code'] %> if redirect_request_path !has_session_cookie
+    <% end %>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => @frontend['web'], :ha_global => @ha_global } -%>
+    <% @backend_servers['all']['web'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= @frontend['web']['server_port'] %> weight <%= @frontend['web']['default_weight'] %> check <%= @frontend['web']['check_opts'] %> <%= @frontend['default_check_opts'] %> <%= @frontend['web']['ssl_verify'] %><%= @backend_servers['active']['web'].key?(name) ? '' : ' backup' %>
+    <% end %>
+    <% @backend_servers['all']['web_k8s'].each do |name, ip| %>
+    server <%= name %> <%= ip %>:<%= @frontend['web_k8s']['server_port'] %> weight <%= @frontend['web_k8s']['default_weight'] %> check <%= @frontend['web_k8s']['check_opts'] %> <%= @frontend['default_check_opts'] %> <%= @frontend['web_k8s']['ssl_verify'] %><%= @backend_servers['active']['web_k8s'].key?(name) ? '' : ' backup' %>
+    <% end %>

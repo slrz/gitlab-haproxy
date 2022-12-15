@@ -1,0 +1,4 @@
+  # start boilerplate/tcp_front-end-security
+  # Send TCP reset to connections on the blocklist
+  tcp-request content reject if { src -f /etc/haproxy/front-end-security/deny-403-ips.lst }
+  # end boilerplate/tcp_front-end-security
