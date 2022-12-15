@@ -1,0 +1,11 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'canary_kas_k8s_proxy',
+  description: 'Targets the KAS K8s proxy fleet consisting only of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'kas'),
+  override_host: nil,
+  source_nodes: ['canary_kas'],
+  fallback_values_from_pool: 'kas',
+  port_override: get_attribute('gitlab-haproxy', flavour, 'kas', 'proxy_port'), # The KAS backend was not added according to spec, so we need to override the port for the k8s proxys.
+  check_port_override: get_attribute('gitlab-haproxy', flavour, 'kas', 'check_port'),
+} -%>

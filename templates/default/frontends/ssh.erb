@@ -1,0 +1,20 @@
+<%= render 'boilerplate/frontend_definition.erb', :variables => {
+  :name => 'ssh',
+  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_port=> get_attribute('gitlab-haproxy', flavour, 'ssh', 'port'),
+  :bind_extra_options => get_attribute('gitlab-haproxy', flavour, 'ssh', 'bind_extra_options'),
+  :skip_availability_acls => true, # no ACL traffic routing, we can skip the availibility acls
+  :certificates => [],
+  :mode => 'tcp',
+  :expect_proxy => 'TCP',
+} -%>
+
+<%= render 'boilerplate/tcp_front-end-security.erb' %>
+
+  stick-table type ipv6 size 1m expire 5m store gpc0,conn_rate(1m) <% if peers.any? %>peers <%= flavour %>-peers <% end %>
+
+  ### Injected custom configuration ###########################################
+<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavour, 'ssh', 'custom_config'), 2) %>
+  ### End injected custom configuration #######################################
+
+  use_backend ssh

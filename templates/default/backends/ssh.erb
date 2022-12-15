@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'ssh',
+  description: 'Targets the SSH fleet with a weighted mixin of canary backends',
+  mode: 'tcp',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'ssh'),
+  override_host: nil,
+  source_nodes: ['ssh'],
+  mixin_nodes: ['canary_ssh'],
+} -%>

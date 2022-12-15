@@ -1,0 +1,29 @@
+<%= render 'boilerplate/frontend_definition.erb', :variables => {
+  :name => 'pages_http',
+  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_port=> 80,
+  :skip_availability_acls => true, # no ACL traffic routing, we can skip the availibility acls
+  :mode => 'http',
+  :minimal => true,
+  :expect_proxy => 'HTTP',
+} -%>
+
+  capture request header Host len 40
+
+<%= render 'boilerplate/http_front-end-security.erb' %>
+  http-request deny if { req.hdr(host) -i -f /etc/haproxy/front-end-security/deny-403-pages-domains.lst }
+
+  <%- if get_attribute('gitlab-haproxy', 'pages', 'enable_domain_rate_limiting') -%>
+  acl mark_seen sc0_inc_gpc0 gt 0
+  acl domain_deny sc0_conn_rate gt <%= get_attribute('gitlab-haproxy', 'pages', 'domain_rate_limit_per_second') %>
+  stick-table type string len 128 size 1m expire 10s store gpc0,conn_rate(1s) peers pages-peers
+  tcp-request content track-sc0 hdr(host)
+  http-request deny if domain_deny mark_seen
+  <%- end -%>
+  capture request header Host len 40
+
+<%= formatted_custom_config(get_attribute('gitlab-haproxy', 'pages', 'http_custom_config'), 2) %>
+
+  acl doc_gitlab_com hdr_beg(host) -i doc.gitlab.com
+  http-request redirect location https://docs.gitlab.com%[path] if doc_gitlab_com
+  use_backend pages_http

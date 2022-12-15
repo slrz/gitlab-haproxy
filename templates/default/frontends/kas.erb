@@ -1,0 +1,30 @@
+<%= render 'boilerplate/frontend_definition.erb', :variables => {
+  :name => 'kas',
+  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_port=> get_attribute('gitlab-haproxy', flavour, 'kas', 'port'),
+  :bind_extra_options => get_attribute('gitlab-haproxy', flavour, 'kas', 'bind_extra_options'),
+  :listen_certificates => [
+    '/etc/haproxy/ssl/kas.pem',
+  ],
+  :mode => 'http',
+  :expect_proxy => 'TCP',
+} -%>
+
+<%= render 'boilerplate/http_front-end-security.erb' %>
+
+  timeout http-request 5s
+
+  stick-table type ipv6 size 1m expire 5m store gpc0,conn_rate(1m) <% if peers.any? %>peers <%= flavour %>-peers <% end %>
+
+  ### Injected custom configuration ###########################################
+<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavour, 'kas', 'custom_config'), 2) %>
+  ### End injected custom configuration #######################################
+
+  acl is_k8s_proxy_path path_beg <%= get_attribute('gitlab-haproxy', flavour, 'kas', 'proxy_endpoint') %>
+  ###############################################################
+  # KAS routing rules
+  # KAS main backends don't have weighted canary routing, like the https frontend.
+  use_backend canary_kas_k8s_proxy if is_k8s_proxy_path canary_opt_in backend_available_canary_kas_k8s_proxy
+  use_backend kas_k8s_proxy if is_k8s_proxy_path
+  use_backend canary_kas if canary_opt_in backend_available_canary_kas
+  use_backend kas

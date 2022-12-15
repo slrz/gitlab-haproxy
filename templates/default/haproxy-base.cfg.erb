@@ -1,0 +1,130 @@
+# HAProxy configuration file (<%= node['hostname'] %>, flavour <%= flavour %>, cookbook version <%= cookbook_version %>)
+# Enabled frontends: <%= enabled_frontends.join(', ') %>
+# check_* frontends: <%= check_frontends.keys.join(', ') %>
+# Enabled backends: <%= enabled_backends.join(', ') %>
+# Certs available: <%= node.run_state['HAP_available_certificates'] %>
+#
+# This file is managed via Chef. Do not edit manually.
+# Template source: haproxy-base.cfg.erb
+
+global
+  # Chef attribute controlled settings ############
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['global']['<config key>'] = '<config value>' | nil to disable
+<% chef_attribute_settings('global').each do |name, value| %>
+  <%= name %> <%= value %>
+<% end %>
+  #################################################
+  tune.listener.multi-queue on      # Traffic is split across all threads a `bind` is allowed to run on, instead of just the main thread.
+  localpeer <%= node['hostname'] %> # ensures HAProxy is not confused who it is when replicating stick-tables across peers
+  node <%= node['hostname'] %>      # Appears throughout interfaces.
+  master-worker no-exit-on-failure  #
+  pidfile /var/run/haproxy.pid      # Required for proper master-worker support.
+
+  # TLS Settings from Mozilla TLS configurator
+  tune.ssl.default-dh-param 2048    # 1024-bit DHE is considered bad practice, and since we are fronted via Cloudflare we do not need to support native connections from Java 6.
+  ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+  ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+  ssl-default-bind-options prefer-client-ciphers ssl-min-ver TLSv1.2 no-tls-tickets
+  maxconn <%= node['gitlab-haproxy']['maxconn'] %>       # HAProxy recommends 1GB RAM / 5000 concurrent TLS connections
+
+  user haproxy
+  group haproxy
+
+  stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+  stats socket ipv4@<%= node['gitlab-haproxy']['api_address'] %>:23646 level admin
+  stats timeout 30s
+
+  daemon
+  log stdout len 4096 format raw daemon # Logs will pass through systemd journal. Rsyslog will still pick them up and throw them into /var/log/haproxy.log though.
+  chroot /var/lib/haproxy
+  ca-base /etc/ssl/certs
+  crt-base /etc/ssl/private
+
+http-errors gitlab-errorcodes
+  errorfile 400 /etc/haproxy/errors/400.http
+  errorfile 403 /etc/haproxy/errors/429.http
+  errorfile 408 /etc/haproxy/errors/400.http
+  errorfile 429 /etc/haproxy/errors/429.http
+  errorfile 500 /etc/haproxy/errors/500.http
+  errorfile 502 /etc/haproxy/errors/502.http
+  errorfile 503 /etc/haproxy/errors/503.http
+  errorfile 504 /etc/haproxy/errors/504.http
+
+defaults
+  # Chef attribute controlled settings ############
+  # Override/set via node['gitlab-haproxy']['config']['<%= flavour %>']['defaults']['<config key>'] = '<config value>' | nil to disable
+  <% chef_attribute_settings('defaults').each do |name, value| %>
+  <%= name %> <%= value %>
+<% end %>
+  #################################################
+
+  log global
+  option dontlognull                  # Don't log requests where no data flowed.
+  option allbackups                   # If no non-backup servers are available, use all backup servers instead of just the first one.
+
+  log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+
+  errorfiles gitlab-errorcodes          # Import the above gitlab-errorcodes section as global errorcodes. (This allows overriding errorcodes on a frontend level)
+  option http-keep-alive                # We want to reuse connections as much as possible
+  timeout http-keep-alive 30s           # A connection can be idle for 30 seconds and be reused for anothe HTTP request.
+  timeout client-fin 5s                 # Close connections in FIN_WAIT after 5 sec.
+  timeout server-fin 2s                 # Close broken connections to backend servers within 2 sec.
+  timeout server 90s                    # from 1h. This timeout specifies the time the server can spend processing the request. No idea why this was 1 hour, but this captures the time between the full request has been sent, and the backend server responding with data. NOT the timeout for a full request. This is overridden for HTTPS-git requests.
+  timeout client 30s                    # from 90s. This is the time spent between the request and the client sending more data (PUT/POST) or starting to receive data. Not the request.
+  timeout connect 5s
+  timeout check 30s
+  maxconn <%= node['gitlab-haproxy']['maxconn'] %>       # HAProxy recommends 1GB RAM / 5000 concurrent TLS connections
+  balance roundrobin
+
+listen stats
+  stats refresh 5s
+  stats show-node <%= node['hostname'] %>
+  http-request use-service prometheus-exporter if { path /metrics } # expose metrics
+  bind <%= node['gitlab-haproxy']['listen_address'] %>:7331 tfo
+  bind 0.0.0.0:9101 tfo  # haproxy_exporter listened on 9101. This is for compatibility.
+  mode http
+  stats enable
+  stats realm Haproxy\ Statistics
+  stats uri /
+  stats auth admin:<%= admin_password %>
+  stats admin if TRUE
+
+<% if peers.any? -%>
+#---------------------------------------------------------------------
+# Sync data between the <%= flavour %> nodes
+#---------------------------------------------------------------------
+peers <%= flavour %>-peers
+  bind 0.0.0.0:32769   # Different port from old HAProxy config, to prevent cross version replication
+  # local peer must not have IP:port config
+  # every other peer must be listed by IP.
+  <% peers.each do |name, network| %>
+  server <%= name %> <%-if node['hostname'] != name-%><%= network %>:32769<%-end-%>
+  <% end %>
+<% end -%>
+
+#---------------------------------------------------------------------
+# Frontend configuration
+#---------------------------------------------------------------------
+
+<% enabled_frontends.each do | frontend_name | %>
+<%= render "frontends/#{frontend_name}.erb", :variables => {
+  :name => frontend_name,
+} %>
+<% end %>
+
+<% check_frontends.each do | check_frontend, cfg | %>
+<%= render 'frontends/check.erb', :variables => {
+  :cfg => cfg,
+  :name => check_frontend,
+} %>
+<% end %>
+
+#---------------------------------------------------------------------
+# Backend configuration
+#---------------------------------------------------------------------
+
+<% enabled_backends.each do | backend_name | %>
+<%= render "backends/#{backend_name}.erb", :variables => {
+  :name => backend_name,
+} %>
+<% end %>

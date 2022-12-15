@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'web',
+  description: 'Targets the web fleet with a weighted mixin of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'web'),
+  override_host: nil,
+  source_nodes: ['web'],
+  mixin_nodes: ['canary_web'],
+} -%>

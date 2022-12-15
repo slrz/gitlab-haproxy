@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'kas',
+  description: 'Targets the KAS fleet WITHOUT a weighted mixin of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'kas'),
+  override_host: nil,
+  source_nodes: ['kas'],
+  check_port_override: get_attribute('gitlab-haproxy', flavour, 'kas', 'check_port'),
+} -%>

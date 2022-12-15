@@ -4,12 +4,11 @@
 
 control 'haproxy-config-checks' do
   impact 1.0
-  title 'Tests Haroxy settings for frontend'
+  title 'Basic health checks for HAProxy (pages flavour)'
   desc '
     This control ensures that:
-      * correct ports are used
-      * correct frontend is used
-      * correct backends are used'
+      * correct ports are bound'
+
   # stats
   describe port(7331) do
     its('processes') { should eq ['haproxy'] }
@@ -29,9 +28,5 @@ control 'haproxy-config-checks' do
     its('processes') { should eq ['haproxy'] }
     its('addresses') { should eq ['0.0.0.0'] }
     its('protocols') { should eq ['tcp'] }
-  end
-
-  describe file('/etc/haproxy/haproxy.cfg') do
-    its('mode') { should cmp '0600' }
   end
 end

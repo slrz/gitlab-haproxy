@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'pages_http',
+  description: 'Targets the pages fleet with a weighted mixin of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour), # The health_check is one level up for pages
+  source_nodes: ['pages'],
+  mixin_nodes: ['canary_pages'],
+  port_override: get_attribute('gitlab-haproxy', flavour, 'http_backend_listen_port') # The Pages backend was not added according to spec, so we need to override the port for the HTTP endpoints for pages.
+} -%>

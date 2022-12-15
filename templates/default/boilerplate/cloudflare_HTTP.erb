@@ -1,0 +1,4 @@
+  # start boilerplate/cloudflare_HTTP
+  # Set the current requests source address (only behaves as expected in HAProxy 2.5+!)
+  http-request set-src hdr(CF-Connecting-IP) if { src -f /etc/haproxy/cloudflare_ips_v4.lst -f /etc/haproxy/cloudflare_ips_v6.lst } { req.hdr(CF-Connecting-IP) -m found }
+  # end boilerplate/cloudflare_HTTP

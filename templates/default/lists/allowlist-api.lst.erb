@@ -1,0 +1,9 @@
+#---------------------------------------------------------------------
+# Allowlisted IP Address Blocks for External API Usage
+#---------------------------------------------------------------------
+<% if node['gitlab-haproxy']['frontend']['allowlist']['api'].any? -%>
+    <% node['gitlab-haproxy']['frontend']['allowlist']['api'].each do |network, comment| %>
+# <%= comment %>
+<%= network %>
+    <% end %>
+<% end -%>

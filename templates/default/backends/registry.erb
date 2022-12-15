@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'registry',
+  description: 'Targets the registry fleet with a weighted mixin of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavour, 'health_check'), # We use a new HTTP check
+  override_host: nil,
+  source_nodes: ['registry'],
+  mixin_nodes: ['canary_registry'],
+} -%>

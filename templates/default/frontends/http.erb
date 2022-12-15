@@ -1,0 +1,14 @@
+<%= render 'boilerplate/frontend_definition.erb', :variables => {
+  :name => 'http',
+  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_port=> 80,
+  :bind_extra_options => '',
+  :skip_availability_acls => true, # no routing, so we can skip the acl generation
+  :certificates => [], # Empty certificates == no ssl binding,
+  :mode => 'http',
+  :expect_proxy => 'HTTP',
+} -%>
+
+  http-request deny if { src -f /etc/haproxy/front-end-security/deny-403-ips.lst }
+  http-request redirect code 307 location https://gitlab.com%[capture.req.uri] if { hdr(host) -i www.gitlab.com }
+  http-request redirect scheme https code 307
