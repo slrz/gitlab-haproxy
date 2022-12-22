@@ -103,6 +103,15 @@ default['gitlab-haproxy']['registry']['health_check']['httpchk_path'] = '/v2/'
 default['gitlab-haproxy']['registry']['health_check']['httpchk_status'] = '200-299,401'
 default['gitlab-haproxy']['registry']['health_check']['tcp_check_enable'] = false
 
+# Explicit overrides to fix issues with default attributes.
+# TODO: Move to `default` in https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/868
+# Once attributes from `frontend` are merged into `main` (what the `temporary_hacks` recipe is doing on the fly now)
+# this can just become the `default` config, so we do not need to override this via `normal` anymore.
+normal['gitlab-haproxy']['main']['ssh']['check_opts'] = 'no-ssl'
+normal['gitlab-haproxy']['main']['ssh']['ssl_verify'] = 'no-ssl'
+normal['gitlab-haproxy']['main']['ssh']['tcp_check_enable'] = true
+normal['gitlab-haproxy']['main']['ssh']['tcp_check_string'] = 'SSH-2.0'
+
 ############## Old/inherited attributes below!
 
 default['gitlab-haproxy']['major-version'] = 'haproxy-1.8' # legacy
