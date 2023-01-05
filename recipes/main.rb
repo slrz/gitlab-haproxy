@@ -31,7 +31,7 @@ if node['lsb']['codename'] == 'bionic'
       admin_password: node.run_state['HAP_secrets']['admin_password'],
       use_internal: true,
       use_canary: true,
-      use_ci_gateway: true,
+      use_ci_gateway: node['gitlab-haproxy']['ci-gateway']['enabled'],
       enforce_cf_origin_pull: true,
       https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port'],
       https_git_acl_format: node['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] ? 'verbose' : 'condensed',
