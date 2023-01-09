@@ -85,7 +85,7 @@ module Gitlab
       flavored_attrs = get_attribute('gitlab-haproxy', @@flavor) || {}
       ssl = "#{flavored_attrs.dig(backend_name, 'ssl_verify') || flavored_attrs['ssl_verify']}".squeeze(' ').strip
       fallback_ssl = "#{flavored_attrs.dig(fallback_name, 'ssl_verify') || flavored_attrs['ssl_verify']}".squeeze(' ').strip
-      if ssl.start_with?('ssl')
+      if ssl.start_with?('ssl') || ssl.start_with?('no-ssl')
         ssl
       else
         fallback_ssl.start_with?('ssl') ? fallback_ssl : 'no-ssl'

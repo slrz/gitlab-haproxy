@@ -109,7 +109,7 @@ control 'haproxy-flavor-checks' do
       should include 'frontend check_https
   bind 0.0.0.0:8002 tfo
   mode http',
-  'monitor-uri /-/available-https
+                     'monitor-uri /-/available-https
   monitor fail if !backend_available_web !backend_available_api'
     end
 
@@ -136,12 +136,12 @@ control 'haproxy-flavor-checks' do
                'server shell-gke-us-east1-b 10.221.13.40:2222 weight 100 send-proxy-v2',
                # Check that websockets are cookie bound
                'server ws-gke-us-east1-b 10.221.13.19:8181 weight 100 cookie ws-gke-us-east1-b',
-                     # Check the general template. This includes:
-                     # - dedupe of check opts and ssl opts
-                     # - weight & backup assignment
-                     #
-                     # - health check in new format
-                     'option httpchk
+               # Check the general template. This includes:
+               # - dedupe of check opts and ssl opts
+               # - weight & backup assignment
+               #
+               # - health check in new format
+               'option httpchk
   http-check send meth GET uri /-/k8s/api/-/readiness hdr Host gitlab.com
   default-server check check-ssl inter 3s fastinter 1s downinter 5s fall 3
   default-server ssl verify none
@@ -155,7 +155,14 @@ control 'haproxy-flavor-checks' do
                # Validates the TCP check variant of the healthcheck
                'option tcp-check
   default-server check inter 3s fastinter 1s downinter 5s fall 3
-  default-server ssl verify none')
+  default-server no-ssl
+  # node pool \'canary_https_git\'',
+               # Validates the SSH-2.0 TCP check variant
+               'option tcp-check
+  tcp-check expect string "SSH-2.0"
+  default-server check no-ssl inter 3s fastinter 1s downinter 5s fall 3
+  default-server no-ssl
+  # node pool \'ssh\'')
     end
   end
 end
