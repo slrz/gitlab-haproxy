@@ -10,6 +10,12 @@ apt_update do
   action :update
 end
 
+if node['lsb']['codename'] != 'bionic'
+  node.default['apt']['unattended_upgrades']['origins_patterns'] += [
+    'o=LP-PPA-vbernat-haproxy-2.6',
+  ]
+end
+
 include_recipe 'gitlab-haproxy::internal_0_temporary_hacks'
 include_recipe 'apt::unattended-upgrades'
 

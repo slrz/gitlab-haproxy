@@ -106,6 +106,10 @@ control 'general-haproxy-checks' do
         it { should be_file }
       end
     end
+
+    describe file('/etc/apt/apt.conf.d/50unattended-upgrades') do
+      its('content') { should include 'o=LP-PPA-vbernat-haproxy-2.6' }
+    end
   end
 end
 
