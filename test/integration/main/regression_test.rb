@@ -571,7 +571,6 @@ control 'haproxy-main-regression-check' do
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive 30s
-    timeout server-fin 5s
     timeout server 1h
     timeout tunnel 2h
     option httpchk GET /liveness HTTP/1.1\r\nHost:\ kas.gitlab.com
@@ -585,7 +584,6 @@ control 'haproxy-main-regression-check' do
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive 30s
-    timeout server-fin 5s
     timeout server 1h
     timeout tunnel 2h
     option httpchk GET /liveness HTTP/1.1\r\nHost:\ kas.gitlab.com
@@ -599,7 +597,6 @@ control 'haproxy-main-regression-check' do
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive 30s
-    timeout server-fin 5s
     timeout server 1h
     timeout tunnel 2h
     option httpchk GET /liveness HTTP/1.1\r\nHost:\ kas.gitlab.com
@@ -613,7 +610,6 @@ control 'haproxy-main-regression-check' do
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive 30s
-    timeout server-fin 5s
     timeout server 1h
     timeout tunnel 2h
     option httpchk GET /liveness HTTP/1.1\r\nHost:\ kas.gitlab.com
