@@ -631,7 +631,6 @@ backend kas
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
 <%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -646,7 +645,6 @@ backend kas_k8s_proxy
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
 <%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -661,7 +659,6 @@ backend canary_kas
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
 <%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
@@ -676,7 +673,6 @@ backend canary_kas_k8s_proxy
     option http-keep-alive
     no option http-pretend-keepalive
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
-    timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
 <%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
