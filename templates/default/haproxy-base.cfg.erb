@@ -93,6 +93,7 @@ listen stats
 #---------------------------------------------------------------------
 # Sync data between the <%= flavor %> nodes
 #---------------------------------------------------------------------
+
 peers <%= flavor %>-peers
   bind 0.0.0.0:32769   # Different port from old HAProxy config, to prevent cross version replication
   # local peer must not have IP:port config

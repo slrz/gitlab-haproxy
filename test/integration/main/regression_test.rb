@@ -653,7 +653,7 @@ control 'haproxy-main-regression-check' do
       should include 'backend ci_gateway_catch_all
     mode http
     # Code 307 is important as it hints to the client to redirect keeping the original method,
-    # necessary for requests like POST /api/v4/jobs/:id/artifacts which won\'t be captured by the frontend.
+    # necessary for requests like POST /api/v4/jobs/:id/artifacts which will not be captured by the frontend.
     http-request redirect code 307 location https://gitlab.com%[capture.req.uri]'
     end
     its('content') do
