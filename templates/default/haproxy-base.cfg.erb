@@ -95,9 +95,9 @@ listen stats
 #---------------------------------------------------------------------
 
 peers <%= flavor %>-peers
-  bind 0.0.0.0:32769   # Different port from old HAProxy config, to prevent cross version replication
-  # local peer must not have IP:port config
-  # every other peer must be listed by IP.
+  bind 0.0.0.0:32769  # Different port from old HAProxy config, to prevent cross version replication
+  # The local peer must not have ip:port config while the rest of peers must include ip:port
+  # See http://docs.haproxy.org/2.7/configuration.html#3.5-server
   <% peers.each do |name, network| %>
   server <%= name %> <%-if node['hostname'] != name-%><%= network %>:32769<%-end-%>
   <% end %>
