@@ -10,9 +10,9 @@
 global
   # Chef attribute controlled settings ############
   # Override/set via node['gitlab-haproxy']['config']['<%= flavor %>']['global']['<config key>'] = '<config value>' | nil to disable
-<% chef_attribute_settings('global').each do |name, value| %>
+  <% chef_attribute_settings('global').each do |name, value| %>
   <%= name %> <%= value %>
-<% end %>
+  <% end %>
   #################################################
   tune.listener.multi-queue on      # Traffic is split across all threads a `bind` is allowed to run on, instead of just the main thread.
   localpeer <%= node['hostname'] %> # ensures HAProxy is not confused who it is when replicating stick-tables across peers
@@ -39,6 +39,10 @@ global
   chroot /var/lib/haproxy
   ca-base /etc/ssl/certs
   crt-base /etc/ssl/private
+
+  <% if node['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] %>
+  lua-load /etc/haproxy/scripts/ci-gateway-redirect.lua
+  <% end %>
 
 http-errors gitlab-errorcodes
   errorfile 400 /etc/haproxy/errors/400.http

@@ -72,4 +72,12 @@ if node['lsb']['codename'] != 'bionic'
     helpers(Gitlab::TemplateHelpers)
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
+
+  template '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
+    source 'ci-gateway-redirect.lua.erb'
+    mode '0600'
+    helpers(Gitlab::TemplateHelpers)
+    notifies :run, 'execute[test-haproxy-config]', :delayed
+    only_if { node['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] }
+  end
 end
