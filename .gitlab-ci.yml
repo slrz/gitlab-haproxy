@@ -67,6 +67,7 @@ test-kitchen:
           - ubuntu-20
 
 push-cookbook:
+  image: ruby:2.6
   stage: publish
   only:
     refs:
