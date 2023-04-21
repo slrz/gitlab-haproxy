@@ -11,51 +11,41 @@ stages:
 
 before_script:
   - eval $(ssh-agent -s)
-  - ssh-add <(echo $CI_PRIVATE_KEY |base64 -d)
+  - ssh-add <(echo $CI_PRIVATE_KEY | base64 -d)
   - mkdir -p ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq libsodium-dev
   - make gems
 
+.ruby-cache:
+  cache:
+    key: "ruby-3.2"
+    paths:
+      - $BUNDLE_PATH
+
+## The ChefSpec tests are useless now, because the kitchen.yml represents a production environment, which the tests did not cover.
+## There will be InSpec tests for regression testing for the 18.04 instances to make sure they do not diverge from the expected state.
+# rspec:
+#   extends: .ruby-cache
+#   stage: tests
+#   script:
+#     - make rspec
+#   only:
+#    variables:
+#       - $CI_PRIVATE_KEY
+
 cookstyle:
+  extends: .ruby-cache
   stage: tests
   script:
     - bundle exec cookstyle
 
-# The ChefSpec tests are useless now, because the kitchen.yml represents a production environment, which the tests did not cover.
-# There will be InSpec tests for regression testing for the 18.04 instances to make sure they do not diverge from the expected state.
-#rspec-test-job:
-#  stage: tests
-#  cache:
-#    paths:
-#      - $BUNDLE_PATH
-#  script:
-#    - make rspec
-#  only:
-#    variables:
-#      - $CI_PRIVATE_KEY
-
-.kitchen_template:
+kitchen:
+  extends: .ruby-cache
   stage: tests
   retry: 2
-  artifacts:
-    expire_in: '2d'
-    when: always
-    paths:
-      - .kitchen/
-    reports:
-      junit: .kitchen/*_inspec.xml
-  cache:
-    paths:
-      - $BUNDLE_PATH
   script:
     - make kitchen KITCHEN_SUITE=haproxy-$FLAVOR-$PLATFORM
-  only:
-    variables:
-      - $CI_PRIVATE_KEY
-
-test-kitchen:
-  extends: .kitchen_template
   parallel:
     matrix:
       - FLAVOR:
@@ -65,6 +55,16 @@ test-kitchen:
         PLATFORM:
           - ubuntu-18
           - ubuntu-20
+  artifacts:
+    expire_in: '2d'
+    when: always
+    paths:
+      - .kitchen/
+    reports:
+      junit: .kitchen/*_inspec.xml
+  only:
+    variables:
+      - $CI_PRIVATE_KEY
 
 push-cookbook:
   image: ruby:2.7
