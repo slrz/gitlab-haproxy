@@ -23,7 +23,7 @@ control 'haproxy-pages-regression-check' do
     maxconn 40000 # raising in the defaults without raising global makes no sense (!!)
     nbproc 1
     nbthread 8
-    hard-stop-after 10m
+    hard-stop-after 20m
     server-state-file /etc/haproxy/state/global
 
     # Default SSL material locations

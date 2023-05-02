@@ -84,7 +84,7 @@ suites:
           nbthread: 8
           hard-stop:
             enable: true
-            timeout: 10m
+            timeout: 20m
         delay_speed_ms: '1000'
         timeout_connect: '5000'
         timeout_check: '30000'
@@ -491,7 +491,7 @@ suites:
           nbthread: 8
           hard-stop:
             enable: true
-            timeout: 10m
+            timeout: 20m
         delay_speed_ms: '1000'
         timeout_connect: '5000'
         timeout_check: '30000'
@@ -832,7 +832,7 @@ suites:
           nbthread: 4
           hard-stop:
             enable: true
-            timeout: 10m
+            timeout: 20m
         delay_speed_ms: '1000'
         timeout_connect: '5000'
         timeout_check: '30000'

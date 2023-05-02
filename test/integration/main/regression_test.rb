@@ -24,7 +24,7 @@ control 'haproxy-main-regression-check' do
     spread-checks 2
     nbproc 1
     nbthread 8
-    hard-stop-after 10m
+    hard-stop-after 20m
     server-state-file /etc/haproxy/state/global
 
     # Default SSL material locations

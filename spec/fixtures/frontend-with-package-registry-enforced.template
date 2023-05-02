@@ -12,7 +12,7 @@ global
     spread-checks 2
     nbproc 1
     nbthread 1
-    hard-stop-after 10m
+    hard-stop-after 20m
     server-state-file /etc/haproxy/state/global
 
     # Default SSL material locations
