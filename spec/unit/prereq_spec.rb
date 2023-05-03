@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe 'gitlab-haproxy::prerequisites' do
   context 'prerequisites execution' do
-    node.chef_environment = 'gstg'
     before do
       mock_secrets_path = 'test/integration/data_bags/secrets/certs.json'
       secrets = JSON.parse(File.read(mock_secrets_path))
