@@ -29,16 +29,25 @@ end
 
 # rubocop:disable Chef/Modernize # Chef 15 adds helpers cookstyle wants to use here
 node.default['gitlab-haproxy']['secrets'] = {
-  backend: 'gkms',
-  path: {
-    path: "gitlab-#{env}-secrets/frontend-loadbalancer",
-    item: "#{env}.enc",
-  },
-  key: {
-    ring: 'gitlab-secrets',
-    key: env,
-    location: 'global',
-  },
+  if env == 'gstg'
+    backend: 'hashicorp_vault',
+    path: {
+      path: "env/#{env}/cookbook/gitlab-haproxy/frontend-loadbalancer",
+      mount: 'chef',
+    },
+    key: "",
+  else
+    backend: 'gkms',
+    path: {
+      path: "gitlab-#{env}-secrets/frontend-loadbalancer",
+      item: "#{env}.enc",
+    },
+    key: {
+      ring: 'gitlab-secrets',
+      key: env,
+      location: 'global',
+    },
+  end
 } if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
 
 # The run_state is a global hash, but it's never saved anywhere.
