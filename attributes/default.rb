@@ -121,9 +121,8 @@ default['gitlab-haproxy']['systemd_service_overrides']['enable'] = true # legacy
 default['gitlab-haproxy']['drain_time_seconds'] = 600 # legacy
 default['gitlab-haproxy']['systemd_timeout_stop_seconds'] = (node['gitlab-haproxy']['drain_time_seconds'] * 1.25).to_i # legacy
 
-default['gitlab-haproxy']['secrets']['backend'] = 'chef_vault'
+default['gitlab-haproxy']['secrets']['backend'] = 'hashicorp_vault'
 default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'
-default['gitlab-haproxy']['secrets']['key'] = '_default'
 
 default['gitlab-haproxy']['errors']['503']['title'] = 'An internal server error occured.'
 default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please see our <a href="https://status.gitlab.com">status page</a> for more information.'
