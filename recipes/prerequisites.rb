@@ -34,8 +34,7 @@ node.default['gitlab-haproxy']['secrets'] = {
     path: {
       path: "env/#{env}/cookbook/gitlab-haproxy/frontend-loadbalancer",
       mount: 'chef',
-    },
-    key: "",
+    }
   else
     backend: 'gkms',
     path: {
