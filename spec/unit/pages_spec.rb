@@ -116,7 +116,7 @@ describe 'gitlab-haproxy::pages' do
 
     it 'includes the hard-stop timeout' do
       expect(chef_run).to render_file('/etc/haproxy/haproxy.cfg').with_content { |content|
-        expect(content).to include('hard-stop-after 10m')
+        expect(content).to include('hard-stop-after 20m')
       }
     end
   end
