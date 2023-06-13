@@ -23,6 +23,14 @@ include_recipe 'gitlab-haproxy::install'
 if node['lsb']['codename'] == 'bionic'
   # Compatibility with old deployments. This will be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
 
+  template '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
+    source 'ci-gateway-redirect.lua.erb'
+    mode '0600'
+    helpers(Gitlab::TemplateHelpers)
+    notifies :run, 'execute[test-haproxy-config]', :delayed
+    only_if { node['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] }
+  end
+
   node.default['gitlab-haproxy']['close_client_connections'] = true
   template '/etc/haproxy/haproxy.cfg' do
     source 'haproxy-frontend.cfg.erb'
