@@ -6,26 +6,32 @@
 #
 # License: MIT
 #
-# This will be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
+# TODO: Remove after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
+#
 
-# Remove me after moving around the attributes in roles:
+# TODO: Remove these lines after renaming the blacklist and whitelist attributes in Chef roles.
 node.default['gitlab-haproxy']['frontend']['blocklist']['uri'] = node['gitlab-haproxy']['frontend']['blacklist']['uri']
 node.default['gitlab-haproxy']['frontend']['allowlist']['internal'] = node['gitlab-haproxy']['frontend']['whitelist']['internal']
 node.default['gitlab-haproxy']['frontend']['allowlist']['api'] = node['gitlab-haproxy']['frontend']['whitelist']['api']
 node.default['gitlab-haproxy']['frontend']['https']['rate_limit_allowlist'] = node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist']
 node.default['gitlab-haproxy']['config']['default']['global']['hard-stop-after'] = node['gitlab-haproxy']['global']['hard-stop']['timeout']
 
-# Pages does not have their own check config, but the old HAP config just used the one from the main:
-# Fix this in roles!
+# Pages flavour does not have its own check config, we need to reuse the one from main falvour.
+# FIXME: Add a check config for pages flavour in its Chef roles.
 node.default['gitlab-haproxy']['pages']['default_check_opts'] = node['gitlab-haproxy']['frontend']['default_check_opts']
 
 if node['lsb']['codename'] == 'bionic'
-  # Compatibility with old deployments. This will be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-
-  # Considering we are running a dedicated PPA with just a 2.6 LTS release, and HAProxy 2.6 properly does hitless restarts
-  # Thanks to process management implemented in HAP 2.0, it's safe to update patch versions. Also required for security fixes, which in the past we did not install...
+  # We are running a dedicated PPA with just a 2.6 LTS release and HAProxy 2.6 properly does hitless restarts
+  # Thanks to process management implemented in HAProxy 2.0, it's safe to update patch versions.
+  # Also required for security fixes, which in the past we did not install.
   node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'
+end
 
+# This block generates the old configs.
+# We may still need to use the old configurations on new HAProxy 2.6 nodes.
+# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.6.
+# See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
+if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config']
   # In case we wanted to support more cipher suites without copying the existing default one.
   unless (extra_ciphers = node['gitlab-haproxy']['global']['extra-default-bind-ciphers']).empty?
     node.default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'].prepend(extra_ciphers + ':')
