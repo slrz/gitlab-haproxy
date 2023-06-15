@@ -6,4 +6,5 @@
 #
 # License: MIT
 #
-# This recipe does nothing, but is kept for compatibility.
+# This recipe does nothing. It is only kept for compatibility.
+#

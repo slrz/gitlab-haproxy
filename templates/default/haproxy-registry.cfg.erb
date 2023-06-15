@@ -10,14 +10,16 @@ global
     daemon
     maxconn 50000
     spread-checks 2
+    <% if node['lsb']['codename'] == 'bionic' %>
     nbproc 1
+    <% end %>
     nbthread <%= node['gitlab-haproxy']['global']['nbthread'] %>
-<% if node['gitlab-haproxy']['global']['hard-stop']['enable'] %>
+    <% if node['gitlab-haproxy']['global']['hard-stop']['enable'] %>
     hard-stop-after <%= node['gitlab-haproxy']['global']['hard-stop']['timeout'] %>
-<% end %>
-<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    <% end %>
+    <% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
     server-state-file /etc/haproxy/state/global
-<% end %>
+    <% end %>
     # Default SSL material locations
     ca-base /etc/ssl/certs
     crt-base /etc/ssl/private
@@ -25,8 +27,12 @@ global
     # Default ciphers to use on SSL-enabled listening sockets.
     # For more information, see ciphers(1SSL).
     ssl-default-bind-ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:!TLS_RSA_WITH_AES_256_GCM_SHA384:!TLS_RSA_WITH_AES_256_CBC_SHA:!TLS_RSA_WITH_AES_256_CBC_SHA256:!TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:!TLS_RSA_WITH_AES_128_GCM_SHA256:!TLS_RSA_WITH_AES_128_CBC_SHA:!TLS_RSA_WITH_AES_128_CBC_SHA256:!TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!3DES
+    <% if node['lsb']['codename'] == 'bionic' %>
     # Keep DH params size at 1024 for Java 6 HTTPS clients
     tune.ssl.default-dh-param 1024
+    <% else %>
+    tune.ssl.default-dh-param 2048
+    <% end %>
 
 defaults
     log global
@@ -48,12 +54,16 @@ defaults
     errorfile 502 /etc/haproxy/errors/502.http
     errorfile 503 /etc/haproxy/errors/503.http
     errorfile 504 /etc/haproxy/errors/504.http
-<% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
+    <% if node['gitlab-haproxy']['systemd_service_overrides']['enable'] %>
     load-server-state-from-file global
-<% end %>
+    <% end %>
 
 listen stats
     bind <%= node['gitlab-haproxy']['listen_address'] %>:7331
+    <% if node['lsb']['codename'] != 'bionic' %>
+    bind <%= node['gitlab-haproxy']['listen_address'] %>:9101
+    http-request use-service prometheus-exporter if { path /metrics }
+    <% end %>
     mode http
     stats enable
     stats hide-version
@@ -66,6 +76,7 @@ listen stats
 #---------------------------------------------------------------------
 # Sync data between the registry nodes
 #---------------------------------------------------------------------
+
 peers registry-peers
     <% node['gitlab-haproxy']['registry']['peers']['servers'].each do |name, network| %>
     peer <%= name %> <%= network[0] %>:<%= network[1] %>
@@ -75,6 +86,7 @@ peers registry-peers
 #---------------------------------------------------------------------
 # Frontend configuration
 #---------------------------------------------------------------------
+
 frontend http
     bind <%= node['gitlab-haproxy']['listen_address'] %>:80
     mode http

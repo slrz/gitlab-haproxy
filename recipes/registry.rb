@@ -5,16 +5,18 @@
 # Copyright:: (C) 2022 GitLab Inc.
 #
 # License: MIT
+#
 
 node.default['gitlab-haproxy']['flavor'] = 'registry'
 include_recipe 'gitlab-haproxy::prerequisites'
 
 include_recipe 'gitlab-haproxy::install'
 
-if node['lsb']['codename'] == 'bionic'
-  # Compatibility with old deployments. This will be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-
-  # we are only passing in the secrets as variables
+# This block generates the old configs.
+# We may still need to use the old configurations on new HAProxy 2.6 nodes.
+# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.6.
+# See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
+if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config']
   template '/etc/haproxy/haproxy.cfg' do
     source 'haproxy-registry.cfg.erb'
     mode '0600'
@@ -27,6 +29,22 @@ if node['lsb']['codename'] == 'bionic'
         node.to_h.dig('gce', 'instance', 'zone')
       )
     )
+    helpers(Gitlab::TemplateHelpers)
+    notifies :run, 'execute[test-haproxy-config]', :delayed
+  end
+else # node['lsb']['codename'] != 'bionic' && !node['gitlab-haproxy']['use_old_config']
+  Gitlab::TemplateHelpers.initialize(node)
+
+  # Because chef code is run at compile time, we need to run this in a runtime block and save it to the run_state.
+  ruby_block 'get available certificates' do
+    block do
+      node.run_state['HAP_available_certificates'] = Dir.glob('/etc/haproxy/ssl/*.pem')
+    end
+  end
+
+  template '/etc/haproxy/haproxy.cfg' do
+    source 'haproxy-base.cfg.erb'
+    mode '0600'
     helpers(Gitlab::TemplateHelpers)
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
