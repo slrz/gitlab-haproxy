@@ -20,14 +20,6 @@ provisioner:
   always_update_cookbooks: false # Override the default for kitchen 2.0+, otherwise new upstream cookbooks will be pulled in that might require chef > 14
 
 platforms:
-  - name: ubuntu-18-04-x64
-    driver:
-      image_project: ubuntu-os-cloud
-      image_family: ubuntu-1804-lts
-      metadata:
-        application: ubuntu
-        release: a
-        version: 1804
   - name: ubuntu-20-04-x64
     driver:
       image_project: ubuntu-os-cloud
