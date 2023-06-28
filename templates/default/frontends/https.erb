@@ -27,7 +27,6 @@
   acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
 <% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
-  acl is_websocket path_end -i .ws
   acl is_api_request path_beg -i /api/
   acl is_jwt_auth_request path -i /jwt/auth
   acl is_asset_request path_beg /assets/
