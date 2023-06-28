@@ -127,8 +127,7 @@ control 'haproxy-main-regression-check' do
     # https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.xhtml
     acl is_ipv6 src 2000::/3
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
-    acl is_socket_upg hdr(Upgrade) -i WebSocket
-    acl is_socket_path path_end -i .ws
+    acl is_websocket hdr(Upgrade) -i WebSocket
     acl is_gitlab_com_api path_beg -i /api/
     acl is_gitlab_com_ci_artifacts_api path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\/)
     acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
@@ -247,7 +246,7 @@ control 'haproxy-main-regression-check' do
 
     ###############################################################
     # Websockets routing rules
-    use_backend websockets if is_socket_upg or is_socket_path
+    use_backend websockets if is_websocket
     ###############################################################
 
     ###############################################################
