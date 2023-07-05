@@ -14,15 +14,17 @@ raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::
 # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
 if node['lsb']['codename'] == 'bionic'
   apt_repository 'haproxy' do
-    uri "ppa:vbernat/#{node['gitlab-haproxy']['major-version']}"
+    uri         "ppa:vbernat/#{node['gitlab-haproxy']['major-version']}"
+    components  ['main', 'main/debug']
   end
 
-  package 'hatop' # This is an ancient version (0.7.7) from 2010
+  # This is an ancient version (0.7.7) from 2010
+  package 'hatop'
 else
-  # Install HAProxy 2.6 LTS.
-  # Supported until April 2027
+  # Install HAProxy 2.6 LTS. Supported until April 2027
   apt_repository 'haproxy' do
-    uri 'ppa:vbernat/haproxy-2.6'
+    uri         'ppa:vbernat/haproxy-2.6'
+    components  ['main', 'main/debug']
   end
 
   # Required as hatop only invokes `python` and ubuntu ships with `python3`.
@@ -55,6 +57,8 @@ package 'haproxy' do
   # TODO: This may not be necessary on Ubuntu 20.04, as we log through systemd to rsyslog
   notifies :restart, 'service[rsyslog]', :delayed
 end
+
+package 'haproxy-dbgsym'
 
 execute 'test-haproxy-config' do
   command 'haproxy -c -f /etc/haproxy/haproxy.cfg'
