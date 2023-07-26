@@ -208,6 +208,11 @@ control 'haproxy-main-regression-check' do
     use_backend asset_proxy if is_asset_path !no_be_srvs_asset_proxy
 
     ###############################################################
+    # AI Assisted routing rules
+    use_backend ai_assisted if is_gitlab_com_ai_assisted
+    ###############################################################
+
+    ###############################################################
     # API routing rules for whitelisted hosts that
     # bypass rate limiting
     use_backend api if is_gitlab_com_ci_artifacts_api
@@ -248,11 +253,6 @@ control 'haproxy-main-regression-check' do
     ###############################################################
     # Websockets routing rules
     use_backend websockets if is_websocket
-    ###############################################################
-
-    ###############################################################
-    # AI Assisted routing rules
-    use_backend ai_assisted if is_gitlab_com_ai_assisted
     ###############################################################
 
     ###############################################################
