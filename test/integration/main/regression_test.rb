@@ -129,6 +129,7 @@ control 'haproxy-main-regression-check' do
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_websocket hdr(Upgrade) -i WebSocket
     acl is_gitlab_com_api path_beg -i /api/
+    acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/completions/
     acl is_gitlab_com_ci_artifacts_api path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\/)
     acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
     acl is_ancient_ci_runner path_beg -i /ci/api/
@@ -247,6 +248,11 @@ control 'haproxy-main-regression-check' do
     ###############################################################
     # Websockets routing rules
     use_backend websockets if is_websocket
+    ###############################################################
+
+    ###############################################################
+    # AI Assisted routing rules
+    use_backend ai_assisted if is_gitlab_com_ai_assisted
     ###############################################################
 
     ###############################################################
@@ -640,6 +646,10 @@ control 'haproxy-main-regression-check' do
     server ws-gke-us-east1-c 10.221.14.26:8181 weight 100 check port 8181 inter 3s fastinter 1s downinter 5s fall 3  cookie ws-gke-us-east1-c backup
     server ws-gke-us-east1-d 10.221.15.37:8181 weight 100 check port 8181 inter 3s fastinter 1s downinter 5s fall 3  cookie ws-gke-us-east1-d backup
     server gke-cny-ws 10.216.8.15:8181 weight 5 check port 8181 inter 3s fastinter 1s downinter 5s fall 3  cookie gke-cny-ws'
+    end
+    its('content') do
+      should include 'backend ai_assisted
+    mode http'
     end
     its('content') do
       should include 'backend 429_slow_down

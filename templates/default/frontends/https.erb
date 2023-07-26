@@ -28,6 +28,7 @@
 <% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
   acl is_api_request path_beg -i /api/
+  acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/completions/
   acl is_jwt_auth_request path -i /jwt/auth
   acl is_asset_request path_beg /assets/
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
@@ -98,6 +99,11 @@
   ###############################################################
   # Websockets routing rules
   use_backend websockets if is_websocket
+
+  ###############################################################
+  # AI Assisted routing rules
+  use_backend ai_assisted if is_gitlab_com_ai_assisted
+  ###############################################################
 
   ###############################################################
   # Web routing rules

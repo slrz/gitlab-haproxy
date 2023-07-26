@@ -7,7 +7,7 @@ default['gitlab-haproxy']['flavor'] = nil # This determines whether it will beco
 default['gitlab-haproxy']['use_old_config'] = false
 
 # This is a list of enabled backends. This means they are present in the rendered configuration, not necessarily that there is traffic routed towards them.
-default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 
@@ -292,6 +292,13 @@ default['gitlab-haproxy']['frontend']['websockets']['httpchk_host'] = 'gitlab.co
 default['gitlab-haproxy']['frontend']['websockets']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['websockets']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['websockets']['ssl_verify'] = 'ssl verify none'
+default['gitlab-haproxy']['frontend']['ai_assisted']['servers'] = {}
+default['gitlab-haproxy']['frontend']['ai_assisted']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['ai_assisted']['tcp_check_enable'] = false
+default['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_path'] = '/-/health'
+default['gitlab-haproxy']['frontend']['ai_assisted']['server_port'] = '443'
+default['gitlab-haproxy']['frontend']['ai_assisted']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['api_rate_limit']['custom_config'] = [] # legacy
 default['gitlab-haproxy']['frontend']['api_rate_limit']['enforced'] = true # legacy
 default['gitlab-haproxy']['frontend']['api_rate_limit']['package_registry_enforced'] = false # legacy

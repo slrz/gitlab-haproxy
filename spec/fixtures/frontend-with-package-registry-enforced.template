@@ -105,6 +105,7 @@ frontend https
     acl is_www_gitlab_com hdr(host) -i www.gitlab.com
     acl is_websocket hdr(Upgrade) -i WebSocket
     acl is_gitlab_com_api path_beg -i /api/
+    acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/completions/
     acl is_gitlab_com_ci_artifacts_api path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\/)
     acl is_gitlab_com_internal_api path_reg -i ^\/api\/v\d\/internal\/pages($|\/)
     acl is_ancient_ci_runner path_beg -i /ci/api/
@@ -197,6 +198,11 @@ frontend https
     ###############################################################
     # Websockets routing rules
     use_backend websockets if is_websocket
+    ###############################################################
+
+    ###############################################################
+    # AI Assisted routing rules
+    use_backend ai_assisted if is_gitlab_com_ai_assisted
     ###############################################################
 
     ###############################################################
@@ -422,6 +428,16 @@ backend websockets
     option httpchk GET /-/health HTTP/1.1\r\nHost:\ gitlab.com
     server web01.stg.gitlab.com 127.0.0.1:443 weight 100 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none cookie web01.stg.gitlab.com
     server web-cny-01.stg.gitlab.com 127.0.0.1:443 weight 0 check check-ssl inter 3s fastinter 1s downinter 5s fall 3 ssl verify none cookie web-cny-01.stg.gitlab.com
+
+backend ai_assisted
+    mode http
+    balance roundrobin
+    option splice-auto
+    timeout tunnel 5s
+    http-check send meth GET uri /-/readiness hdr Host gitlab.com
+    server ai-assisted-gke-us-east1-b 10.224.44.46:443 weight 100
+    server ai-assisted-gke-us-east1-c 10.224.45.71:443 weight 100 backup
+    server ai-assisted-gke-us-east1-d 10.224.46.21:443 weight 100 backup
 
 backend 429_slow_down
     mode http
