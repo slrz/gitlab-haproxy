@@ -1,0 +1,8 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'ai_assisted',
+  description: 'Targets the AI Assisted fleet',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavor, 'ai_assisted'),
+  override_host: nil,
+  source_nodes: ['ai_assisted'],
+} -%>

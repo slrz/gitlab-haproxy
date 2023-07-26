@@ -327,6 +327,8 @@ suites:
                   shell-gke-us-east1-b: 10.221.13.40
                 websockets:
                   ws-gke-us-east1-b: 10.221.13.19
+                ai_assisted:
+                  ai-assisted-gke-us-east1-b: 10.224.44.46
                 https_git:
                   git-https-gke-us-east1-b: 10.221.13.9
               us-east1-c:
@@ -338,6 +340,8 @@ suites:
                   shell-gke-us-east1-c: 10.221.14.5
                 websockets:
                   ws-gke-us-east1-c: 10.221.14.26
+                ai_assisted:
+                  ai-assisted-gke-us-east1-c: 10.224.45.71
                 https_git:
                   git-https-gke-us-east1-c: 10.221.14.17
               us-east1-d:
@@ -349,6 +353,8 @@ suites:
                   shell-gke-us-east1-d: 10.221.15.5
                 websockets:
                   ws-gke-us-east1-d: 10.221.15.37
+                ai_assisted:
+                  ai-assisted-gke-us-east1-d: 10.224.46.21
                 https_git:
                   git-https-gke-us-east1-d: 10.221.15.3
             essential:
