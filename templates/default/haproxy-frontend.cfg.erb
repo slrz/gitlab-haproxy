@@ -535,13 +535,19 @@ frontend https_git_ci_gateway
 <% if node['gitlab-haproxy']['frontend']['asset_proxy']['enable'] -%>
 backend asset_proxy
     mode http
+    <% if node['lsb']['codename'] == 'bionic' %>
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
+    <% else %>
+    option httpchk
+    http-check send meth GET uri <%= node['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] %> hdr Host <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
+    <% end %>
     http-request set-header Host <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
     server asset-bucket <%= node['gitlab-haproxy']['frontend']['asset_proxy']['server'] %>:<%= node['gitlab-haproxy']['frontend']['asset_proxy']['server_port'] %> <%= node['gitlab-haproxy']['frontend']['asset_proxy']['opts'] %>
 <% end %>
 
 backend api
 <%= render 'partial_backend_api_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
   :backend_servers => @backend_servers,
   :frontend => node['gitlab-haproxy']['frontend'],
   :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
@@ -554,6 +560,7 @@ backend api
 
 backend main_api
 <%= render 'partial_backend_api_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
   :backend_servers => @backend_servers,
   :frontend => node['gitlab-haproxy']['frontend'],
   :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
@@ -569,12 +576,16 @@ backend api_rate_limit
 backend https_git
     mode http
     balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
-<% end %>
+    <% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['https_git'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['https_git'],
+} -%>
     <% @backend_servers['all']['https_git'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['https_git']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['https_git']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['https_git']['ssl_verify'] %><%= @backend_servers['active']['https_git'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -584,6 +595,7 @@ backend https_git
 
 backend web
 <%= render 'partial_backend_web_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
   :backend_servers => @backend_servers,
   :frontend => node['gitlab-haproxy']['frontend'],
   :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
@@ -596,6 +608,7 @@ backend web
 
 backend main_web
 <%= render 'partial_backend_web_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
   :backend_servers => @backend_servers,
   :frontend => node['gitlab-haproxy']['frontend'],
   :timeout_server_fin => node['gitlab-haproxy']['timeout_server_fin'],
@@ -606,9 +619,9 @@ backend main_web
 backend canary_web
     mode http
     balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
-<% end %>
+    <% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     acl is_canary_host hdr_beg(host) -i canary
@@ -619,7 +632,11 @@ backend canary_web
     <% if node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only_enabled'] %>
     rspadd Content-Security-Policy-Report-Only:<%= node['gitlab-haproxy']['frontend']['canary_web']['content_security_policy_report_only'].gsub(/ /, '\ ').gsub("'"){"\\'"} %>
     <% end %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['canary_web'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['canary_web'],
+} -%>
     <% @backend_servers['all']['canary_web'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['canary_web']['server_port'] %> check <%= node['gitlab-haproxy']['frontend']['canary_web']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['canary_web']['ssl_verify'] %><%= @backend_servers['active']['canary_web'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -627,12 +644,16 @@ backend canary_web
 backend canary_https_git
     mode http
     balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
-<% end %>
+    <% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['canary_https_git'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['canary_https_git'],
+} -%>
     <% @backend_servers['all']['canary_https_git'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['canary_https_git']['server_port'] %> check <%= node['gitlab-haproxy']['frontend']['canary_https_git']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['canary_https_git']['ssl_verify'] %><%= @backend_servers['active']['canary_https_git'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -640,12 +661,16 @@ backend canary_https_git
 backend canary_api
     mode http
     balance roundrobin
-<% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
+    <% unless node['gitlab-haproxy']['cloudflare']['enable'] %>
     option forwardfor
-<% end %>
+    <% end %>
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['api'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['api'],
+} -%>
     <% @backend_servers['all']['canary_api'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['api']['server_port'] %> check <%= node['gitlab-haproxy']['frontend']['api']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['api']['ssl_verify'] %><%= @backend_servers['active']['canary_api'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -660,7 +685,11 @@ backend kas
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['kas'],
+} -%>
     <% @backend_servers['all']['kas'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['kas'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -674,7 +703,11 @@ backend kas_k8s_proxy
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['kas'],
+} -%>
     <% @backend_servers['all']['kas'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['proxy_port'] %> weight <%= node['gitlab-haproxy']['frontend']['kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['kas'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -688,7 +721,11 @@ backend canary_kas
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['kas'],
+} -%>
     <% @backend_servers['all']['canary_kas'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['canary_kas'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -702,7 +739,11 @@ backend canary_kas_k8s_proxy
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout server <%= node['gitlab-haproxy']['kas']['timeout_server'] %>
     timeout tunnel <%= node['gitlab-haproxy']['kas']['timeout_tunnel'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['kas'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['kas'],
+} -%>
     <% @backend_servers['all']['canary_kas'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['kas']['proxy_port'] %> weight <%= node['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['kas']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['canary_kas'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -714,7 +755,11 @@ backend ssh
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
     timeout server <%= node['gitlab-haproxy']['timeout_server_ssh'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['ssh'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['ssh'],
+} -%>
     <% @backend_servers['all']['ssh'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ssh']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['ssh']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['ssh']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['ssh'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['frontend']['ssh']['send-proxy-v2'] ? ' send-proxy-v2' : '' %>
     <% end %>
@@ -729,7 +774,11 @@ backend websockets
     option http-server-close
     timeout tunnel <%= node['gitlab-haproxy']['timeout_tunnel'] %>
     cookie _gitlab_session prefix nocache
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['websockets'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['websockets'],
+} -%>
     <% @backend_servers['all']['websockets'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['websockets']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['websockets']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['websockets']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['websockets']['ssl_verify'] %> cookie <%= name %><%= @backend_servers['active']['websockets'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -742,7 +791,11 @@ backend ai_assisted
     balance roundrobin
     option splice-auto
     timeout server-fin <%= node['gitlab-haproxy']['timeout_server_fin'] %>
-<%= render 'partial_healthcheck_legacy.erb', :variables => {:ha_frontend => node['gitlab-haproxy']['frontend']['ai_assisted'], :ha_global => node['gitlab-haproxy']['global'] } -%>
+<%= render 'partial_healthcheck_legacy.erb', :variables => {
+  :use_legacy_config => node['lsb']['codename'] == 'bionic',
+  :ha_global => node['gitlab-haproxy']['global'],
+  :ha_frontend => node['gitlab-haproxy']['frontend']['ai_assisted'],
+} -%>
     <% @backend_servers['all']['ai_assisted'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['frontend']['ai_assisted']['server_port'] %> weight <%= node['gitlab-haproxy']['frontend']['ai_assisted']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['ai_assisted']['check_opts'] %> <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> <%= node['gitlab-haproxy']['frontend']['ai_assisted']['ssl_verify'] %> <%= @backend_servers['active']['ai_assisted'].key?(name) ? '' : ' backup' %>
     <% end %>
@@ -752,6 +805,7 @@ backend 429_slow_down
     timeout tarpit 2s
     errorfile 429 /etc/haproxy/errors/429.http
     http-request tarpit deny_status 429
+
 <% if @use_ci_gateway %>
 backend ci_gateway_catch_all
     mode http
