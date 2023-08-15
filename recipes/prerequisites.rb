@@ -14,7 +14,7 @@ end
 # On Ubuntu 20.04, we always install the latest patch version of HAProxy 2.6
 if node['lsb']['codename'] != 'bionic'
   node.default['apt']['unattended_upgrades']['origins_patterns'] += [
-    'o=LP-PPA-vbernat-haproxy-2.6',
+    'o=LP-PPA-vbernat-haproxy-2.8',
   ]
 end
 
