@@ -23,7 +23,7 @@ if node['lsb']['codename'] == 'bionic'
 else
   # Install HAProxy 2.6 LTS. Supported until April 2027
   apt_repository 'haproxy' do
-    uri         'ppa:vbernat/haproxy-2.6'
+    uri         'ppa:vbernat/haproxy-2.8'
     components  ['main', 'main/debug']
   end
 
@@ -58,6 +58,8 @@ package 'haproxy' do
   notifies :restart, 'service[rsyslog]', :delayed
 end
 
+# This package installs the debugging symbols required by tools such as perf and gdb.
+# These symbols are installed separately and have no performance effect on the haproxy binary itself.
 package 'haproxy-dbgsym'
 
 execute 'test-haproxy-config' do
