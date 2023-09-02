@@ -11,10 +11,10 @@ apt_update do
   action :update
 end
 
-# On Ubuntu 20.04, we always install the latest patch version of HAProxy 2.6
+# On Ubuntu 20.04, we always install the latest patch version of HAProxy 2.4
 if node['lsb']['codename'] != 'bionic'
   node.default['apt']['unattended_upgrades']['origins_patterns'] += [
-    'o=LP-PPA-vbernat-haproxy-2.8',
+    'o=LP-PPA-vbernat-haproxy-2.4',
   ]
 end
 
@@ -131,7 +131,7 @@ package 'socat'
 
 # #################### LEGACY CODE ####################
 # This script is kept, because it does not hurt, but it is unknown who might use it.
-# It is no longer used for HAProxy 2.6, as draining now starts immediately after the process was signaled.
+# It is no longer used for HAProxy 2.4, as draining now starts immediately after the process was signaled.
 # Before HAProxy 2.4, HAProxy used to wait for a last request and response to add a "connection: close" header before closing.
 # This made draining very ineffective.
 #
