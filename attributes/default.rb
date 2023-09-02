@@ -44,9 +44,9 @@ default['gitlab-haproxy']['check_frontends']['pages']['check_https']['backends']
 default['gitlab-haproxy']['check_frontends']['registry']['check_http']['backends'] = %w(registry)
 default['gitlab-haproxy']['check_frontends']['registry']['check_https']['backends'] = %w(registry)
 
-# This will determine the HAProxy configuration options (2.6+ only)
+# This will determine the HAProxy configuration options (2.4+ only)
 # Some values are not changeable via attributes by design.
-# HAProxy 2.6 configuration documentation: https://docs.haproxy.org/2.6/configuration.html
+# HAProxy 2.4 configuration documentation: https://docs.haproxy.org/2.4/configuration.html
 #
 # Timeouts are statically set in the defaults section by design.
 # If they should be adjusted, it MUST be done in the backend configuration. Generally they should not be changed,
@@ -97,7 +97,7 @@ default['gitlab-haproxy']['config']['main']['backend']['websockets']['option htt
 default['gitlab-haproxy']['config']['main']['backend']['websockets']['timeout tunnel'] = '8s' # copied from default['gitlab-haproxy']['timeout_tunnel'] = '8s'
 default['gitlab-haproxy']['config']['main']['frontend']['kas']['timeout client'] = '1h # KAS specific tuning for SPDY'
 
-# New healthcheck config only used in HAProxy 2.6+
+# New healthcheck config only used in HAProxy 2.4+
 default['gitlab-haproxy']['registry']['health_check']['httpchk_host'] = 'registry.gitlab.com'
 # According to https://github.com/distribution/distribution/issues/629#issuecomment-112222118 the /v2/ endpoint is either 401 or 200 if registry is functional.
 default['gitlab-haproxy']['registry']['health_check']['httpchk_path'] = '/v2/'

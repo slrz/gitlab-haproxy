@@ -59,7 +59,7 @@ suites:
         chef_vault: secrets
         chef_vault_item: certs
 #### START REGRESSION CONFIG Copied from fe-01-lb-gprd on 2022-11-30
-        major-version:                haproxy-1.8 # This is ignored for 2.6
+        major-version:                haproxy-1.8 # This is ignored for 2.4
         systemd_service_overrides:
           enable: true
         drain_time_seconds: 600

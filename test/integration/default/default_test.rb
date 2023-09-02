@@ -7,7 +7,7 @@ control 'general-haproxy-checks' do
   title 'Basic health checks for HAProxy'
   desc '
     This control ensures that:
-      * haproxy package is installed (1.8 for 18.04, 2.6+ for 20.04+)
+      * haproxy package is installed (1.8 for 16.04, 2.4+ for 20.04+)
       * haproxy service in enabled and running
       * essential supplemental files are present
       * the configuration is valid'
@@ -20,7 +20,7 @@ control 'general-haproxy-checks' do
       its('version') { should cmp >= '1.8' }
       its('version') { should cmp <= '1.9' }
     else
-      its('version') { should cmp >= '2.6' }
+      its('version') { should cmp >= '2.4' }
     end
   end
 
@@ -108,7 +108,7 @@ control 'general-haproxy-checks' do
     end
 
     describe file('/etc/apt/apt.conf.d/50unattended-upgrades') do
-      its('content') { should include 'o=LP-PPA-vbernat-haproxy-2.8' }
+      its('content') { should include 'o=LP-PPA-vbernat-haproxy-2.4' }
     end
   end
 end
