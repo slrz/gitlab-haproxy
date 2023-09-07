@@ -21,15 +21,15 @@ node.default['gitlab-haproxy']['config']['default']['global']['hard-stop-after']
 node.default['gitlab-haproxy']['pages']['default_check_opts'] = node['gitlab-haproxy']['frontend']['default_check_opts']
 
 if node['lsb']['codename'] == 'bionic'
-  # We are running a dedicated PPA with just a 2.4 LTS release and HAProxy 2.4 properly does hitless restarts
+  # We are running a dedicated PPA with just a 2.8 LTS release and HAProxy 2.8 properly does hitless restarts
   # Thanks to process management implemented in HAProxy 2.0, it's safe to update patch versions.
   # Also required for security fixes, which in the past we did not install.
   node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'
 end
 
 # This block generates the old configs.
-# We may still need to use the old configurations on new HAProxy 2.4 nodes.
-# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.4
+# We may still need to use the old configurations on new HAProxy 2.8 nodes.
+# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8
 # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
 if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config']
   # In case we wanted to support more cipher suites without copying the existing default one.
@@ -75,7 +75,7 @@ if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
 
-  # HAProxy 2.4 drains properly, so the hacks around draining are no longer necessary on 2.4+
+  # HAProxy 2.8 drains properly, so the hacks around draining are no longer necessary on 2.8+
   # The upstream systemd unit also makes proper use of the new process management of HAProxy
   template '/etc/systemd/system/haproxy.service.d/override.conf' do
     source 'override.conf.erb'

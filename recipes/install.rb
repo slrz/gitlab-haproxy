@@ -9,8 +9,8 @@
 
 raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::install" unless node.run_state['HAP_prerequisites_included']
 
-# We may still need to use the old configurations on new HAProxy 2.4 nodes.
-# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.4
+# We may still need to use the old configurations on new HAProxy 2.8 nodes.
+# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8
 # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
 if node['lsb']['codename'] == 'bionic'
   apt_repository 'haproxy' do
@@ -21,9 +21,9 @@ if node['lsb']['codename'] == 'bionic'
   # This is an ancient version (0.7.7) from 2010
   package 'hatop'
 else
-  # Install HAProxy 2.4 LTS. Supported until April 2026
+  # Install HAProxy 2.8 LTS. Supported until April 2026
   apt_repository 'haproxy' do
-    uri         'ppa:vbernat/haproxy-2.4'
+    uri         'ppa:vbernat/haproxy-2.8'
     components  ['main', 'main/debug']
   end
 

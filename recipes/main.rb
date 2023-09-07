@@ -21,8 +21,8 @@ end
 include_recipe 'gitlab-haproxy::install'
 
 # This block generates the old configs.
-# We may still need to use the old configurations on new HAProxy 2.4 nodes.
-# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.4
+# We may still need to use the old configurations on new HAProxy 2.8 nodes.
+# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8
 # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
 if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config']
   node.default['gitlab-haproxy']['close_client_connections'] = true
