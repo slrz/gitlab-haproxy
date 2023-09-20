@@ -326,7 +326,7 @@ frontend kas
     timeout http-request <%= node['gitlab-haproxy']['frontend']['kas']['timeout_http_request'] %>
     timeout http-keep-alive <%= node['gitlab-haproxy']['kas']['timeout_http_keep_alive'] %>
     timeout client <%= node['gitlab-haproxy']['kas']['timeout_client'] %>
-    timeout client-fin <%= node['gitlab-haproxy']['timeout_client_fin'] %>
+    timeout client-fin <%= node['gitlab-haproxy']['kas']['timeout_client_fin'] %>
 
     log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
     stick-table type ip size 1m expire 5m store gpc0,conn_rate(1m) <% if node['gitlab-haproxy']['frontend']['peers']['servers'].any? -%>peers frontend-peers<% end -%>
