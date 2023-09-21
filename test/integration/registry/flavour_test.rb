@@ -129,7 +129,7 @@ control 'haproxy-flavor-checks' do
                # - health check in new format
                # - health check with expected status codes
                'option httpchk
-  http-check send meth GET uri /v2/ hdr Host registry.gitlab.com
+  http-check send meth GET uri /v2/ ver HTTP/1.1 hdr Host registry.gitlab.com
   http-check expect status 200-299,401
   default-server check inter 2s fastinter 1s downinter 5s fall 3
   default-server no-ssl

@@ -167,7 +167,7 @@ backend pages_http
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% else %>
     option httpchk
-    http-check send meth GET uri <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> hdr Host <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
+    http-check send meth GET uri <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> ver HTTP/1.1 hdr Host <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% end %>
     <% @backend_servers['all']['pages'].each do |name, ip| %>
     server <%= name %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %> weight <%= node['gitlab-haproxy']['pages']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %>
@@ -184,7 +184,7 @@ backend pages_https
     option httpchk GET <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% else %>
     option httpchk
-    http-check send meth GET uri <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> hdr Host <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
+    http-check send meth GET uri <%= node['gitlab-haproxy']['pages']['httpchk_path'] %> ver HTTP/1.1 hdr Host <%= node['gitlab-haproxy']['pages']['httpchk_host'] %>
     <% end %>
     <% @backend_servers['all']['pages'].each do |name, ip| %>
     server <%= name %><%= node['gitlab-haproxy']['pages']['enable_https_proxyv2'] ? '-proxyv2' : '' %> <%= ip %>:<%= node['gitlab-haproxy']['pages']['enable_https_proxyv2'] ? node['gitlab-haproxy']['pages']['https_proxyv2_backend_listen_port'] : node['gitlab-haproxy']['pages']['https_backend_listen_port'] %> weight <%= node['gitlab-haproxy']['pages']['default_weight'] %> check <%= node['gitlab-haproxy']['frontend']['default_check_opts'] %> port <%= node['gitlab-haproxy']['pages']['http_backend_listen_port'] %><%= @backend_servers['active']['pages'].key?(name) ? '' : ' backup' %><%= node['gitlab-haproxy']['pages']['enable_https_proxyv2'] ? ' send-proxy-v2' : '' %>

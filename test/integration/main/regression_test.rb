@@ -474,7 +474,7 @@ control 'haproxy-main-regression-check' do
     mode http
     option httpchk GET /info HTTP/1.1\r\nHost:\ gitlab-gprd-assets.storage.googleapis.com
     http-request set-header Host gitlab-gprd-assets.storage.googleapis.com
-    server asset-bucket storage.googleapis.com:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 ssl verify none'
+    server asset-bucket storage.googleapis.com:443 check check-ssl inter 2s fastinter 1s downinter 5s fall 3 verify none resolve-prefer ipv4'
     end
     its('content') do
       should include 'backend api
