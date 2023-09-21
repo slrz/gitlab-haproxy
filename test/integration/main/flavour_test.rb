@@ -42,7 +42,7 @@ control 'haproxy-flavor-checks' do
       should include 'spread-checks 4'
     end
     its('content') do
-      should include 'hard-stop-after 20m'
+      should include 'hard-stop-after 30m'
     end
     # defaults section
     its('content') do

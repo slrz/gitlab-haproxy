@@ -60,7 +60,7 @@ default['gitlab-haproxy']['config']['default']['global']['no-memory-trimming'] =
 default['gitlab-haproxy']['config']['default']['global']['ssl-mode-async'] = '' # Enables asynchronous TLS engine usage during initial and renegotiation handshakes.
 default['gitlab-haproxy']['config']['default']['global']['tune.ssl.lifetime'] = 900 # A TLS session can be resumed within 15 minutes if the cache did not evict the idle connection.
 default['gitlab-haproxy']['config']['default']['global']['spread-checks'] = 4 # spread of health-checks.
-default['gitlab-haproxy']['config']['default']['global']['hard-stop-after'] = '20m' # Any open connections will be killed after this time, when in a soft-stop state.
+default['gitlab-haproxy']['config']['default']['global']['hard-stop-after'] = '30m' # Any open connections will be killed after this time, when in a soft-stop state.
 # Default defaults section
 default['gitlab-haproxy']['config']['default']['defaults']['retries'] = '3' # Retry to establish a session to a backend server 3 times. (NOT REQUESTS. If a session is established between client and backend server, there will not be any retries).
 default['gitlab-haproxy']['config']['default']['defaults']['retry-on'] = 'conn-failure' # `conn-failure` is the default, but since it might change, we statically set it, to ensure consistency going forward.
@@ -142,7 +142,7 @@ default['gitlab-haproxy']['global']['nbthread'] = node['cpu']['total'] # legacy
 # this helps to prevent presistent TCP connections from keeping haproxy
 # processes lingering for a long time after reload
 default['gitlab-haproxy']['global']['hard-stop']['enable'] = true # legacy
-default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '20m' # legacy
+default['gitlab-haproxy']['global']['hard-stop']['timeout'] = '30m' # legacy
 
 default['gitlab-haproxy']['delay_speed_ms'] = '1000' # legacy
 default['gitlab-haproxy']['timeout_connect'] = '5000' # legacy
