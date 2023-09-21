@@ -430,7 +430,7 @@ backend ai_assisted
     balance roundrobin
     option splice-auto
     timeout tunnel 5s
-    http-check send meth GET uri /-/readiness hdr Host gitlab.com
+    http-check send meth GET uri /-/readiness ver HTTP/1.1 hdr Host gitlab.com
     server ai-assisted-gke-us-east1-b 10.224.44.46:443 weight 100
     server ai-assisted-gke-us-east1-c 10.224.45.71:443 weight 100 backup
     server ai-assisted-gke-us-east1-d 10.224.46.21:443 weight 100 backup

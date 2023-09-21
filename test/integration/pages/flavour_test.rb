@@ -127,7 +127,7 @@ control 'haproxy-flavor-checks' do
                # - weight & backup assignment
                # - health check in new format
                'option httpchk
-  http-check send meth GET uri /-/readiness hdr Host gitlab.com
+  http-check send meth GET uri /-/readiness ver HTTP/1.1 hdr Host gitlab.com
   default-server check inter 3s fastinter 1s downinter 5s fall 3
   default-server no-ssl
   # node pool \'pages\'
@@ -138,7 +138,7 @@ control 'haproxy-flavor-checks' do
   server gke-cny-pages 10.216.8.25:80 weight 5',
                # additionally validates the pages_https-backend check variant of the healthcheck with the port being overridden, as the nodes are connected to via PROXYv2 on port 443 normally
                'option httpchk
-  http-check send meth GET uri /-/readiness hdr Host gitlab.com
+  http-check send meth GET uri /-/readiness ver HTTP/1.1 hdr Host gitlab.com
   default-server check inter 3s fastinter 1s downinter 5s fall 3 port 80
   default-server no-ssl
   # node pool \'pages\'

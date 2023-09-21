@@ -142,7 +142,7 @@ control 'haproxy-flavor-checks' do
                #
                # - health check in new format
                'option httpchk
-  http-check send meth GET uri /-/k8s/api/-/readiness hdr Host gitlab.com
+  http-check send meth GET uri /-/k8s/api/-/readiness ver HTTP/1.1 hdr Host gitlab.com
   default-server check check-ssl inter 3s fastinter 1s downinter 5s fall 3
   default-server ssl verify none
   # node pool \'api\'

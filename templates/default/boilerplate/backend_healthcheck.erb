@@ -5,7 +5,7 @@
   <%- end -%>
 <% else %>
   option httpchk
-  http-check send meth GET uri <%= @health_check['httpchk_path'] %> hdr Host <%= @health_check['httpchk_host'] %>
+  http-check send meth GET uri <%= @health_check['httpchk_path'] %> ver HTTP/1.1 hdr Host <%= @health_check['httpchk_host'] %>
   <%- if @health_check['httpchk_status'] -%>
   http-check expect status <%= @health_check['httpchk_status'] %>
   <%- end -%>

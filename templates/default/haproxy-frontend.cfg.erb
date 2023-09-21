@@ -548,7 +548,7 @@ backend asset_proxy
     option httpchk GET <%= node['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
     <% else %>
     option httpchk
-    http-check send meth GET uri <%= node['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] %> hdr Host <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
+    http-check send meth GET uri <%= node['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] %> ver HTTP/1.1 hdr Host <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
     <% end %>
     http-request set-header Host <%= node['gitlab-haproxy']['frontend']['asset_proxy']['host'] %>
     server asset-bucket <%= node['gitlab-haproxy']['frontend']['asset_proxy']['server'] %>:<%= node['gitlab-haproxy']['frontend']['asset_proxy']['server_port'] %> <%= node['gitlab-haproxy']['frontend']['asset_proxy']['opts'] %>
