@@ -30,11 +30,13 @@ when 'main'
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
 
-  file '/etc/haproxy/ssl/ci-gateway.pem' do
-    sensitive true
-    mode '0600'
-    content "#{haproxy_secrets['ssl']['ci_gateway_crt']}\n#{haproxy_secrets['ssl']['ci_gateway_key']}\n"
-    notifies :run, 'execute[test-haproxy-config]', :delayed
+  if node['gitlab-haproxy']['ci-gateway']['enabled']
+    file '/etc/haproxy/ssl/ci-gateway.pem' do
+      sensitive true
+      mode '0600'
+      content "#{haproxy_secrets['ssl']['ci_gateway_crt']}\n#{haproxy_secrets['ssl']['ci_gateway_key']}\n"
+      notifies :run, 'execute[test-haproxy-config]', :delayed
+    end
   end
 
   file '/etc/haproxy/ssl/kas.pem' do
