@@ -1,3 +1,4 @@
+<% if get_attribute('gitlab-haproxy', 'ci-gateway', 'enabled') %>
 <%= render 'boilerplate/frontend_definition.erb', :variables => {
   :name => 'https_git_ci_gateway',
   :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
@@ -50,3 +51,4 @@
   # Redirect to GitLab public entrypoint otherwise
   default_backend ci_gateway_catch_all
   ###############################################################
+  <% end %>

@@ -1,3 +1,4 @@
+<% if get_attribute('gitlab-haproxy', 'ci-gateway', 'enabled') %>
 <%= render 'boilerplate/backend_definition.erb', :variables => {
   name: 'ci_gateway_catch_all',
   description: 'Redirects all requests to the matching GitLab.com URI',
@@ -11,4 +12,5 @@
   <% else %>
   <% redirect_uri = "https://#{get_attribute('gitlab-haproxy', 'frontend', 'canonical_host')}%[capture.req.uri]" %>
   http-request redirect code 307 location <%= redirect_uri %>
+  <% end %>
   <% end %>

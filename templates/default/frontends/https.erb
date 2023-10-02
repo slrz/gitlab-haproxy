@@ -8,10 +8,13 @@
   :listen_certificates => (flavor == 'registry') ? [
     '/etc/haproxy/ssl/registry.pem',
     '/etc/haproxy/ssl/internal.pem',
-  ] : [
+  ] : get_attribute('gitlab-haproxy', 'ci-gateway', 'enabled') ? [
     '/etc/haproxy/ssl/gitlab.pem',
     '/etc/haproxy/ssl/internal.pem',
     '/etc/haproxy/ssl/ci-gateway.pem',
+  ] : [
+    '/etc/haproxy/ssl/gitlab.pem',
+    '/etc/haproxy/ssl/internal.pem',
   ],
   :mode => 'http',
   :expect_proxy => 'HTTP',
