@@ -1,4 +1,3 @@
-<% if get_attribute('gitlab-haproxy', 'ci-gateway', 'enabled') %>
 <%= render 'boilerplate/backend_definition.erb', :variables => {
   name: 'ci_gateway_git_repo_redirection',
   description: 'Redirects requests to the .git URI',
@@ -7,4 +6,3 @@
 
   http-request set-var(req.repo_path) path,regsub(\/info\/refs$,.git/info/refs)
   http-request redirect code 307 location %[var(req.repo_path)]?%[query]
-<% end %>

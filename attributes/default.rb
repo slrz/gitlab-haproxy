@@ -444,6 +444,8 @@ default['gitlab-haproxy']['cloudflare']['ignore-proxy'] = false # legacy
 
 default['gitlab-haproxy']['close_client_connections'] = false # legacy
 
+default['gitlab-haproxy']['use_canary'] = true
+
 default['gitlab-haproxy']['ci-gateway']['enabled'] = false
 default['gitlab-haproxy']['ci-gateway']['listen_port'] = 8989
 default['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = []

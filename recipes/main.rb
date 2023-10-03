@@ -33,7 +33,7 @@ if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config
     variables(
       admin_password: node.run_state['HAP_secrets']['admin_password'],
       use_internal: true,
-      use_canary: true,
+      use_canary: node['gitlab-haproxy']['use_canary'],
       use_ci_gateway: node['gitlab-haproxy']['ci-gateway']['enabled'],
       enforce_cf_origin_pull: true,
       https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port'],
@@ -48,6 +48,12 @@ if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config
   end
 else # node['lsb']['codename'] != 'bionic' && !node['gitlab-haproxy']['use_old_config']
   Gitlab::TemplateHelpers.initialize(node)
+
+  unless node['gitlab-haproxy']['ci-gateway']['enabled']
+    node['gitlab-haproxy']['enabled_frontends']['main'].delete('https_git_ci_gateway')
+    node['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_catch_all')
+    node['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_git_repo_redirection')
+  end
 
   # Because chef code is run at compile time, we need to run this in a runtime block and save it to the run_state.
   ruby_block 'get available certificates' do
