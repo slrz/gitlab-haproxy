@@ -38,7 +38,7 @@ cookstyle:
   extends: .ruby-cache
   stage: tests
   script:
-    - bundle exec cookstyle
+    - bundle exec --frozen cookstyle
 
 kitchen:
   extends: .ruby-cache

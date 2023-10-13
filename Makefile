@@ -56,7 +56,7 @@ gems:	### Install latest versions of all gems
 
 .PHONY: check
 check:	### Check style of all ruby files
-	bundle exec cookstyle
+	bundle exec --frozen cookstyle
 
 .PHONY: rspec
 rspec:	### Run rspec tests
