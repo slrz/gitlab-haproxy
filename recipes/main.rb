@@ -35,7 +35,7 @@ if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config
       use_internal: true,
       use_canary: node['gitlab-haproxy']['use_canary'],
       use_ci_gateway: node['gitlab-haproxy']['ci-gateway']['enabled'],
-      enforce_cf_origin_pull: true,
+      enforce_cf_origin_pull: node['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'],
       https_extra_bind_port: node['gitlab-haproxy']['frontend']['https']['extra_bind_port'],
       https_git_acl_format: node['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] ? 'verbose' : 'condensed',
       backend_servers: Gitlab::TemplateHelpers.backend_servers_for_lb_zone(
