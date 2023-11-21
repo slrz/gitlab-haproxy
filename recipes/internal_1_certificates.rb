@@ -45,21 +45,6 @@ when 'main'
     content "#{haproxy_secrets['ssl']['kas_crt']}\n#{haproxy_secrets['ssl']['kas_key']}\n"
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
-
-  # We may still need to use the old configurations on new HAProxy 2.8 nodes.
-  # TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8.
-  # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-  if node['gitlab-haproxy']['use_old_config']
-    if node['gitlab-haproxy']['use_canary']
-      # The canary.gitlab.com domain is not used anymore, but this is still configured for HAProxy 1.8
-      file '/etc/haproxy/ssl/canary.pem' do
-        sensitive true
-        mode '0600'
-        content "#{haproxy_secrets['ssl']['canary_crt']}\n#{haproxy_secrets['ssl']['canary_key']}\n"
-        notifies :run, 'execute[test-haproxy-config]', :delayed
-      end
-    end
-  end
 when 'registry'
   file '/etc/haproxy/ssl/registry.pem' do
     sensitive true

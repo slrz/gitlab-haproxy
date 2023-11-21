@@ -2,19 +2,13 @@
 
 # gitlab-haproxy
 
-This is gitlab-haproxy cookbook to base your cookbook on.
-
-### None of the new configuration features is applicable to 18.04. Those still use the old configuration system.
+This is `gitlab-haproxy` cookbook to base your cookbook on.
 
 ## Run order
-
-For compatibility with legacy 18.04 systems, the `default` (empty) and `frontend` (includes `main`) recipes are still included. These are deprecated.  
 
 Every flavor of HAProxy nodes (`main` - former `frontend`, `registry` and `pages`) has their own starting point recipe of the same name, that does some initial configuration of the cookbook.
 
 After installing the `prerequisites` (which includes all the `internal_*` recipes), the flavor might do some specific additional configuration before installing and configuring HAProxy via the `install` recipe.
-
-NOTE: Any code, scoped to only execute when the system is running `bionic`, is to be removed after https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/848.
 
 ## Configuring flavors
 
@@ -199,7 +193,7 @@ you are all set to use the below testing instructions.
 
 ### Testing locally
 
-You can run `rspec` or `kitchen` tests directly without using provided
+You can run `kitchen` tests directly without using provided
 `Makefile`, although you can follow instructions to benefit from it.
 
 1. Install GNU Make (`apt-get install make`). Under OS X you can achieve the
@@ -215,10 +209,6 @@ You can run `rspec` or `kitchen` tests directly without using provided
 
    - `make check`: find all `*.rb` files in the current directory, excluding ones
      in `BUNDLE_PATH`, and check them with rubocop.
-
-   - `make rspec`: the above, plus run all the rspec tests. You can use
-     `bundle exec rspec -f d` to skip the lint step, but it is required on CI
-     anyways, so rather please fix it early ;)
 
    - `make kitchen`: calculate the number of suites in `.kitchen.do.yml`, and
      run all integration tests, using the calculated number as a `concurrency`
@@ -240,13 +230,11 @@ Alternatively, you can just push to your branch and let CI handle the testing.
 - clean up the ephemeral key from DigitalOcean after pipeline is done
 
 See `.gitlab-ci.yml` for details, but the overall goal is to have only
-`make rspec` and `make kitchen` in it, and cache `$BUNDLE_PATH` for speed.
+`make kitchen` in it, and cache `$BUNDLE_PATH` for speed.
 
-Since `make check` is a prerequisite for `make rspec`, current CI configuration
-basically enforces all of the following to succeed, in defined order, for a
-pipeline to pass:
+Current CI configuration basically enforces all of the following to succeed, in
+defined order, for a pipeline to pass:
 
 - Rubocop should be happy with every ruby file and exit with code zero,
   without any warnings or errors.
-- Rspec tests must all pass.
 - Integration tests must all pass.
