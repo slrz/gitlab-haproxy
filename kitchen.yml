@@ -81,7 +81,6 @@ suites:
         timeout_connect: '5000'
         timeout_check: '30000'
         timeout_server_ssh: 2h
-        timeout_server_camoproxy: 10s
         timeout_client_fin: 5s
         timeout_server_fin: 5s
         timeout_tunnel: 8s
@@ -194,12 +193,6 @@ suites:
           canary_ssh:
             send-proxy-v2: true
             default_weight: '5'
-          altssh:
-            send-proxy-v2: false
-            default_weight: '100'
-          canary_altssh:
-            send-proxy-v2: false
-            default_weight: '0'
           web:
             httpchk_host: gitlab.com
             httpchk_path: "/-/readiness"
@@ -356,20 +349,6 @@ suites:
           enable: true
           timeout_tunnel: 2h
           timeout_server: 1h
-        altssh:
-          backend:
-            essential:
-              - altssh
-            servers:
-              default:
-                altssh: {}
-          custom_config:
-        canary_altssh:
-          backend:
-            essential: []
-            servers:
-              default:
-                canary_altssh: {}
         pages:
           default_weight: '100'
           httpchk_host: gitlab.com
@@ -416,9 +395,6 @@ suites:
               - registry
         canary_registry:
           default_weight: '0'
-        camoproxy:
-          server_port: 8080
-          httpchk_path: "/status"
         cloudflare:
           enable: true
           ignore-proxy: false
@@ -476,7 +452,6 @@ suites:
         timeout_connect: '5000'
         timeout_check: '30000'
         timeout_server_ssh: 2h
-        timeout_server_camoproxy: 10s
         timeout_client_fin: 5s
         timeout_server_fin: 5s
         timeout_tunnel: 8s
@@ -488,16 +463,14 @@ suites:
         maxconn: '40000'
         frontend:
           blacklist:
-            uri: { }
+            uri: {}
           whitelist:
-            internal: { }
-            api: { }
+            internal: {}
+            api: {}
           peers:
-            servers: { }
           api:
             httpchk_host: gitlab.com
             httpchk_path: "/-/health"
-            servers: { }
             rate_limit_http_rate_per_minute: '600'
             rate_limit_package_registry_rate_per_minute: '7000'
             check_opts: check-ssl
@@ -510,7 +483,6 @@ suites:
             httpchk_path: "/-/health"
             check_opts: check-ssl
             tcp_check_enable: false
-            servers: { }
             server_port: '443'
             ssl_verify: ssl verify none
             use_verbose_acls: false
@@ -524,7 +496,6 @@ suites:
             ssl_verify: ssl verify none
             enable: true
             default_weight: '0'
-            servers: { }
           https:
             custom_config:
             rate_limit_frontend_port: '4444'
@@ -550,11 +521,9 @@ suites:
             proxy_endpoint: "/k8s-proxy"
             proxy_port: '8154'
             server_port: '8150'
-            servers: { }
             tcp_check_enable: false
           canary_kas:
             default_weight: '100'
-            servers: { }
           ssh:
             httpchk_host: gitlab.com
             httpchk_path: "/-/health"
@@ -563,19 +532,11 @@ suites:
             port: '22'
             server_port: '22'
             ssl_verify: ssl verify none
-            servers: { }
-            custom_config: [ ]
+            custom_config: []
             default_weight: '100'
             send-proxy-v2: true
           canary_ssh:
             send-proxy-v2: true
-            default_weight: '0'
-            servers: { }
-          altssh:
-            send-proxy-v2: false
-            default_weight: '100'
-          canary_altssh:
-            send-proxy-v2: false
             default_weight: '0'
           web:
             httpchk_host: gitlab.com
@@ -591,10 +552,8 @@ suites:
               headers: " X-Requested-With"
             server_port: '443'
             ssl_verify: ssl verify none
-            servers: { }
             default_weight: '100'
           web_k8s:
-            servers: { }
             check_opts: check-ssl
             server_port: '443'
             ssl_verify: ssl verify none
@@ -612,9 +571,7 @@ suites:
             content_security_policy_report_only: " default-src 'self';"
             enable: true
             default_weight: '0'
-            servers: { }
           websockets:
-            servers: { }
             check_opts: check-ssl
             tcp_check_enable: false
             httpchk_host: gitlab.com
@@ -623,7 +580,7 @@ suites:
             ssl_verify: ssl verify none
             default_weight: '100'
           api_rate_limit:
-            custom_config: [ ]
+            custom_config: []
             enforced: true
             package_registry_enforced: false
           default_check_opts: inter 3s fastinter 1s downinter 5s fall 3
@@ -638,14 +595,12 @@ suites:
           canary_api:
             enable: true
             default_weight: '0'
-            servers: { }
           canary_registry:
             enable: true
           canary_websockets:
             default_weight: '0'
-            servers: { }
           canary_request_path:
-            path_list: [ ]
+            path_list: []
           root_page_redirect:
             enable: false
             url: https://about.gitlab.com
@@ -655,19 +610,19 @@ suites:
           backend:
             servers:
               default:
-                api: { }
-                https_git: { }
-                kas: { }
-                canary_kas: { }
-                ssh: { }
-                web: { }
-                web_k8s: { }
-                websockets: { }
-                canary_web: { }
-                canary_websockets: { }
-                canary_api: { }
-                canary_ssh: { }
-                canary_https_git: { }
+                api: {}
+                https_git: {}
+                kas: {}
+                canary_kas: {}
+                ssh: {}
+                web: {}
+                web_k8s: {}
+                websockets: {}
+                canary_web: {}
+                canary_websockets: {}
+                canary_api: {}
+                canary_ssh: {}
+                canary_https_git: {}
             essential:
               - api
               - https_git
@@ -679,27 +634,12 @@ suites:
           enable: false
           timeout_tunnel: 2h
           timeout_server: 1h
-        altssh:
-          backend:
-            essential:
-              - altssh
-            servers:
-              default:
-                altssh: { }
-          custom_config:
-        canary_altssh:
-          backend:
-            essential: [ ]
-            servers:
-              default:
-                canary_altssh: { }
         pages:
           default_weight: '100'
           httpchk_host: gitlab.com
           httpchk_path: "/-/readiness"
           http_custom_config:
           https_custom_config:
-          servers: { }
           peers:
             servers:
               fe-pages-01-lb-gprd:
@@ -721,7 +661,7 @@ suites:
           backend:
             servers:
               default:
-                pages: { }
+                pages: {}
                 canary_pages:
                   gke-cny-pages: 10.216.8.25
               us-east1-b:
@@ -741,9 +681,7 @@ suites:
           https_backend_listen_port: 443
           https_proxyv2_backend_listen_port: 443
         registry:
-          servers: { }
           peers:
-            servers: { }
           custom_config:
           backend_port: '5000'
           ssl_verify:
@@ -756,16 +694,12 @@ suites:
           backend:
             servers:
               default:
-                registry: { }
-                canary_registry: { }
+                registry: {}
+                canary_registry: {}
             essential:
               - registry
         canary_registry:
-          servers: { }
           default_weight: '0'
-        camoproxy:
-          server_port: 8080
-          httpchk_path: "/status"
         cloudflare:
           enable: true
           ignore-proxy: false
@@ -773,7 +707,7 @@ suites:
         ci-gateway:
           enabled: false
           listen_port: 8989
-          allowlisted_runner_managers: [ ]
+          allowlisted_runner_managers: []
           redirect_all_traffic_externally: false
           redirect_using_lua: false
   #### END REGRESSION CONFIG
@@ -817,7 +751,6 @@ suites:
         timeout_connect: '5000'
         timeout_check: '30000'
         timeout_server_ssh: 2h
-        timeout_server_camoproxy: 10s
         timeout_client_fin: 5s
         timeout_server_fin: 5s
         timeout_tunnel: 8s
@@ -829,16 +762,14 @@ suites:
         maxconn: '20000'
         frontend:
           blacklist:
-            uri: { }
+            uri: {}
           whitelist:
-            internal: { }
-            api: { }
+            internal: {}
+            api: {}
           peers:
-            servers: { }
           api:
             httpchk_host: gitlab.com
             httpchk_path: "/-/health"
-            servers: { }
             rate_limit_http_rate_per_minute: '600'
             rate_limit_package_registry_rate_per_minute: '7000'
             check_opts: check-ssl
@@ -851,7 +782,6 @@ suites:
             httpchk_path: "/-/health"
             check_opts: check-ssl
             tcp_check_enable: false
-            servers: { }
             server_port: '443'
             ssl_verify: ssl verify none
             use_verbose_acls: false
@@ -865,7 +795,6 @@ suites:
             ssl_verify: ssl verify none
             enable: true
             default_weight: '0'
-            servers: { }
           https:
             custom_config:
             rate_limit_frontend_port: '4444'
@@ -891,11 +820,9 @@ suites:
             proxy_endpoint: "/k8s-proxy"
             proxy_port: '8154'
             server_port: '8150'
-            servers: { }
             tcp_check_enable: false
           canary_kas:
             default_weight: '100'
-            servers: { }
           ssh:
             httpchk_host: gitlab.com
             httpchk_path: "/-/health"
@@ -904,19 +831,11 @@ suites:
             port: '22'
             server_port: '22'
             ssl_verify: ssl verify none
-            servers: { }
-            custom_config: [ ]
+            custom_config: []
             default_weight: '100'
             send-proxy-v2: true
           canary_ssh:
             send-proxy-v2: true
-            default_weight: '0'
-            servers: { }
-          altssh:
-            send-proxy-v2: false
-            default_weight: '100'
-          canary_altssh:
-            send-proxy-v2: false
             default_weight: '0'
           web:
             httpchk_host: gitlab.com
@@ -932,10 +851,8 @@ suites:
               headers: " X-Requested-With"
             server_port: '443'
             ssl_verify: ssl verify none
-            servers: { }
             default_weight: '100'
           web_k8s:
-            servers: { }
             check_opts: check-ssl
             server_port: '443'
             ssl_verify: ssl verify none
@@ -953,9 +870,7 @@ suites:
             content_security_policy_report_only: " default-src 'self';"
             enable: true
             default_weight: '0'
-            servers: { }
           websockets:
-            servers: { }
             check_opts: check-ssl
             tcp_check_enable: false
             httpchk_host: gitlab.com
@@ -964,7 +879,7 @@ suites:
             ssl_verify: ssl verify none
             default_weight: '100'
           api_rate_limit:
-            custom_config: [ ]
+            custom_config: []
             enforced: true
             package_registry_enforced: false
           default_check_opts: inter 3s fastinter 1s downinter 5s fall 3
@@ -979,12 +894,10 @@ suites:
           canary_api:
             enable: true
             default_weight: '0'
-            servers: { }
           canary_registry:
             enable: true
           canary_websockets:
             default_weight: '0'
-            servers: { }
           canary_request_path:
             path_list:
               - "/v2/charts"
@@ -999,19 +912,19 @@ suites:
           backend:
             servers:
               default:
-                api: { }
-                https_git: { }
-                kas: { }
-                canary_kas: { }
-                ssh: { }
-                web: { }
-                web_k8s: { }
-                websockets: { }
-                canary_web: { }
-                canary_websockets: { }
-                canary_api: { }
-                canary_ssh: { }
-                canary_https_git: { }
+                api: {}
+                https_git: {}
+                kas: {}
+                canary_kas: {}
+                ssh: {}
+                web: {}
+                web_k8s: {}
+                websockets: {}
+                canary_web: {}
+                canary_websockets: {}
+                canary_api: {}
+                canary_ssh: {}
+                canary_https_git: {}
             essential:
               - api
               - https_git
@@ -1023,29 +936,13 @@ suites:
           enable: false
           timeout_tunnel: 2h
           timeout_server: 1h
-        altssh:
-          backend:
-            essential:
-              - altssh
-            servers:
-              default:
-                altssh: { }
-          custom_config:
-        canary_altssh:
-          backend:
-            essential: [ ]
-            servers:
-              default:
-                canary_altssh: { }
         pages:
           default_weight: '100'
           httpchk_host: gitlab.com
           httpchk_path: "/-/readiness"
           http_custom_config:
           https_custom_config:
-          servers: { }
           peers:
-            servers: { }
           http_backend_listen_port: 1080
           https_backend_listen_port: 1443
           https_proxyv2_backend_listen_port: 2443
@@ -1056,8 +953,8 @@ suites:
           backend:
             servers:
               default:
-                pages: { }
-                canary_pages: { }
+                pages: {}
+                canary_pages: {}
             essential:
               - pages
         canary_pages:
@@ -1066,7 +963,6 @@ suites:
           https_backend_listen_port: 1443
           https_proxyv2_backend_listen_port: 2443
         registry:
-          servers: { }
           peers:
             servers:
               fe-registry-01-lb-gprd:
@@ -1093,7 +989,7 @@ suites:
           backend:
             servers:
               default:
-                registry: { }
+                registry: {}
                 canary_registry:
                   gke-cny-registry: 10.216.8.18
               us-east1-b:
@@ -1110,14 +1006,10 @@ suites:
           hostname: registry.gitlab.com
           use_weights: 'true'
         canary_registry:
-          servers: { }
           default_weight: '10'
           __COMMENT: This is set so that 5% of traffic is routed to the registry canary.
             A weight of 10 is chosen since we want 10% of the 50% of traffic that canary
             receive which will give us 5% of total traffic ( 5% / 50% = 10%)
-        camoproxy:
-          server_port: 8080
-          httpchk_path: "/status"
         cloudflare:
           enable: true
           ignore-proxy: false
@@ -1125,6 +1017,6 @@ suites:
         ci-gateway:
           enabled: false
           listen_port: 8989
-          allowlisted_runner_managers: [ ]
+          allowlisted_runner_managers: []
           redirect_all_traffic_externally: false
           redirect_using_lua: false

@@ -25,7 +25,7 @@ node.default['gitlab-haproxy']['pages']['default_check_opts'] = node['gitlab-hap
 # We may still need to use the old configurations on new HAProxy 2.8 nodes.
 # TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8
 # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config']
+if node['gitlab-haproxy']['use_old_config']
   # In case we wanted to support more cipher suites without copying the existing default one.
   unless (extra_ciphers = node['gitlab-haproxy']['global']['extra-default-bind-ciphers']).empty?
     node.default['gitlab-haproxy']['global']['ssl-default-bind-ciphers'].prepend(extra_ciphers + ':')

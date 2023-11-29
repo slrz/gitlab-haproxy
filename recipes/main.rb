@@ -24,7 +24,7 @@ include_recipe 'gitlab-haproxy::install'
 # We may still need to use the old configurations on new HAProxy 2.8 nodes.
 # TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8
 # See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config']
+if node['gitlab-haproxy']['use_old_config']
   node.default['gitlab-haproxy']['close_client_connections'] = true
 
   template '/etc/haproxy/haproxy.cfg' do
@@ -46,7 +46,7 @@ if node['lsb']['codename'] == 'bionic' || node['gitlab-haproxy']['use_old_config
     helpers(Gitlab::TemplateHelpers)
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
-else # node['lsb']['codename'] != 'bionic' && !node['gitlab-haproxy']['use_old_config']
+else # !node['gitlab-haproxy']['use_old_config']
   Gitlab::TemplateHelpers.initialize(node)
 
   unless node['gitlab-haproxy']['ci-gateway']['enabled']
