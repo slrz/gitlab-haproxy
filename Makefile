@@ -58,10 +58,6 @@ gems:	### Install latest versions of all gems
 check:	### Check style of all ruby files
 	bundle exec cookstyle
 
-.PHONY: rspec
-rspec:	### Run rspec tests
-	bundle exec rspec -f d
-
 .PHONY: kitchen
 kitchen:	### Run kitchen tests
 ifeq ($(GITLAB_CI),)

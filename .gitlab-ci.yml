@@ -23,17 +23,6 @@ before_script:
     paths:
       - $BUNDLE_PATH
 
-## The ChefSpec tests are useless now, because the kitchen.yml represents a production environment, which the tests did not cover.
-## There will be InSpec tests for regression testing for the 18.04 instances to make sure they do not diverge from the expected state.
-# rspec:
-#   extends: .ruby-cache
-#   stage: tests
-#   script:
-#     - make rspec
-#   only:
-#    variables:
-#       - $CI_PRIVATE_KEY
-
 cookstyle:
   extends: .ruby-cache
   stage: tests

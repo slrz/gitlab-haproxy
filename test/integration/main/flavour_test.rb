@@ -113,7 +113,7 @@ control 'haproxy-flavor-checks' do
   monitor fail if !backend_available_web !backend_available_api'
     end
 
-    # Verifies correct template handling in frontend defintion
+    # Verifies correct template handling in frontend definition
     its('content') do
       should include 'verify required ca-file /etc/haproxy/ssl/cf-origin-pull.ca',
                      'http-request set-header X-Forwarded-Proto https',
@@ -124,7 +124,7 @@ control 'haproxy-flavor-checks' do
                      'acl backend_available_api nbsrv(api) gt 0'
     end
 
-    # Verifies correct template handling in backend defintion
+    # Verifies correct template handling in backend definition
     # Also verifies correct behaviour of
     #  - Gitlab::TemplateHelpers::backend_servers_for_lb_zone
     #  - Gitlab::TemplateHelpers::backend_servers_by_pool
