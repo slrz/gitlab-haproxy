@@ -9,39 +9,26 @@
 
 raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::install" unless node.run_state['HAP_prerequisites_included']
 
-# We may still need to use the old configurations on new HAProxy 2.8 nodes.
-# TODO: This can only be removed after we successfully migrated to the new configs run by HAProxy 2.8
-# See https://gitlab.com/groups/gitlab-com/gl-infra/-/epics/839
-if node['lsb']['codename'] == 'bionic'
-  apt_repository 'haproxy' do
-    uri         "ppa:vbernat/#{node['gitlab-haproxy']['major-version']}"
-    components  ['main', 'main/debug']
-  end
+# Install HAProxy 2.8 LTS. Supported until April 2026
+apt_repository 'haproxy' do
+  uri         'ppa:vbernat/haproxy-2.8'
+  components  ['main', 'main/debug']
+end
 
-  # This is an ancient version (0.7.7) from 2010
-  package 'hatop'
-else
-  # Install HAProxy 2.8 LTS. Supported until April 2026
-  apt_repository 'haproxy' do
-    uri         'ppa:vbernat/haproxy-2.8'
-    components  ['main', 'main/debug']
-  end
+# Required as hatop only invokes `python` and ubuntu ships with `python3`.
+# This package creates a symlink.
+package 'python-is-python3'
 
-  # Required as hatop only invokes `python` and ubuntu ships with `python3`.
-  # This package creates a symlink.
-  package 'python-is-python3'
+# jhunt maintains hatop now. Just a python script. Updated this year.
+remote_file '/usr/local/bin/hatop' do
+  source 'https://github.com/jhunt/hatop/releases/download/v0.8.2/hatop'
+  mode '0755'
+  atomic_update true
+  retries 3
+  action :create
 
-  # jhunt maintains hatop now. Just a python script. Updated this year.
-  remote_file '/usr/local/bin/hatop' do
-    source 'https://github.com/jhunt/hatop/releases/download/v0.8.2/hatop'
-    mode '0755'
-    atomic_update true
-    retries 3
-    action :create
-
-    use_conditional_get true
-    use_etag true
-  end
+  use_conditional_get true
+  use_etag true
 end
 
 service 'haproxy' do

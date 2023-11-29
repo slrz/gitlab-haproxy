@@ -14,18 +14,12 @@ node.default['gitlab-haproxy']['frontend']['blocklist']['uri'] = node['gitlab-ha
 node.default['gitlab-haproxy']['frontend']['allowlist']['internal'] = node['gitlab-haproxy']['frontend']['whitelist']['internal']
 node.default['gitlab-haproxy']['frontend']['allowlist']['api'] = node['gitlab-haproxy']['frontend']['whitelist']['api']
 node.default['gitlab-haproxy']['frontend']['https']['rate_limit_allowlist'] = node['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist']
+node.default['gitlab-haproxy']['pages']['enable_domain_blocklist'] = node['gitlab-haproxy']['pages']['enable_domain_blacklisting']
 node.default['gitlab-haproxy']['config']['default']['global']['hard-stop-after'] = node['gitlab-haproxy']['global']['hard-stop']['timeout']
 
 # Pages flavour does not have its own check config, we need to reuse the one from main falvour.
 # FIXME: Add a check config for pages flavour in its Chef roles.
 node.default['gitlab-haproxy']['pages']['default_check_opts'] = node['gitlab-haproxy']['frontend']['default_check_opts']
-
-if node['lsb']['codename'] == 'bionic'
-  # We are running a dedicated PPA with just a 2.8 LTS release and HAProxy 2.8 properly does hitless restarts
-  # Thanks to process management implemented in HAProxy 2.0, it's safe to update patch versions.
-  # Also required for security fixes, which in the past we did not install.
-  node.default['apt']['unattended_upgrades']['package_blacklist'] << 'haproxy'
-end
 
 # This block generates the old configs.
 # We may still need to use the old configurations on new HAProxy 2.8 nodes.

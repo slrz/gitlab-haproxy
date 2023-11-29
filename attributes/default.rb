@@ -166,9 +166,14 @@ default['gitlab-haproxy']['maxconn'] = 50000 # This value was hardcoded in 1.8 c
 #
 #####################################################################
 
+# TODO: remove after migrating to new configs/attributes
 default['gitlab-haproxy']['frontend']['blacklist']['uri'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['internal'] = {}
 default['gitlab-haproxy']['frontend']['whitelist']['api'] = {}
+
+default['gitlab-haproxy']['frontend']['blocklist']['uri'] = {}
+default['gitlab-haproxy']['frontend']['allowlist']['internal'] = {}
+default['gitlab-haproxy']['frontend']['allowlist']['api'] = {}
 
 default['gitlab-haproxy']['frontend']['peers']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api']['httpchk_host'] = 'gitlab.com'
@@ -202,7 +207,8 @@ default['gitlab-haproxy']['frontend']['canary_https_git']['ssl_verify'] = node['
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
 default['gitlab-haproxy']['frontend']['https']['rate_limit_frontend_port'] = '4444' # legacy
 default['gitlab-haproxy']['frontend']['https']['rate_limit_sessions_per_second'] = '10' # legacy
-default['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] = '127.0.0.1'
+default['gitlab-haproxy']['frontend']['https']['rate_limit_whitelist'] = '127.0.0.1' # TODO: remove after migrating to new configs/attributes
+default['gitlab-haproxy']['frontend']['https']['rate_limit_allowlist'] = '127.0.0.1'
 default['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['enable'] = false # legacy
 default['gitlab-haproxy']['frontend']['https']['api_ratelimit_bypass_for_useragent']['useragent'] = nil # legacy
 default['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = nil
@@ -396,7 +402,8 @@ default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
 default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 default['gitlab-haproxy']['pages']['https_proxyv2_backend_listen_port'] = 2443
 default['gitlab-haproxy']['pages']['enable_https_proxyv2'] = false
-default['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = false
+default['gitlab-haproxy']['pages']['enable_domain_blacklisting'] = false # TODO: remove after migrating to new configs/attributes
+default['gitlab-haproxy']['pages']['enable_domain_blocklist'] = false
 default['gitlab-haproxy']['pages']['enable_domain_rate_limiting'] = false
 default['gitlab-haproxy']['pages']['domain_rate_limit_per_second'] = '800'
 default['gitlab-haproxy']['canary_pages']['default_weight'] = '0'

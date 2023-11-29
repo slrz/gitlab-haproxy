@@ -7,21 +7,13 @@ control 'general-haproxy-checks' do
   title 'Basic health checks for HAProxy'
   desc '
     This control ensures that:
-      * haproxy package is installed (1.8 for 16.04, 2.8+ for 20.04+)
+      * haproxy package is installed (2.8+)
       * haproxy service in enabled and running
       * essential supplemental files are present
       * the configuration is valid'
 
-  is_bionic = command('lsb_release -rs').stdout =~ /18\.04/
-
   describe package('haproxy') do
     it { should be_installed }
-    if command('lsb_release -rs').stdout =~ /18\.04/
-      its('version') { should cmp >= '1.8' }
-      its('version') { should cmp <= '1.9' }
-    else
-      its('version') { should cmp >= '2.8' }
-    end
   end
 
   describe service('haproxy') do
@@ -38,15 +30,13 @@ control 'general-haproxy-checks' do
   describe file('/etc/haproxy/haproxy.cfg') do
     its('mode') { should cmp '0600' }
     # Only applicable to new configuration
-    unless is_bionic
-      its('content') { should include 'log stdout len 4096 format raw daemon' }
-      its('content') { should include 'http-errors gitlab-errorcodes' } # error file definition
-      its('content') { should include 'errorfiles gitlab-errorcodes' } # default loading of errorfiles
-      its('content') { should include 'master-worker no-exit-on-failure' }
-      its('content') { should include 'http-request use-service prometheus-exporter' } # native prometheus
-      # Default HTTP log format
-      its('content') { should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r' }
-    end
+    its('content') { should include 'log stdout len 4096 format raw daemon' }
+    its('content') { should include 'http-errors gitlab-errorcodes' } # error file definition
+    its('content') { should include 'errorfiles gitlab-errorcodes' } # default loading of errorfiles
+    its('content') { should include 'master-worker no-exit-on-failure' }
+    its('content') { should include 'http-request use-service prometheus-exporter' } # native prometheus
+    # Default HTTP log format
+    its('content') { should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r' }
   end
 
   describe file('/etc/haproxy/cloudflare_ips_v4.lst') do
@@ -65,8 +55,7 @@ control 'general-haproxy-checks' do
     its('mode') { should cmp '0644' }
   end
 
-  ca_ext = is_bionic ? 'pem' : 'ca'
-  describe file("/etc/haproxy/ssl/cf-origin-pull.#{ca_ext}") do
+  describe file('/etc/haproxy/ssl/cf-origin-pull.ca') do
     it { should be_file }
     its('type') { should eq :file }
     its('owner') { should eq 'root' }
@@ -94,22 +83,14 @@ control 'general-haproxy-checks' do
     its('mode') { should cmp '0750' }
   end
 
-  if is_bionic
-    %w(blacklist-uris whitelist-api whitelist-internal canary-request-paths).each do |list|
-      describe file("/etc/haproxy/#{list}.lst") do
-        it { should be_file }
-      end
+  %w(blocklist-uris allowlist-api allowlist-internal canary-request-paths).each do |list|
+    describe file("/etc/haproxy/#{list}.lst") do
+      it { should be_file }
     end
-  else
-    %w(blocklist-uris allowlist-api allowlist-internal canary-request-paths).each do |list|
-      describe file("/etc/haproxy/#{list}.lst") do
-        it { should be_file }
-      end
-    end
+  end
 
-    describe file('/etc/apt/apt.conf.d/50unattended-upgrades') do
-      its('content') { should include 'o=LP-PPA-vbernat-haproxy-2.8' }
-    end
+  describe file('/etc/apt/apt.conf.d/50unattended-upgrades') do
+    its('content') { should include 'o=LP-PPA-vbernat-haproxy-2.8' }
   end
 end
 

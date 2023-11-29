@@ -16,7 +16,7 @@ provisioner:
   product_name: chef
   product_version: 14.15.6
   data_bags_path: test/integration/data_bags
-#  require_chef_omnibus: '14'
+  # require_chef_omnibus: '14'
   always_update_cookbooks: false # Override the default for kitchen 2.0+, otherwise new upstream cookbooks will be pulled in that might require chef > 14
 
 platforms:
@@ -48,7 +48,7 @@ verifier:
 suites:
   - name: haproxy-main
     run_list:
-      - recipe[gitlab-haproxy::frontend]
+      - recipe[gitlab-haproxy::main]
     verifier:
       inspec_tests:
         - test/integration/default
@@ -116,7 +116,6 @@ suites:
           api:
             httpchk_host: gitlab.com
             httpchk_path: "/-/k8s/api/-/readiness"
-            servers: {}
             rate_limit_http_rate_per_minute: '2000'
             rate_limit_package_registry_rate_per_minute: '7000'
             check_opts: check-ssl
@@ -129,7 +128,6 @@ suites:
             httpchk_path: "/-/readiness"
             check_opts: port 8181
             tcp_check_enable: false
-            servers: {}
             server_port: '8181'
             ssl_verify: ''
             use_verbose_acls: false
@@ -143,7 +141,6 @@ suites:
             ssl_verify: ''
             enable: true
             default_weight: '5'
-            servers: {}
           https:
             custom_config:
               - "# Overridden to test injection #####"
@@ -175,11 +172,9 @@ suites:
             proxy_endpoint: "/k8s-proxy"
             proxy_port: '8154'
             server_port: '8150'
-            servers: {}
             tcp_check_enable: false
           canary_kas:
             default_weight: '5'
-            servers: {}
           ssh:
             httpchk_host: gitlab.com
             httpchk_path: "/-/health"
@@ -189,7 +184,6 @@ suites:
             port: '2222' # ONLY IN KITCHEN! This is because on 'real' HAProxy nodes, SSH binds on port 2222, but in kitchen it binds on 22, so we need to swap
             server_port: '2222'
             ssl_verify: ssl verify none
-            servers: {}
             custom_config:
               - "# Overridden to test injection #####"
               - "# override for ssh frontend"
@@ -200,7 +194,6 @@ suites:
           canary_ssh:
             send-proxy-v2: true
             default_weight: '5'
-            servers: {}
           altssh:
             send-proxy-v2: false
             default_weight: '100'
@@ -221,10 +214,8 @@ suites:
               headers: " X-Requested-With"
             server_port: '8181'
             ssl_verify: ''
-            servers: {}
             default_weight: '100'
           web_k8s:
-            servers: {}
             check_opts: port 8181
             server_port: '8181'
             ssl_verify: ''
@@ -242,9 +233,7 @@ suites:
             content_security_policy_report_only: " default-src 'self';"
             enable: true
             default_weight: '3'
-            servers: {}
           websockets:
-            servers: {}
             check_opts: port 8181
             tcp_check_enable: false
             httpchk_host: gitlab.com
@@ -267,12 +256,10 @@ suites:
           canary_api:
             enable: true
             default_weight: '5'
-            servers: {}
           canary_registry:
             enable: true
           canary_websockets:
             default_weight: '5'
-            servers: {}
           canary_request_path:
             path_list:
               - "/charts"
@@ -389,9 +376,7 @@ suites:
           httpchk_path: "/-/readiness"
           http_custom_config:
           https_custom_config:
-          servers: {}
           peers:
-            servers: {}
           http_backend_listen_port: 1080
           https_backend_listen_port: 1443
           https_proxyv2_backend_listen_port: 2443
@@ -412,9 +397,7 @@ suites:
           https_backend_listen_port: 1443
           https_proxyv2_backend_listen_port: 2443
         registry:
-          servers: {}
           peers:
-            servers: {}
           custom_config:
           backend_port: '5000'
           ssl_verify:
@@ -432,7 +415,6 @@ suites:
             essential:
               - registry
         canary_registry:
-          servers: {}
           default_weight: '0'
         camoproxy:
           server_port: 8080

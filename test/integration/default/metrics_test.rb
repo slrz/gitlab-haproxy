@@ -7,8 +7,7 @@ control 'haproxy-metrics-checks' do
   title 'Basic metric checks for HAProxy'
   desc '
     This control ensures that:
-      * haproxy-exporter is running (on 18.04)
-      * haproxy binds on port 9091 (on 20.04+)
+      * haproxy binds on port 9091
       * it exposes metrics'
 
   describe processes('haproxy_exporter') do
@@ -21,11 +20,7 @@ control 'haproxy-metrics-checks' do
 
   # haproxy-exporter
   describe port(9101) do
-    if command('lsb_release -rs').stdout =~ /18\.04/
-      its('processes') { should match [/haproxy_export/] } # This is cut short sometimes
-    else
-      its('processes') { should match [/haproxy/] }
-    end
+    its('processes') { should match [/haproxy/] }
     its('protocols') { should eq ['tcp'] }
   end
 
