@@ -49,10 +49,11 @@ if node['gitlab-haproxy']['use_old_config']
 else # !node['gitlab-haproxy']['use_old_config']
   Gitlab::TemplateHelpers.initialize(node)
 
+  # CI gateway frontends and backends have to be disabled in pre environment
   unless node['gitlab-haproxy']['ci-gateway']['enabled']
-    node['gitlab-haproxy']['enabled_frontends']['main'].delete('https_git_ci_gateway')
-    node['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_catch_all')
-    node['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_git_repo_redirection')
+    node.default['gitlab-haproxy']['enabled_frontends']['main'].delete('https_git_ci_gateway')
+    node.default['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_catch_all')
+    node.default['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_git_repo_redirection')
   end
 
   # Because chef code is run at compile time, we need to run this in a runtime block and save it to the run_state.
