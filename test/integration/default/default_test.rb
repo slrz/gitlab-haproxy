@@ -14,6 +14,7 @@ control 'general-haproxy-checks' do
 
   describe package('haproxy') do
     it { should be_installed }
+    its('version') { should cmp >= '2.8' }
   end
 
   describe service('haproxy') do

@@ -47,14 +47,14 @@ if node['gitlab-haproxy']['use_old_config']
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
 else # !node['gitlab-haproxy']['use_old_config']
-  Gitlab::TemplateHelpers.initialize(node)
-
   # CI gateway frontends and backends have to be disabled in pre environment
   unless node['gitlab-haproxy']['ci-gateway']['enabled']
     node.default['gitlab-haproxy']['enabled_frontends']['main'].delete('https_git_ci_gateway')
     node.default['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_catch_all')
     node.default['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_git_repo_redirection')
   end
+
+  Gitlab::TemplateHelpers.initialize(node)
 
   # Because chef code is run at compile time, we need to run this in a runtime block and save it to the run_state.
   ruby_block 'get available certificates' do

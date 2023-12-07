@@ -1,11 +1,10 @@
 control 'haproxy-flavor-checks' do
   impact 1.0
-  title 'Tests HAProxy settings for flavor specific configuration (flavor: pages)'
+  title 'HAProxy configuration tests for the pages flavour'
   only_if { command('lsb_release -rs').stdout !~ /18\.04/ }
   desc '
     This control ensures that:
-      * specific configuration settings for the pages flavor
-    are present in the HAProxy configuration'
+      - specific configurations for the pages flavour are present in the HAProxy configuration'
 
   [
     7331, # stats
