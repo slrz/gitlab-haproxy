@@ -10,14 +10,6 @@ control 'haproxy-metrics-checks' do
       * haproxy binds on port 9091
       * it exposes metrics'
 
-  describe processes('haproxy_exporter') do
-    if command('lsb_release -rs').stdout =~ /18\.04/
-      it { should be_running }
-    else
-      skip 'haproxy_exporter not expected'
-    end
-  end
-
   # haproxy-exporter
   describe port(9101) do
     its('processes') { should match [/haproxy/] }

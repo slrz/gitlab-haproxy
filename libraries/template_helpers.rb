@@ -3,8 +3,7 @@ require 'resolv'
 # rubocop:disable Style/ClassVars # We need class variables on the module.
 module Gitlab
   module TemplateHelpers
-    # These variables are all filled in `self.initialize`
-    # They are not required for the legacy config system.
+    # These variables are all filled in self.initialize
     @@node = nil
     @@flavor = ''
     @@backend_servers = nil
