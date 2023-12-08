@@ -318,7 +318,7 @@ default['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_host'] = 'example.
 default['gitlab-haproxy']['frontend']['asset_proxy']['host'] = 'example.com'
 default['gitlab-haproxy']['frontend']['asset_proxy']['server'] = 'storage.googleapis.com'
 default['gitlab-haproxy']['frontend']['asset_proxy']['server_port'] = '443'
-default['gitlab-haproxy']['frontend']['asset_proxy']['opts'] = 'check inter 2s fastinter 1s downinter 5s fall 3 verify none resolve-prefer ipv4'
+default['gitlab-haproxy']['frontend']['asset_proxy']['opts'] = 'check check-ssl inter 2s fastinter 1s downinter 5s fall 3 verify none resolve-prefer ipv4'
 
 default['gitlab-haproxy']['frontend']['altssh']['default_weight'] = '100'
 default['gitlab-haproxy']['frontend']['web']['default_weight'] = '100'
