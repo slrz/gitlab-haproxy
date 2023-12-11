@@ -6,5 +6,6 @@
   override_host: get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'host'),
   source_backends: nil, # We define the servers in this template.
 } -%>
-
-  server asset-bucket <%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'server') %>:<%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'server_port') %> <%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'opts') %>
+  # https://gitlab.com/gitlab-com/gl-infra/production/-/issues/17248
+  default-server <%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'opts') %>  
+  server asset-bucket <%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'server') %>:<%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'server_port') %>
