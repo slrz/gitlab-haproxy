@@ -1,9 +1,0 @@
-[Service]
-ExecReload=
-ExecReload=/bin/bash -c '/usr/bin/socat /run/haproxy/admin.sock - <<< "show servers state" > /etc/haproxy/state/global'
-ExecReload=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS
-ExecReload=/bin/kill -USR2 $MAINPID
-
-TimeoutStopSec=<%= node['gitlab-haproxy']['systemd_timeout_stop_seconds'] %>
-ExecStop=/usr/local/sbin/drain_haproxy.sh -w <%= node['gitlab-haproxy']['drain_time_seconds'] %>
-ExecStartPost=-/usr/local/sbin/drain_haproxy.sh -u

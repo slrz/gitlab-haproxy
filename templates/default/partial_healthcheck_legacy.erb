@@ -1,8 +1,0 @@
-    <% if @ha_frontend['tcp_check_enable'] %>
-    option tcp-check
-    <% elsif @use_legacy_config %>
-    option httpchk GET <%= @ha_frontend['httpchk_path'] %> HTTP/1.1\r\nHost:\ <%= @ha_frontend['httpchk_host'] %>
-    <% else %>
-    option httpchk
-    http-check send meth GET uri <%= @ha_frontend['httpchk_path'] %> hdr Host <%= @ha_frontend['httpchk_host'] %>
-    <% end %>

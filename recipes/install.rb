@@ -40,8 +40,7 @@ service 'rsyslog' do
 end
 
 package 'haproxy' do
-  # We restart rsyslog in order to create the socket HAProxy logs to
-  # TODO: This may not be necessary on Ubuntu 20.04, as we log through systemd to rsyslog
+  # We restart rsyslog in order to create the socket HAProxy logs to.
   notifies :restart, 'service[rsyslog]', :delayed
 end
 
