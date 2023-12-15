@@ -10,8 +10,8 @@ default['gitlab-haproxy']['flavor'] = nil
 # Please see `templates/frontend/<name>.erb for details on the frontend.`
 # Please enable check_* frontends by setting a backend on `check_frontends` below.
 default['gitlab-haproxy']['enabled_frontends']['main'] = %w(http https kas ssh https_git_ci_gateway)
-default['gitlab-haproxy']['enabled_frontends']['pages'] = %w(pages_http pages_https) # Explicitly enable the check_* variants as their name does not match.
-default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http https) # These backends are flavored.
+default['gitlab-haproxy']['enabled_frontends']['pages'] = %w(pages_http pages_https)
+default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http https)
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
