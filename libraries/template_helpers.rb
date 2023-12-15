@@ -141,6 +141,7 @@ module Gitlab
       flavor = @@flavor
       check_frontends = get_attribute('gitlab-haproxy', 'check_frontends')
       merged = Hash.new { |h, k| h[k] = {} }
+
       return merged if check_frontends[flavor].nil?
 
       check_frontends[flavor].each do |frontend_name, _|
@@ -151,32 +152,37 @@ module Gitlab
         merged[frontend_name]['uri'] = check_frontends[flavor][frontend_name]['uri'] || check_frontends['default'][frontend_name]['uri']
         merged[frontend_name]['port'] = check_frontends[flavor][frontend_name]['port'] || check_frontends['default'][frontend_name]['port']
       end
+
       @@check_frontends = merged
     end
 
     def self.select_frontends
       frontends = []
       flavor = @@flavor
+
       map = get_attribute('gitlab-haproxy', 'enabled_frontends')
-      # map = node['gitlab-haproxy']['enabled_frontends']
       raise 'no frontends flavor map configured' if map.nil?
       raise 'unknown flavor' if map[flavor].nil?
 
       map[flavor].each do |frontend_name|
         frontends << frontend_name
       end
+
       @@enabled_frontends = frontends.sort
     end
 
     def self.select_backends
+      backends = []
       flavor = @@flavor
+
       map = get_attribute('gitlab-haproxy', 'enabled_backends')
       raise 'no backends flavor map configured' if map.nil?
-      backends = []
       raise 'unknown flavor' if map[flavor].nil?
+
       map[flavor].each do |backend_name|
         backends << backend_name
       end
+
       @@enabled_backends = backends.sort
     end
 
@@ -186,12 +192,15 @@ module Gitlab
       settings = Hash.new { |h, k| h[k] = {} }
       settings['global'] = Hash.new { |h, k| h[k] = {} }
       settings['defaults'] = Hash.new { |h, k| h[k] = {} }
+
       input['default']['global'].each do |setting, value|
         settings['global'][setting] = value unless value.nil?
       end
+
       input['default']['defaults'].each do |setting, value|
         settings['defaults'][setting] = value unless value.nil?
       end
+
       unless input[flavor].nil?
         # This copies the frontend settings 1:1.
         unless input[flavor]['frontend'].nil?
@@ -199,6 +208,7 @@ module Gitlab
             settings['frontend'][section] = input[flavor]['frontend'][section].to_h
           end
         end
+
         # This copies the backend settings 1:1.
         unless input[flavor]['backend'].nil?
           input[flavor]['backend'].each do |section, _|
@@ -215,6 +225,7 @@ module Gitlab
             end
           end
         end
+
         unless input[flavor]['defaults'].nil?
           input[flavor]['defaults'].each do |setting, value|
             if value.nil?
@@ -225,6 +236,7 @@ module Gitlab
           end
         end
       end
+
       @@chef_attribute_settings = settings
     end
 
@@ -245,29 +257,28 @@ module Gitlab
         name = hostname if name == 'kitchen-vm-under-test'
         new_peers[name] = Resolv.getaddress(network[0])
       end
+
       @@peers = new_peers
     end
 
     def self.backend_servers_for_lb_zone(backend_cfg, zone_id)
-      # extract the name from the full
-      # zone identifier, ex: projects/65580314219/zones/us-east1-c
+      # Extract the name from the full zone identifier, ex: projects/65580314219/zones/us-east1-c
       lb_zone = zone_id && File.basename(zone_id)
+
       servers = Hash.new { |h, k| h[k] = {} }
 
+      # There are no servers to return
       if backend_cfg.nil? || (!backend_cfg.key?('servers') && !backend_cfg.key?('essential'))
-        # There are no servers to return
         return servers
       end
 
       if !lb_zone || !backend_cfg['servers'].key?(lb_zone)
-        # If there is no LB zone or if there are
-        # no servers provided for the LB zone, fallback
-        # to the 'default' zone
+        # If there is no LB zone or if there are no servers provided for the LB zone,
+        # fallback to the 'default' zone
         lb_zone = 'default'
       end
 
-      # Merge all availability zones (all keys under backend_cfg['servers'])
-      # into a single server list
+      # Merge all availability zones (all keys under backend_cfg['servers']) into a single server list
       servers['all'] = backend_cfg['servers'].values.reduce(&:deep_merge)
 
       # Set the default active servers to an empty server config
@@ -275,9 +286,7 @@ module Gitlab
         servers['active'][backend] = {}
       end
 
-      # Build up an active server list selecting servers
-      # that only match the zone of the lb or the zone named
-      # default
+      # Build up an active server list selecting servers that only match the zone of the lb or the zone named default
       backend_cfg['servers'].each do |server_zone, server|
         servers['active'].deep_merge!(server) if lb_zone == server_zone || server_zone == 'default'
       end
@@ -287,6 +296,7 @@ module Gitlab
           raise "Essential backend #{backend} has zero active servers configured: #{servers['active']}, aborting!"
         end
       end
+
       @@backend_servers = servers
       servers
     end

@@ -262,8 +262,23 @@ default['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '
 default['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = []
 default['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'] = false
 
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['api'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['https_git'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['kas'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_kas'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ssh'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['web_k8s'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['websockets'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_web'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_websockets'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_api'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_https_git'] = {}
+
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git ssh web websockets)
+
 default['gitlab-haproxy']['frontend']['canonical_host'] = 'gitlab.com'
 
 #####################################################################
@@ -289,6 +304,9 @@ default['gitlab-haproxy']['canary_pages']['http_backend_listen_port'] = node['gi
 default['gitlab-haproxy']['canary_pages']['https_backend_listen_port'] = node['gitlab-haproxy']['pages']['https_backend_listen_port']
 default['gitlab-haproxy']['canary_pages']['https_proxyv2_backend_listen_port'] = node['gitlab-haproxy']['pages']['https_proxyv2_backend_listen_port']
 
+default['gitlab-haproxy']['pages']['backend']['servers']['default']['pages'] = {}
+default['gitlab-haproxy']['pages']['backend']['servers']['default']['canary_pages'] = {}
+
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['pages']['backend']['essential'] = %w(pages)
 
@@ -308,8 +326,10 @@ default['gitlab-haproxy']['registry']['httpchk_path'] = '/debug/health'
 default['gitlab-haproxy']['registry']['tcp_check_enable'] = false
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
 default['gitlab-haproxy']['registry']['default_weight'] = '100'
-
 default['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull'] = false
+
+default['gitlab-haproxy']['registry']['backend']['servers']['default']['registry'] = {}
+default['gitlab-haproxy']['registry']['backend']['servers']['default']['canary_registry'] = {}
 
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['registry']['backend']['essential'] = %w(registry)
