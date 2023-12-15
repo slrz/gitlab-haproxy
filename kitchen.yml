@@ -80,10 +80,10 @@ suites:
               # Other IPs removed
           peers:
             servers:
-              fe-01-lb-gprd:
+              haproxy-main-01-lb-gprd:
                 - example.com # HAProxy must be able to resolve the address, so we cannot use the internal DNS names here
                 - 32768
-              fe-02-lb-gprd:
+              haproxy-main-02-lb-gprd:
                 - example.com
                 - 32768
               kitchen-vm-under-test: # Used for kitchen tests
@@ -522,10 +522,10 @@ suites:
           https_custom_config:
           peers:
             servers:
-              fe-pages-01-lb-gprd:
+              haproxy-pages-01-lb-gprd:
                 - example.com # HAProxy must be able to resolve the address, so we cannot use the internal DNS names here
                 - 32768
-              fe-pages-02-lb-gprd:
+              haproxy-pages-02-lb-gprd:
                 - example.com
                 - 32768
               kitchen-vm-under-test: # Used for kitchen tests
@@ -780,10 +780,10 @@ suites:
         registry:
           peers:
             servers:
-              fe-registry-01-lb-gprd:
+              haproxy-registry-01-lb-gprd:
                 - example.com # HAProxy must be able to resolve the address, so we cannot use the internal DNS names here
                 - 32768
-              fe-registry-02-lb-gprd:
+              haproxy-registry-02-lb-gprd:
                 - example.com
                 - 32768
               kitchen-vm-under-test: # Used for kitchen tests

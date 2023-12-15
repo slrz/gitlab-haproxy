@@ -7,14 +7,10 @@
 # License: MIT
 #
 
-include_recipe 'gitlab-mtail::haproxy'
-
 node.default['process_exporter']['config'] = {
   process_names: [
     {
-      exe: [
-        'haproxy',
-      ],
+      exe: ['haproxy'],
     },
   ],
 }

@@ -83,7 +83,7 @@ control 'haproxy-main-flavor-checks' do
     its('content') do
       should include('peers main-peers
   bind 0.0.0.0:32769',
-                     'server fe-02-lb-gprd 93.184.216.34:32769')
+                     'server haproxy-main-02-lb-gprd 93.184.216.34:32769')
     end
 
     # Validates that local peer detection works, and no IP:port pair is inserted for it

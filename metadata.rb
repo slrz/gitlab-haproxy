@@ -7,7 +7,6 @@ version          '6.0.2'
 chef_version     '>= 14.0'
 
 depends 'gitlab-exporters'
-depends 'gitlab-mtail'
 depends 'gitlab-vault'
 depends 'gitlab_secrets'
 depends 'apt'

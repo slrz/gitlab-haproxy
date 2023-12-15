@@ -6,9 +6,6 @@ DEPENDENCIES
   gitlab-haproxy
     path: .
     metadata: true
-  gitlab-mtail
-    git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-mtail.git
-    revision: 143756c66f9a816c3719f66a4c60d3778d4f8d35
   gitlab-server
     git: git@ops.gitlab.net:gitlab-cookbooks/gitlab-server.git
     revision: 7b46f490b9cf3458cab55c2c0543a15ee99f7a2f
@@ -50,11 +47,8 @@ GRAPH
   gitlab-haproxy (6.0.2)
     apt (>= 0.0.0)
     gitlab-exporters (>= 0.0.0)
-    gitlab-mtail (>= 0.0.0)
     gitlab-vault (>= 0.0.0)
     gitlab_secrets (>= 0.0.0)
-  gitlab-mtail (2.5.10)
-    runit (>= 0.0.0)
   gitlab-server (1.19.3)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
