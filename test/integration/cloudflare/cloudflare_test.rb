@@ -4,16 +4,15 @@
 
 control 'haproxy-config-checks' do
   impact 1.0
-  title 'Tests HAProxy settings for Cloudflare (Ubuntu 18.04)'
-  only_if { command('lsb_release -rs').stdout =~ /18\.04/ }
+  title 'Tests HAProxy settings for Cloudflare'
   desc '
     This control ensures that:
-      * cloudflare ip whitelists are created
-      * cloudflare origin pull certificate is created
-      * haproxy configuration does not include `option forwardfor`
-      * haproxy configuration includes SSL client verification directives
-      * haproxy configuration uses cloudflare ACLs
-      * haproxy rate-limiting is in effect'
+      • cloudflare ip allowlists are created
+      • cloudflare origin pull certificate is created
+      • haproxy configuration does not include `option forwardfor`
+      • haproxy configuration includes SSL client verification directives
+      • haproxy configuration uses cloudflare ACLs
+      • haproxy rate-limiting is in effect'
 
   # Attributes expected:
   # node['gitlab-haproxy']['cloudflare']['enable'] = true

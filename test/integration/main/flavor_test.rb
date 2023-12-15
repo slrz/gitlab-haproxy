@@ -1,10 +1,9 @@
-control 'haproxy-flavor-checks' do
+control 'haproxy-main-flavor-checks' do
   impact 1.0
-  title 'HAProxy configuration tests for the main flavour'
-  only_if { command('lsb_release -rs').stdout !~ /18\.04/ }
+  title 'HAProxy configuration tests for the main flavor'
   desc '
     This control ensures that:
-      • specific configurations for the main flavour are present in the HAProxy configuration'
+      • specific configurations for the main flavor are present in the HAProxy configuration'
 
   [
     7331, # stats
@@ -86,6 +85,7 @@ control 'haproxy-flavor-checks' do
   bind 0.0.0.0:32769',
                      'server fe-02-lb-gprd 93.184.216.34:32769')
     end
+
     # Validates that local peer detection works, and no IP:port pair is inserted for it
     its('content') { should match /32769\n  server tk-haproxy-main-ubuntu-20-04-x64-\S+ \n/ }
 
