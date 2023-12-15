@@ -220,18 +220,23 @@ Each template (backend and frontend) has access to these template helpers.
 They can be accessed directly in any erb expression.
 
   - `cookbook_version`: Return the current version of the cookbook as defined in `metadata.rb`
-  - `get_attribute(*query)`: A `.dig()`-like function to retrieve a node attribute. For example `get_attribute('gitlab-haproxy', 'flavor')` would return the same as `node['gitlab-haproxy']['flavor']`.
+  - `get_attribute(*query)`: A `.dig()`-like function to retrieve a node attribute.
+    For example `get_attribute('gitlab-haproxy', 'flavor')` would return the same as `node['gitlab-haproxy']['flavor']`.
   - `peers` returns an array of peer nodes for the current HA cluster flavor.
   - `flavor` returns the current flavor.
   - `enabled_backends` returns an array of the names of currently enabled backends.
   - `enabled_frontends` returns an array of the names of currently enabled frontends.
   - `check_frontends` returns an array of the names of currently enabled `check_*` frontends.
-  - `chef_attribute_settings(*query)`: `.dig()`-like access to merged settings for the current flavor to embed into the HAProxy configuration sections, backends, and frontends.
+  - `chef_attribute_settings(*query)`: `.dig()`-like access to merged settings for
+    the current flavor to embed into the HAProxy configuration sections, backends, and frontends.
   - `admin_password` returns the password to set for the stats endpoint.
-  - `filter_certificates(wanted)`: Checks the passed array of wanted filenames against the available certificates on the node. Raises an error if one cannot be found.
+  - `filter_certificates(wanted)`: Checks the passed array of wanted filenames against the available certificates on the node.
+    Raises an error if one cannot be found.
   - `build_check_opts(backend_name)` returns the `check` options for a given `backend_name`.
-  - `build_ssl_opts(backend_name)` returns the `ssl` options for a given `backend_name`. If no ssl options are found, returns `no-ssl` for compatibility.
-  - `backend_servers_by_pool(pool_name, fallback_pool_name)` returns an array of backend servers to use from a given `pool_name`. Any missing values are substituted from the `fallback_pool_name`'s configuration values.
+  - `build_ssl_opts(backend_name)` returns the `ssl` options for a given `backend_name`.
+    If no ssl options are found, returns `no-ssl` for compatibility.
+  - `backend_servers_by_pool(pool_name, fallback_pool_name)` returns an array of backend servers to use from a given `pool_name`.
+    Any missing values are substituted from the `fallback_pool_name`'s configuration values.
 
 ## Testing
 
