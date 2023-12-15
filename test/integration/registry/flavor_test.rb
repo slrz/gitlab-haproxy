@@ -1,10 +1,9 @@
-control 'haproxy-flavor-checks' do
+control 'haproxy-registry-flavor-checks' do
   impact 1.0
-  title 'HAProxy configuration tests for the registry flavour'
-  only_if { command('lsb_release -rs').stdout !~ /18\.04/ }
+  title 'HAProxy configuration tests for the registry flavor'
   desc '
     This control ensures that:
-      - specific configurations for the registry flavour are present in the HAProxy configuration'
+      • specific configurations for the registry flavor are present in the HAProxy configuration'
 
   [
     7331, # stats

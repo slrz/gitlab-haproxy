@@ -7,8 +7,8 @@ control 'haproxy-metrics-checks' do
   title 'Basic metric checks for HAProxy'
   desc '
     This control ensures that:
-      * haproxy binds on port 9091
-      * it exposes metrics'
+      • haproxy binds on port 9091
+      • it exposes metrics'
 
   # haproxy-exporter
   describe port(9101) do

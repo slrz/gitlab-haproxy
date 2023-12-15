@@ -7,10 +7,10 @@ control 'general-haproxy-checks' do
   title 'Basic health checks for HAProxy'
   desc '
     This control ensures that:
-      * haproxy package is installed (2.8+)
-      * haproxy service in enabled and running
-      * essential supplemental files are present
-      * the configuration is valid'
+      • haproxy package is installed (2.8+)
+      • haproxy service in enabled and running
+      • essential supplemental files are present
+      • the configuration is valid'
 
   describe package('haproxy') do
     it { should be_installed }
