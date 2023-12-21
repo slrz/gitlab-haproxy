@@ -6,4 +6,7 @@
   override_host: get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'host'),
   source_backends: nil, # We define the servers in this template.
 } -%>
+
+  # Asset requests in staging and production are directly sent to Google Cloud Storage public bucket.
+  # We keep supporting assets in HAProxy for other environments as a fallback measure.
   server asset-bucket <%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'server') %>:<%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'server_port') %> <%= get_attribute('gitlab-haproxy', flavor, 'asset_proxy', 'opts') %>

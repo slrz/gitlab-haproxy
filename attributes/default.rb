@@ -128,12 +128,12 @@ default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
 default['gitlab-haproxy']['maxconn'] = 50000
 
-##########################################################################
+###############################################################################
 #
 # HAProxy load balancer configuration, gitlab.com port 443, 80, 22
 # This is named frontend, not to be confused with frontends in the HAProxy
 #
-##########################################################################
+###############################################################################
 
 default['gitlab-haproxy']['frontend']['blocklist']['uri'] = {}
 default['gitlab-haproxy']['frontend']['allowlist']['internal'] = {}
@@ -236,6 +236,9 @@ default['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_path'] = '/-/healt
 default['gitlab-haproxy']['frontend']['ai_assisted']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['ai_assisted']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 3s fastinter 1s downinter 5s fall 3'
+
+# Asset requests in staging and production are directly sent to Google Cloud Storage public bucket.
+# We keep supporting assets in HAProxy for other environments as a fallback measure.
 default['gitlab-haproxy']['frontend']['asset_proxy']['enable'] = false
 default['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_path'] = '/info'
 default['gitlab-haproxy']['frontend']['asset_proxy']['httpchk_host'] = 'example.com'
@@ -281,11 +284,12 @@ default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git
 
 default['gitlab-haproxy']['frontend']['canonical_host'] = 'gitlab.com'
 
-#####################################################################
+###############################################################################
 #
 # Pages load balancer configuration, *.gitlab.io port 443 and 80
 #
-#####################################################################
+###############################################################################
+
 default['gitlab-haproxy']['pages']['default_weight'] = '100'
 default['gitlab-haproxy']['pages']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
@@ -310,11 +314,11 @@ default['gitlab-haproxy']['pages']['backend']['servers']['default']['canary_page
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['pages']['backend']['essential'] = %w(pages)
 
-#####################################################################
+###############################################################################
 #
-# Registry lb configuration, registry.gitlab.com port 443 and 80
+# Registry load balancer configuration, registry.gitlab.com port 443 and 80
 #
-#####################################################################
+###############################################################################
 
 default['gitlab-haproxy']['canary_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}

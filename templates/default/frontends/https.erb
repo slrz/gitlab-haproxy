@@ -75,12 +75,9 @@
 
 <% if flavor == 'main' %>
 <% if enabled_backends.include? 'asset_proxy' -%>
-  ###############################################################
-  # Asset routing, all requests for /assets/ are routes to the
-  # asset object-storage bucket
+  # Asset routing, all requests for /assets/ are routes to the asset object-storage bucket.
   # There is a basic health check for a file named /info, in the bucket
-  # if it doesn't exist, asset requests will go to the front-end workers
-  #
+  # if it doesn't exist, asset requests will go to the front-end workers.
   use_backend asset_proxy if is_asset_request backend_available_asset_proxy
 
 <% end -%>
