@@ -33,3 +33,19 @@ cookbook_file '/etc/logrotate.d/haproxy' do
   group 'root'
   mode '0644'
 end
+
+# Disable the systemd logrotate timer to ensure we don't conflict with our
+# installed crontab entry
+#
+# This will remove the timer from the next restart of the system
+execute 'disable_systemd_logrotate_timer' do
+  command '/usr/bin/systemctl disable logrotate.timer'
+end
+
+# Stop the systemd logrotate timer to ensure we don't conflict with our
+# installed crontab entry
+#
+# This actually stops the timer if it is loaded and scheduled
+execute 'stop_systemd_logrotate_timer' do
+  command '/usr/bin/systemctl stop logrotate.timer'
+end
