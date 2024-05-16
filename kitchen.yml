@@ -349,7 +349,7 @@ suites:
 
     lifecycle:
       pre_converge:
-        remote: "sudo apt-get update"
+        - remote: "sudo apt-get update"
 
   - name: haproxy-pages
     run_list:
@@ -361,7 +361,7 @@ suites:
         - test/integration/pages
     lifecycle:
       pre_converge:
-        remote: "sudo apt-get update"
+        - remote: "sudo apt-get update"
     attributes:
       gitlab-haproxy:
         api_address: 0.0.0.0  # for integration tests
@@ -598,7 +598,7 @@ suites:
         - test/integration/registry
     lifecycle:
       pre_converge:
-        remote: "sudo apt-get update"
+        - remote: "sudo apt-get update"
     attributes:
       gitlab-haproxy:
         api_address: 0.0.0.0  # for integration tests
