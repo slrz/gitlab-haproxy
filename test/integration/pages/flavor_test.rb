@@ -69,7 +69,7 @@ control 'haproxy-pages-flavor-checks' do
     its('content') do
       should include('peers pages-peers
   bind 0.0.0.0:32769',
-                     'server haproxy-pages-02-lb-gprd 93.184.216.34:32769')
+                     'server haproxy-pages-02-lb-gprd 93.184.215.14:32769')
     end
     # Validates that local peer detection works, and no IP:port pair is inserted for it
     its('content') { should match /32769\n  server tk-haproxy-pages-ubuntu-20-04-x64-\S+ \n/ }

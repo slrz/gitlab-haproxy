@@ -49,6 +49,7 @@ verifier:
 suites:
   - name: haproxy-main
     run_list:
+      - recipe[gitlab-haproxy::kitchen_update_ca_certs]
       - recipe[gitlab-haproxy::main]
     verifier:
       inspec_tests:
@@ -352,6 +353,7 @@ suites:
 
   - name: haproxy-pages
     run_list:
+      - recipe[gitlab-haproxy::kitchen_update_ca_certs]
       - recipe[gitlab-haproxy::pages]
     verifier:
       inspec_tests:
@@ -588,6 +590,7 @@ suites:
 
   - name: haproxy-registry
     run_list:
+      - recipe[gitlab-haproxy::kitchen_update_ca_certs]
       - recipe[gitlab-haproxy::registry]
     verifier:
       inspec_tests:
