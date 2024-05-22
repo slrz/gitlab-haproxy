@@ -64,6 +64,8 @@ push-cookbook:
       - $OPS_CLONE_USERNAME
       - $OPS_CLONE_PASSWORD
   script:
+    - rm -rf Gemfile Gemfile.lock || true
     - git clone https://$OPS_CLONE_USERNAME:$OPS_CLONE_PASSWORD@ops.gitlab.net/gitlab-cookbooks/cookbook-publisher.git /tmp/cookbook-publisher
-    - cp /tmp/cookbook-publisher/publisher.rb .
-    - ruby publisher.rb
+    - cp /tmp/cookbook-publisher/publisher.rb /tmp/cookbook-publisher/Gemfile /tmp/cookbook-publisher/Gemfile.lock .
+    - bundle install
+    - bundle exec ruby publisher.rb
