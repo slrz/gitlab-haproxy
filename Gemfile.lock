@@ -836,7 +836,6 @@ DEPENDENCIES
   kitchen-vagrant (= 1.14.1)
   rbnacl (= 4.0.2)
   rbnacl-libsodium (= 1.0.16)
-  rexml (= 3.2.6)
   rubocop (= 1.25.1)
   test-kitchen (= 3.5.0)
 

@@ -14,7 +14,6 @@ group :test do
   gem 'kitchen-inspec', '2.6.1'
   gem 'kitchen-transport-speedy', '0.1.3'
   gem 'kitchen-vagrant', '1.14.1'
-  gem 'rexml', '3.2.6'
   gem 'rubocop', '1.25.1'
   gem 'test-kitchen', '3.5.0'
 end

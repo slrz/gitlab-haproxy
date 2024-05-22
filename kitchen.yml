@@ -349,7 +349,10 @@ suites:
 
     lifecycle:
       pre_converge:
+        # Wait long enough for cloud-init to finish running
+        - remote: "timeout 20 /bin/bash -c 'while [[ ! $(grep cloud-init /etc/apt/sources.list) ]]; do sleep 1 ; done'"
         - remote: "sudo apt-get update"
+        - remote: "sudo apt-get install -y build-essential"
 
   - name: haproxy-pages
     run_list:
@@ -361,7 +364,10 @@ suites:
         - test/integration/pages
     lifecycle:
       pre_converge:
+        # Wait long enough for cloud-init to finish running
+        - remote: "timeout 20 /bin/bash -c 'while [[ ! $(grep cloud-init /etc/apt/sources.list) ]]; do sleep 1 ; done'"
         - remote: "sudo apt-get update"
+        - remote: "sudo apt-get install -y build-essential"
     attributes:
       gitlab-haproxy:
         api_address: 0.0.0.0  # for integration tests
@@ -598,7 +604,10 @@ suites:
         - test/integration/registry
     lifecycle:
       pre_converge:
+        # Wait long enough for cloud-init to finish running
+        - remote: "timeout 20 /bin/bash -c 'while [[ ! $(grep cloud-init /etc/apt/sources.list) ]]; do sleep 1 ; done'"
         - remote: "sudo apt-get update"
+        - remote: "sudo apt-get install -y build-essential"
     attributes:
       gitlab-haproxy:
         api_address: 0.0.0.0  # for integration tests
