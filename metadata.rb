@@ -3,10 +3,8 @@ maintainer       'GitLab Inc.'
 maintainer_email 'ops-contact@gitlab.com'
 license          'All rights reserved'
 description      'Manage HAProxy server'
-version          '6.0.7'
+version          '6.0.8'
 chef_version     '>= 14.0'
-
-gem 'rexml', '3.2.6' if respond_to?(:gem)
 
 depends 'gitlab-exporters'
 depends 'gitlab-vault'
