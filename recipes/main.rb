@@ -8,7 +8,7 @@
 #
 
 # Check if HAProxy should be configured based on the condition currently the HAProxy toggle is only defined for gstg
-if (node['haproxy'].nil?) || (node['haproxy']['enabled'] && node.chef_environment == 'gstg')
+if node['haproxy'].nil? || node['haproxy']['enabled'] && node.chef_environment == 'gstg'
 
   node.default['gitlab-haproxy']['flavor'] = 'main'
 
