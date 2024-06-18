@@ -171,6 +171,7 @@ The frontend definition will render the following ACLs for use in the template (
   - `X-Forwarded-Proto` is set to `https` (unless no `listen_certificates` were provided, and thus TLS is disabled. Then `http`)
   - `X-SSL` is set to `true` (unless no `listen_certificates` were provided, and thus TLS is disabled. Then `false`)
   - `X-GitLab-RateLimit-Bypass` is set to `0` (unless `minimal == true`)
+  - `X-GitLab-RateLimit_Bypass` is set to `0` (unless `minimal == true`)
   - `GitLab-LB` is set to the HAProxy node's hostname serving the request
   - `GitLab-SV` is set to the backend server name serving the request
 
