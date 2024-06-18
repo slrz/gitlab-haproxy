@@ -8,6 +8,7 @@ group :test do
   gem 'chefspec', '7.4.0'
   gem 'cookstyle', '7.32.2'
   gem 'dbus-systemd', '1.1.2'
+  gem 'ffi', '< 1.17'
   gem 'inspec', '5.21.29'
   gem 'kitchen-docker', '2.13.0'
   gem 'kitchen-google', '2.3.0'
