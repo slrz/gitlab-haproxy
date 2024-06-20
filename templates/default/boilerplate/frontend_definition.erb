@@ -41,16 +41,6 @@ frontend <%= @name %>
 
   <% if @minimal.nil? or @minimal == false %>
   http-request set-header X-GitLab-RateLimit-Bypass 0
-  # We also need to set all variants of X-GitLab-RateLimit-Bypass with - replaced with _ since
-  # Under the hood ruby normalizes the header, For more context see: https://github.com/rails/rails/blob/v6.1.7.6/actionpack/lib/action_dispatch/http/headers.rb#L121-L129
-  # and https://gitlab.com/gitlab-org/gitlab/-/issues/441228.
-  http-request set-header X_Gitlab-Ratelimit-bypass 0
-  http-request set-header X-Gitlab_Ratelimit-bypass 0
-  http-request set-header X-Gitlab-Ratelimit_bypass 0
-  http-request set-header X_Gitlab-Ratelimit_bypass 0
-  http-request set-header X-Gitlab_Ratelimit_bypass 0
-  http-request set-header X_Gitlab_Ratelimit-bypass 0
-  http-request set-header X_Gitlab_Ratelimit_bypass 0
 
   # Canary opt in/out (`gitlab_canary=true` = canary_opt_in, `gitlab_canary=false` = canary_opt_out)
   acl canary_opt_in   req.cook(gitlab_canary) -m str -i true
