@@ -40,17 +40,17 @@ frontend <%= @name %>
   <% end %>
 
   <% if @minimal.nil? or @minimal == false %>
-  http-request set-header X-GitLab-RateLimit-Bypass 0
   # We are dropping all the normalized variants of header: X-GitLab-RateLimit-Bypass with - replaced with _ since
   # Under the hood ruby normalizes the header, For more context see: https://github.com/rails/rails/blob/v6.1.7.6/actionpack/lib/action_dispatch/http/headers.rb#L121-L129
   # and https://gitlab.com/gitlab-org/gitlab/-/issues/441228.
-  http-request del-header X_Gitlab-Ratelimit-bypass
-  http-request del-header X-Gitlab_Ratelimit-bypass
-  http-request del-header X-Gitlab-Ratelimit_bypass
-  http-request del-header X_Gitlab-Ratelimit_bypass
-  http-request del-header X-Gitlab_Ratelimit_bypass
-  http-request del-header X_Gitlab_Ratelimit-bypass
-  http-request del-header X_Gitlab_Ratelimit_bypass
+  http-request del-header X-GitLab-RateLimit-Bypass
+  http-request del-header X-GitLab-RateLimit_Bypass
+  http-request del-header X-GitLab_RateLimit-Bypass
+  http-request del-header X-GitLab_RateLimit_Bypass
+  http-request del-header X_GitLab-RateLimit-Bypass
+  http-request del-header X_GitLab-RateLimit_Bypass
+  http-request del-header X_GitLab_RateLimit-Bypass
+  http-request del-header X_GitLab_RateLimit_Bypass
 
   # Canary opt in/out (`gitlab_canary=true` = canary_opt_in, `gitlab_canary=false` = canary_opt_out)
   acl canary_opt_in   req.cook(gitlab_canary) -m str -i true

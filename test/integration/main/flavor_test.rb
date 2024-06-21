@@ -121,13 +121,14 @@ control 'haproxy-main-flavor-checks' do
                      'http-response set-header GitLab-LB %H',
                      'http-response set-header GitLab-SV %s',
                      'acl backend_available_api nbsrv(api) gt 0',
-                     'http-request del-header X_Gitlab-Ratelimit-bypass',
-                     'http-request del-header X-Gitlab_Ratelimit-bypass',
-                     'http-request del-header X-Gitlab-Ratelimit_bypass',
-                     'http-request del-header X_Gitlab-Ratelimit_bypass',
-                     'http-request del-header X-Gitlab_Ratelimit_bypass',
-                     'http-request del-header X_Gitlab_Ratelimit-bypass',
-                     'http-request del-header X_Gitlab_Ratelimit_bypass'
+                     'http-request del-header X-GitLab-RateLimit-Bypass',
+                     'http-request del-header X-GitLab-RateLimit_Bypass',
+                     'http-request del-header X-GitLab_RateLimit-Bypass',
+                     'http-request del-header X-GitLab_RateLimit_Bypass',
+                     'http-request del-header X_GitLab-RateLimit-Bypass',
+                     'http-request del-header X_GitLab-RateLimit_Bypass',
+                     'http-request del-header X_GitLab_RateLimit-Bypass',
+                     'http-request del-header X_GitLab_RateLimit_Bypass'
     end
 
     # Verifies correct template handling in backend definition
