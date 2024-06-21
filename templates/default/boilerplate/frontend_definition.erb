@@ -41,7 +41,7 @@ frontend <%= @name %>
 
   <% if @minimal.nil? or @minimal == false %>
   http-request set-header X-GitLab-RateLimit-Bypass 0
-  # We are dropping all the normalized variants of heade: X-GitLab-RateLimit-Bypass with - replaced with _ since
+  # We are dropping all the normalized variants of header: X-GitLab-RateLimit-Bypass with - replaced with _ since
   # Under the hood ruby normalizes the header, For more context see: https://github.com/rails/rails/blob/v6.1.7.6/actionpack/lib/action_dispatch/http/headers.rb#L121-L129
   # and https://gitlab.com/gitlab-org/gitlab/-/issues/441228.
   http-request del-header X_Gitlab-Ratelimit-bypass
