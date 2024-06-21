@@ -120,7 +120,14 @@ control 'haproxy-main-flavor-checks' do
                      'acl canary_opt_out  req.cook(gitlab_canary) -m str -i false',
                      'http-response set-header GitLab-LB %H',
                      'http-response set-header GitLab-SV %s',
-                     'acl backend_available_api nbsrv(api) gt 0'
+                     'acl backend_available_api nbsrv(api) gt 0',
+                     'http-request del-header X_Gitlab-Ratelimit-bypass',
+                     'http-request del-header X-Gitlab_Ratelimit-bypass',
+                     'http-request del-header X-Gitlab-Ratelimit_bypass',
+                     'http-request del-header X_Gitlab-Ratelimit_bypass',
+                     'http-request del-header X-Gitlab_Ratelimit_bypass',
+                     'http-request del-header X_Gitlab_Ratelimit-bypass',
+                     'http-request del-header X_Gitlab_Ratelimit_bypass'
     end
 
     # Verifies correct template handling in backend definition

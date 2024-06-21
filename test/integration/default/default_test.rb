@@ -36,13 +36,6 @@ control 'general-haproxy-checks' do
     its('content') { should include 'errorfiles gitlab-errorcodes' } # default loading of errorfiles
     its('content') { should include 'master-worker no-exit-on-failure' }
     its('content') { should include 'http-request use-service prometheus-exporter' } # native prometheus
-    its('content') { should include 'http-request del-header X_Gitlab-Ratelimit-bypass' }
-    its('content') { should include 'http-request del-header X-Gitlab_Ratelimit-bypass' }
-    its('content') { should include 'http-request del-header X-Gitlab-Ratelimit_bypass' }
-    its('content') { should include 'http-request del-header X_Gitlab-Ratelimit_bypass' }
-    its('content') { should include 'http-request del-header X-Gitlab_Ratelimit_bypass' }
-    its('content') { should include 'http-request del-header X_Gitlab_Ratelimit-bypass' }
-    its('content') { should include 'http-request del-header X_Gitlab_Ratelimit_bypass' }
     # Default HTTP log format
     its('content') { should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r' }
   end
