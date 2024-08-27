@@ -76,7 +76,7 @@ control 'haproxy-main-flavor-checks' do
   describe file('/etc/haproxy/haproxy.cfg') do
     # ssh backend should use the TCP logstring
     its('content') do
-      should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq'
+      should include 'log-format %ci:%cp\ %fi:%fp\ %bi:%bp\ %si:%sp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq'
     end
 
     # Peer section is being included

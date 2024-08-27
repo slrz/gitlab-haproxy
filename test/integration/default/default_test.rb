@@ -37,7 +37,7 @@ control 'general-haproxy-checks' do
     its('content') { should include 'master-worker no-exit-on-failure' }
     its('content') { should include 'http-request use-service prometheus-exporter' } # native prometheus
     # Default HTTP log format
-    its('content') { should include 'log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r' }
+    its('content') { should include 'log-format %ci:%cp\ %fi:%fp\ %bi:%bp\ %si:%sp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r' }
   end
 
   describe file('/etc/haproxy/cloudflare_ips_v4.lst') do
