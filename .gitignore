@@ -7,19 +7,15 @@
 .*.sw[a-z]
 *.un~
 
-# Kitchen
-.kitchen
-.kitchen.local.yml
-
-# Berkshelf
-.vagrant
-
 # Bundler
 .bundle/*
 vendor/bundle
 
-# Ruby
-.ruby-version
+# Kitchen
+.kitchen
+.kitchen.local.yml
 
-# RubyMine
+# Misc
 .idea/
+.vagrant
+.ruby-version

@@ -19,7 +19,7 @@ before_script:
 
 .ruby-cache:
   cache:
-    key: "ruby-3.2"
+    key: "ruby-3.0"
     paths:
       - $BUNDLE_PATH
 

@@ -20,7 +20,7 @@ frontend <%= @name %>
 
 <% if @mode == "tcp" %>
   # mode is not `http`. Overriding log-format to TCP logs
-  log-format %ci:%cp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
+  log-format %ci:%cp\ %fi:%fp\ %bi:%bp\ %si:%sp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tw/%Tc/%Tt\ %B\ %U\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq
 <% end -%>
 
 <% if @expect_proxy == 'HTTP' %><%= render 'boilerplate/cloudflare_HTTP.erb' %><% end %>
