@@ -49,6 +49,7 @@ if !node['cloud'].nil? && node['cloud']['provider'] == 'gce'
 end
 
 node.default['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = ['10.0.0.0/8'] if node['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'].empty?
+
 eth = node['network']['interfaces'].select { |_k, v| v['encapsulation'] == 'Ethernet' }.values.first
 node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v| v[:family] == 'inet' }.first
 # ---------------------------------------- endregion set required node attributes ----------------------------------------
