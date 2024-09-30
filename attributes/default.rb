@@ -123,7 +123,7 @@ default['gitlab-haproxy']['secrets']['path'] = 'gitlab-cluster-base'
 default['gitlab-haproxy']['errors']['503']['title'] = 'An internal server error occured.'
 default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please see our <a href="https://status.gitlab.com">status page</a> for more information.'
 
-default['gitlab-haproxy']['listen_address'] = '0.0.0.0'
+default['gitlab-haproxy']['listen_address'] = '*'
 default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
 default['gitlab-haproxy']['maxconn'] = 50000
