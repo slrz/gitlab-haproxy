@@ -44,7 +44,7 @@ GRAPH
     gitlab-vault (~> 0.2)
     gitlab_secrets (~> 0.0)
     runit (>= 0.0.0)
-  gitlab-haproxy (6.3.1)
+  gitlab-haproxy (6.4.0)
     apt (>= 0.0.0)
     gitlab-exporters (>= 0.0.0)
     gitlab-vault (>= 0.0.0)

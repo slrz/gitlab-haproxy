@@ -84,8 +84,11 @@ listen stats
   stats refresh 5s
   stats show-node <%= node['hostname'] %>
   http-request use-service prometheus-exporter if { path /metrics } # expose metrics
-  bind <%= node['gitlab-haproxy']['listen_address'] %>:7331 tfo
+<% node['gitlab-haproxy']['listen_addresses'].each do | bind_addr | %>
+  bind <%= bind_addr %>:7331 tfo
+<% end %>
   bind 0.0.0.0:9101 tfo  # haproxy_exporter listened on 9101. This is for compatibility.
+  bind :::9101 tfo
   mode http
   stats enable
   stats realm Haproxy\ Statistics

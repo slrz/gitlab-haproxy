@@ -1,6 +1,6 @@
 <%= render 'boilerplate/frontend_definition.erb', :variables => {
   :name => 'pages_http',
-  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_addresses => get_attribute('gitlab-haproxy', 'listen_addresses'),
   :bind_port=> 80,
   :skip_availability_acls => true, # no ACL traffic routing, we can skip the availibility acls
   :mode => 'http',

@@ -1,6 +1,6 @@
 <%= render 'boilerplate/frontend_definition.erb', :variables => {
   :name => 'ssh',
-  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_addresses => get_attribute('gitlab-haproxy', 'listen_addresses'),
   :bind_port=> get_attribute('gitlab-haproxy', flavor, 'ssh', 'port'),
   :bind_extra_options => get_attribute('gitlab-haproxy', flavor, 'ssh', 'bind_extra_options'),
   :skip_availability_acls => true, # no ACL traffic routing, we can skip the availibility acls
