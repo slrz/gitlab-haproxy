@@ -87,7 +87,8 @@ control 'haproxy-pages-flavor-checks' do
     # Tests Gitlab::TemplateHelpers::merge_check_frontends and its property merging
     its('content') do
       should include 'frontend check_https
-  bind *:8002 tfo
+  bind 0.0.0.0:8002 tfo
+  bind :::8002 tfo
   mode http',
                      'monitor-uri /-/available-https
   monitor fail if !backend_available_pages_https'

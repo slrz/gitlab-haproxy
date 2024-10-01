@@ -57,6 +57,7 @@ suites:
         - test/integration/main
     attributes:
       gitlab-haproxy:
+        listen_addresses: ['0.0.0.0', '::']
         api_address: 0.0.0.0  # for integration tests
         chef_vault: secrets
         chef_vault_item: certs
@@ -64,7 +65,6 @@ suites:
           '503':
             title: An internal server error occured.
             subtitle: Please see our <a href="https://status.gitlab.com">status page</a> for more information.
-        listen_address: 0.0.0.0
         maxconn: '20000'
         frontend:
           blocklist:
@@ -370,6 +370,7 @@ suites:
         - remote: "sudo apt-get install -y build-essential"
     attributes:
       gitlab-haproxy:
+        listen_addresses: ['0.0.0.0', '::']
         api_address: 0.0.0.0  # for integration tests
         chef_vault: secrets
         chef_vault_item: certs
@@ -378,7 +379,6 @@ suites:
             title: An internal server error occured.
             subtitle: Please see our <a href="https://status.gitlab.com">status page</a>
               for more information.
-        listen_address: 0.0.0.0
         admin_password:
         maxconn: '40000'
         frontend:
@@ -610,6 +610,7 @@ suites:
         - remote: "sudo apt-get install -y build-essential"
     attributes:
       gitlab-haproxy:
+        listen_addresses: ['0.0.0.0', '::']
         api_address: 0.0.0.0  # for integration tests
         chef_vault: secrets
         chef_vault_item: certs
@@ -618,7 +619,6 @@ suites:
             title: An internal server error occured.
             subtitle: Please see our <a href="https://status.gitlab.com">status page</a>
               for more information.
-        listen_address: 0.0.0.0
         admin_password:
         maxconn: '20000'
         frontend:

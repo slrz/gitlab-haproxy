@@ -123,7 +123,7 @@ Each template should start with the frontend definition template and provide the
 ```erb
 <%= render 'boilerplate/frontend_definition.erb', :variables => {
   :name => # The name of the frontend, as included in the file name.
-  :bind_addr => # The address to bind on
+  :bind_addresses => # The list of addresses to bind on them
   :bind_port=> # The port to bind on
   :bind_extra_options => # optional. a string with additional options to specify on the bind command
   :https_extra_bind_port => # optional. should `enforce_cf_origin_pull` be true, specifying this port will create another identical bind statemend without mTLS

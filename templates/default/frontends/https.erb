@@ -1,6 +1,6 @@
 <%= render 'boilerplate/frontend_definition.erb', :variables => {
   :name => 'https',
-  :bind_addr => get_attribute('gitlab-haproxy', 'listen_address'),
+  :bind_addresses => get_attribute('gitlab-haproxy', 'listen_addresses'),
   :bind_port=> 443,
   :bind_extra_options => '',
   :https_extra_bind_port => get_attribute('gitlab-haproxy', flavor, 'https', 'extra_bind_port'),

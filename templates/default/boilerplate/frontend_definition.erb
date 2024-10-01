@@ -2,10 +2,12 @@
 # start boilerplate/frontend_definition (<%= @name %>)
 <%- certificates = filter_certificates(@listen_certificates) -%>
 frontend <%= @name %>
-  bind <%= @bind_addr %>:<%= @bind_port%> tfo<% if certificates.any? %> ssl<% certificates.each do | cert| %> crt <%= cert %><% end %><%if @enforce_cf_origin_pull %> verify required ca-file /etc/haproxy/ssl/cf-origin-pull.ca<% end %><% end %><% if @bind_extra_options %> <%= @bind_extra_options %><% end %>
+<% @bind_addresses.each do | bind_addr | %>
+  bind <%= bind_addr %>:<%= @bind_port%> tfo<% if certificates.any? %> ssl<% certificates.each do | cert| %> crt <%= cert %><% end %><%if @enforce_cf_origin_pull %> verify required ca-file /etc/haproxy/ssl/cf-origin-pull.ca<% end %><% end %><% if @bind_extra_options %> <%= @bind_extra_options %><% end %>
 <% if @https_extra_bind_port %>
   # To be used internally within the GCP network, mainly to bypass client certificate verification (if enabled) above
-  bind <%= @bind_addr %>:<%= @https_extra_bind_port %> tfo <% if certificates.any? %>ssl<% certificates.each do | cert| %> crt <%= cert %><% end %><% end %><% if @bind_extra_options %> <%= @bind_extra_options %><% end %>
+  bind <%= bind_addr %>:<%= @https_extra_bind_port %> tfo <% if certificates.any? %>ssl<% certificates.each do | cert| %> crt <%= cert %><% end %><% end %><% if @bind_extra_options %> <%= @bind_extra_options %><% end %>
+<% end %>
 <% end %>
   mode <%= @mode %>
   # Chef attribute controlled settings ############
