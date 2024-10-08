@@ -252,6 +252,8 @@ although you can follow instructions to benefit from it.
      same by `brew install make`. After this, you can see available targets of
      the Makefile just by running `make` in cookbook directory.
 
+  1. Install `libsodium`: `brew install libsodium`
+
   1. Cheat-sheet overview of current targets:
      - `make gems`: install latest version of required gems into directory, specified by environmental variable `BUNDLE_PATH`.
        By default it is set to the same directory as on CI, `.bundle`, in the same directory as Makefile is located.

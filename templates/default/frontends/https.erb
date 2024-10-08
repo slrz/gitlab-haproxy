@@ -5,10 +5,7 @@
   :bind_extra_options => '',
   :https_extra_bind_port => get_attribute('gitlab-haproxy', flavor, 'https', 'extra_bind_port'),
   :enforce_cf_origin_pull => get_attribute('gitlab-haproxy', flavor, 'enforce_cloudflare_origin_pull'),
-  :listen_certificates => (flavor == 'registry') ? [
-    '/etc/haproxy/ssl/registry.pem',
-    '/etc/haproxy/ssl/internal.pem',
-  ] : get_attribute('gitlab-haproxy', 'ci-gateway', 'enabled') ? [
+  :listen_certificates => get_attribute('gitlab-haproxy', 'ci-gateway', 'enabled') ? [
     '/etc/haproxy/ssl/gitlab.pem',
     '/etc/haproxy/ssl/internal.pem',
     '/etc/haproxy/ssl/ci-gateway.pem',
@@ -20,11 +17,6 @@
   :expect_proxy => 'HTTP',
 } -%>
 <%- https_git_acl_format = get_attribute('gitlab-haproxy', flavor, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
-
-<% if flavor == 'registry' %>
-  stick-table type ipv6 size 1m expire 5m store gpc0,conn_rate(1m) <% if peers.any? %>peers <%= flavor %>-peers <% end %>
-  tcp-request connection track-sc1 src
-<% end %>
 
   capture request header User-Agent len 64
   acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
@@ -113,14 +105,4 @@
   use_backend canary_web if is_canary_path backend_available_canary_web
   default_backend web
 
-<% else %>
-  ###############################################################
-  # Registry routing
-  <% if enabled_backends.include? 'canary_registry' -%>
-  use_backend registry if canary_opt_out
-  use_backend canary_registry if canary_opt_in backend_available_canary_registry
-  use_backend canary_registry if is_canary_path backend_available_canary_registry
-  <% end %>
-  default_backend registry
-  ###############################################################
 <%end %>

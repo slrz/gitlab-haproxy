@@ -813,6 +813,9 @@ suites:
           default_check_opts: inter 2s fastinter 1s downinter 5s fall 3 port 5001
           default_weight: '100'
           enforce_cloudflare_origin_pull: false
+          rate_limit: 
+            enable: true
+            rate_limit_per_10s: 100
           backend:
             servers:
               default:

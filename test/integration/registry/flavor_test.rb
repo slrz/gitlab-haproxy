@@ -82,9 +82,9 @@ control 'haproxy-registry-flavor-checks' do
     end
 
     # frontend availability. Tests Gitlab::TemplateHelpers::select_frontends
-    %w(http https).each do |backend|
+    %w(http registry_https).each do |frontend|
       its('content') do
-        should include "frontend #{backend}"
+        should include "frontend #{frontend}"
       end
     end
 
@@ -139,6 +139,13 @@ control 'haproxy-registry-flavor-checks' do
   # node pool \'canary_registry\'
   server gke-cny-registry 10.216.8.18:5000 weight 10'
              )
+    end
+
+    # Verifies correct template handling for rate limiting
+    its('content') do
+      should include 'stick-table type ipv6 size 1m expire 30s store http_req_rate(10s) peers registry-peers',
+                     'http-request track-sc0 src',
+                     'http-request deny deny_status 429 if { sc_http_req_cnt(0) gt 100 }'
     end
   end
 end

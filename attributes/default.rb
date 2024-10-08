@@ -11,7 +11,7 @@ default['gitlab-haproxy']['flavor'] = nil
 # Please enable check_* frontends by setting a backend on `check_frontends` below.
 default['gitlab-haproxy']['enabled_frontends']['main'] = %w(http https kas ssh https_git_ci_gateway)
 default['gitlab-haproxy']['enabled_frontends']['pages'] = %w(pages_http pages_https)
-default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http https)
+default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http registry_https)
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
@@ -331,6 +331,8 @@ default['gitlab-haproxy']['registry']['tcp_check_enable'] = false
 default['gitlab-haproxy']['registry']['default_check_opts'] = 'inter 2s fastinter 1s downinter 5s fall 3 port 5001'
 default['gitlab-haproxy']['registry']['default_weight'] = '100'
 default['gitlab-haproxy']['registry']['enforce_cloudflare_origin_pull'] = false
+default['gitlab-haproxy']['registry']['rate_limit']['enable'] = false
+default['gitlab-haproxy']['registry']['rate_limit']['rate_limit_per_10s'] = '4000'
 
 default['gitlab-haproxy']['registry']['backend']['servers']['default']['registry'] = {}
 default['gitlab-haproxy']['registry']['backend']['servers']['default']['canary_registry'] = {}
