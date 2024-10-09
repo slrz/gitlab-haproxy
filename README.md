@@ -252,6 +252,8 @@ although you can follow instructions to benefit from it.
      same by `brew install make`. After this, you can see available targets of
      the Makefile just by running `make` in cookbook directory.
 
+  1. Install `libsodium`: `brew install libsodium`
+
   1. Cheat-sheet overview of current targets:
      - `make gems`: install latest version of required gems into directory, specified by environmental variable `BUNDLE_PATH`.
        By default it is set to the same directory as on CI, `.bundle`, in the same directory as Makefile is located.
@@ -269,7 +271,7 @@ Alternatively, you can just push to your branch and let CI handle the testing. `
   - detect the CI environment
   - generate ephemeral SSH ed25519 keypair
   - run the kitchen test
-  - clean up the ephemeral key from DigitalOcean after pipeline is done
+  - clean up the ephemeral key from GCP after pipeline is done
 
 See `.gitlab-ci.yml` for details, but the overall goal is to have only `make kitchen` in it,
 and cache `$BUNDLE_PATH` for speed.
