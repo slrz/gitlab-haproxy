@@ -271,7 +271,7 @@ Alternatively, you can just push to your branch and let CI handle the testing. `
   - detect the CI environment
   - generate ephemeral SSH ed25519 keypair
   - run the kitchen test
-  - clean up the ephemeral key from DigitalOcean after pipeline is done
+  - clean up the ephemeral key from GCP after pipeline is done
 
 See `.gitlab-ci.yml` for details, but the overall goal is to have only `make kitchen` in it,
 and cache `$BUNDLE_PATH` for speed.

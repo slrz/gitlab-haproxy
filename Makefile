@@ -11,17 +11,7 @@ KITCHEN_YAML	?= kitchen.yml
 # which is actually the count of our suites
 KITCHEN_TESTS	?= $(shell awk '/^suites:$$/,0{$$2~/^name:/&&c++} END {print c}' $(KITCHEN_YAML))
 
-# Ephemeral keys variables. Those are mostly for readability of the kitchen target where
-# the ephemeral ssh keys are created, registered on DO, and destroyed after test
-# Endpoint we connect to
-DO_KEYS_API	:= https://api.digitalocean.com/v2/account/keys
-# Name under which key will be visible in DO web interface for us to easily track those
-# The key is living just for the duration of the pipeline run, and gets destroyed after
-# rit finishes regardless of the build status.
-KEY_NAME	:= CI@$$CI_PROJECT_NAMESPACE/$$CI_PROJECT_NAME, created by build job \#$$CI_JOB_ID
-# Where the ephemeral key is saved by ssh-keygen. This is just for readability, as we can
-# use "$(KEY_FILE).pub" later on to post public part of the key to DO API, and save the
-# responce with the assigned ID to "$(KEY_FILE).json"
+# Where the ephemeral SSH key is saved by ssh-keygen.
 KEY_FILE	:= $$HOME/.ssh/id_ed25519
 
 define ssh_config
