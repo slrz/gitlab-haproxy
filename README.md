@@ -280,3 +280,7 @@ Current CI configuration basically enforces all of the following to succeed, in 
 
   - Rubocop should be happy with every ruby file and exit with code zero, without any warnings or errors.
   - Integration tests must all pass.
+
+## Versioning
+
+This repo **doesn't** use conventional commits for publishing new versions. Instead, you need to bump the version in `metadata.rb` manually, following [semver](https://semver.org/).
