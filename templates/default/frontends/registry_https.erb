@@ -21,7 +21,7 @@ acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
 <% if get_attribute('gitlab-haproxy', flavor, 'rate_limit', 'enable') %>
 stick-table type ipv6 size 1m expire 30s store http_req_rate(10s) <% if peers.any? -%>peers <%= flavor %>-peers<% end -%>
 http-request track-sc0 src
-http-request deny deny_status 429 if { sc_http_req_cnt(0) gt <%= get_attribute('gitlab-haproxy', flavor, 'rate_limit', 'rate_limit_per_10s') %> }
+http-request deny deny_status 429 if { sc_http_req_rate(0) gt <%= get_attribute('gitlab-haproxy', flavor, 'rate_limit', 'rate_limit_per_10s') %> }
 <% end %>
 
 <% if enabled_backends.include? 'canary_registry' -%>

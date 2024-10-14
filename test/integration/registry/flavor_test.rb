@@ -145,7 +145,7 @@ control 'haproxy-registry-flavor-checks' do
     its('content') do
       should include 'stick-table type ipv6 size 1m expire 30s store http_req_rate(10s) peers registry-peers',
                      'http-request track-sc0 src',
-                     'http-request deny deny_status 429 if { sc_http_req_cnt(0) gt 100 }'
+                     'http-request deny deny_status 429 if { sc_http_req_rate(0) gt 100 }'
     end
   end
 end
