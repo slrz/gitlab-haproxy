@@ -818,6 +818,7 @@ GEM
     wmi-lite (1.0.7)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-22
   arm64-darwin-23
 

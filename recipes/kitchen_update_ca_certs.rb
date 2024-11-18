@@ -21,6 +21,12 @@ apt_package 'ca-certificates' do
   action :upgrade
 end
 
+link '/opt/chef' do
+  to '/opt/cinc'
+  only_if { ::File.directory? '/opt/cinc' }
+  not_if { ::File.directory? '/opt/chef' }
+end
+
 # Use the system CA certificates
 link '/opt/chef/embedded/ssl/cert.pem' do
   to '/etc/ssl/certs/ca-certificates.crt'

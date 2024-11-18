@@ -72,7 +72,7 @@ control 'haproxy-pages-flavor-checks' do
                      'server haproxy-pages-02-lb-gprd 93.184.215.14:32769')
     end
     # Validates that local peer detection works, and no IP:port pair is inserted for it
-    its('content') { should match /32769\n  server tk-haproxy-pages-ubuntu-20-04-x64-\S+ \n/ }
+    its('content') { should match /32769\n  server tk-haproxy-pages-ubuntu-\d\d-\d\d-x64-.+? \n/ }
 
     # backend & frontend availability. Tests Gitlab::TemplateHelpers::select_backends & select_frontends
     %w(pages_https pages_http).each do |name|
