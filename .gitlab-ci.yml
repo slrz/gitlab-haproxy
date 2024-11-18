@@ -1,48 +1,20 @@
 image: ruby:3.0
 
-variables:
-  DEBIAN_FRONTEND: "noninteractive"
-  KITCHEN_YAML: "kitchen.yml"
-  BUNDLE_PATH: "$CI_PROJECT_DIR/.bundle"
-
 stages:
-  - tests
+  - prepare
+  - lint
+  - unit
+  - integration
   - publish
 
-before_script:
-  - eval $(ssh-agent -s)
-  - ssh-add <(echo $CI_PRIVATE_KEY | base64 -d)
-  - mkdir -p ~/.ssh
-  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-  - apt-get -qq update && apt-get -yqq install openssh-client rsync make jq libsodium-dev
-  - make gems
-
-.ruby-cache:
-  cache:
-    key: "ruby-3.0"
-    paths:
-      - $BUNDLE_PATH
-
-cookstyle:
-  extends: .ruby-cache
-  stage: tests
-  script:
-    - bundle exec cookstyle
+include:
+  - project: gitlab-com/gl-infra/common-ci-tasks
+    file: templates/chef.yml
+    ref: main
 
 kitchen:
-  extends: .ruby-cache
-  stage: tests
+  stage: integration
   retry: 2
-  script:
-    - make kitchen KITCHEN_SUITE=haproxy-$FLAVOR-$PLATFORM
-  parallel:
-    matrix:
-      - FLAVOR:
-          - main
-          - pages
-          - registry
-        PLATFORM:
-          - ubuntu-20
   artifacts:
     expire_in: '2d'
     when: always
@@ -50,22 +22,24 @@ kitchen:
       - .kitchen/
     reports:
       junit: .kitchen/*_inspec.xml
-  only:
-    variables:
-      - $CI_PRIVATE_KEY
-
-push-cookbook:
-  image: ruby:2.7
-  stage: publish
-  only:
-    refs:
-      - master
-    variables:
-      - $OPS_CLONE_USERNAME
-      - $OPS_CLONE_PASSWORD
+  cache:
+    paths:
+      - $BUNDLE_PATH
   script:
-    - rm -rf Gemfile Gemfile.lock || true
-    - git clone https://$OPS_CLONE_USERNAME:$OPS_CLONE_PASSWORD@ops.gitlab.net/gitlab-cookbooks/cookbook-publisher.git /tmp/cookbook-publisher
-    - cp /tmp/cookbook-publisher/publisher.rb /tmp/cookbook-publisher/Gemfile /tmp/cookbook-publisher/Gemfile.lock .
-    - bundle install
-    - bundle exec ruby publisher.rb
+    - !reference [.kitchen_prepare, script]
+    - SSH_KEY="$HOME/.ssh/id_ed25519" bundle exec kitchen test --destroy=always $KITCHEN_SUITE
+  parallel:
+    matrix:
+      - KITCHEN_SUITE:
+        # generate with: make update-ci
+        # SUITES_BEGIN
+        - haproxy-main-ubuntu-20-04-x64
+        - haproxy-main-ubuntu-20-04-x64-cinc
+        - haproxy-main-ubuntu-22-04-x64-cinc
+        - haproxy-pages-ubuntu-20-04-x64
+        - haproxy-pages-ubuntu-20-04-x64-cinc
+        - haproxy-pages-ubuntu-22-04-x64-cinc
+        - haproxy-registry-ubuntu-20-04-x64
+        - haproxy-registry-ubuntu-20-04-x64-cinc
+        - haproxy-registry-ubuntu-22-04-x64-cinc
+        # SUITES_END

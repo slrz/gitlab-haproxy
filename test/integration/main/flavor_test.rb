@@ -87,7 +87,7 @@ control 'haproxy-main-flavor-checks' do
     end
 
     # Validates that local peer detection works, and no IP:port pair is inserted for it
-    its('content') { should match /32769\n  server tk-haproxy-main-ubuntu-20-04-x64-\S+ \n/ }
+    its('content') { should match /32769\n  server tk-haproxy-main-ubuntu-\d\d-\d\d-x64-.+? \n/ }
 
     # backend availability. Tests Gitlab::TemplateHelpers::select_backends
     %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection).each do |backend|
