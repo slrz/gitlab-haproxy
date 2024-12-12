@@ -137,8 +137,8 @@ package 'socat'
 # But again, because HAProxy will automatically close frontend connections now, this means:
 #   1. if HAProxy is restarting, the old process will stop listeing, but a new one will already accept the new request
 #   2. if HAProxy is stopping, the old process will stop listening, also dropping health checks for GCP.
-cookbook_file '/usr/local/sbin/drain_haproxy.sh' do
-  source 'drain_haproxy.sh'
+template '/usr/local/sbin/drain_haproxy.sh' do
+  source 'drain_haproxy.sh.erb'
   owner 'root'
   group 'root'
   mode '0750'
