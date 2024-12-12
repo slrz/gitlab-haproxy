@@ -4,7 +4,7 @@
 
 set -uo pipefail
 
-drain_seconds=600
+drain_seconds=<%= @node['gitlab-haproxy']['drain-period-seconds'] %>
 
 usage() {
   cat << USAGE
