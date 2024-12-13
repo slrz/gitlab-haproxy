@@ -71,6 +71,7 @@ default['gitlab-haproxy']['config']['default']['defaults']['option redispatch'] 
 default['gitlab-haproxy']['config']['default']['defaults']['option splice-auto'] = '' # Instead of specifying this in every frontend, set it in defaults.
 default['gitlab-haproxy']['config']['default']['defaults']['option tcpka'] = '' # Enable TCP keepalive. Useful for HTTPS-git requests, that might have long delays between data bursts.
 default['gitlab-haproxy']['config']['default']['defaults']['option tcp-smart-connect'] = '' # Ask the kernel to directly send data to HAProxy. Saves context switches, as data is immediately available.
+default['gitlab-haproxy']['config']['default']['defaults']['option dontlognull'] = '' # Don't log requests where no data flowed.
 # main flavor overrides
 # pages flavor overrides
 default['gitlab-haproxy']['config']['pages']['global']['ssl-mode-async'] = nil # We don't do TLS on pages, and this might interfere with the inspect delay.
