@@ -108,13 +108,13 @@ suites:
         peers:
           servers:
             haproxy-main-01-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             haproxy-main-02-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             kitchen-vm-under-test:
-            - example.com
+            - dns.google.com
             - 32768
         api:
           httpchk_host: gitlab.com
@@ -553,13 +553,13 @@ suites:
         peers:
           servers:
             haproxy-pages-01-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             haproxy-pages-02-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             kitchen-vm-under-test:
-            - example.com
+            - dns.google.com
             - 32768
         http_backend_listen_port: 80
         https_backend_listen_port: 443
@@ -811,13 +811,13 @@ suites:
         peers:
           servers:
             haproxy-registry-01-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             haproxy-registry-02-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             kitchen-vm-under-test:
-            - example.com
+            - dns.google.com
             - 32768
         custom_config:
         - "# Overridden to test injection #####"
