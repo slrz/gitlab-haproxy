@@ -28,8 +28,6 @@
   acl is_jwt_auth_request path -i /jwt/auth
   acl is_asset_request path_beg /assets/
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
-  acl allowlist_internal src -f /etc/haproxy/allowlist-internal.lst
-  acl allowlist_api_rate_limit src -f /etc/haproxy/allowlist-api.lst <%= get_attribute('gitlab-haproxy', flavor, 'https', 'rate_limit_allowlist') %>
   <%= render 'partial_package_acl.erb'  -%>
   acl is_gitlab_com_go_get query -m str "go-get=1"
   acl is_gitlab_com_go_get query -m beg "go-get=1&"
@@ -39,8 +37,6 @@
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
 
   # Set X-GitLab-RateLimit-Bypass header for some requests (and backwards compatibility)
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if allowlist_internal
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if allowlist_api_rate_limit
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
   http-request set-header X-GitLab-RateLimit-Bypass 1 if { path -i /jwt/auth } # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/692
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_package_registry # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710

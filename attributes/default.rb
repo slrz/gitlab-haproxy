@@ -137,8 +137,6 @@ default['gitlab-haproxy']['maxconn'] = 50000
 ###############################################################################
 
 default['gitlab-haproxy']['frontend']['blocklist']['uri'] = {}
-default['gitlab-haproxy']['frontend']['allowlist']['internal'] = {}
-default['gitlab-haproxy']['frontend']['allowlist']['api'] = {}
 
 default['gitlab-haproxy']['frontend']['peers']['servers'] = {}
 default['gitlab-haproxy']['frontend']['api']['httpchk_host'] = 'gitlab.com'
@@ -167,7 +165,6 @@ default['gitlab-haproxy']['frontend']['canary_https_git']['ssl_verify'] = node['
 
 default['gitlab-haproxy']['frontend']['https']['extra_bind_port'] = nil
 default['gitlab-haproxy']['frontend']['https']['custom_config'] = nil
-default['gitlab-haproxy']['frontend']['https']['rate_limit_allowlist'] = '127.0.0.1'
 
 default['gitlab-haproxy']['kas']['enable'] = false
 default['gitlab-haproxy']['kas']['timeout_http_keep_alive'] = '30s'
