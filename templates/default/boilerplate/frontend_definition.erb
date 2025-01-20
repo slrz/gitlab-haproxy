@@ -52,10 +52,6 @@ frontend <%= @name %>
   http-response set-header GitLab-SV %s
 
 <% end %>
-<% if @mode == "http"%>
-  # Exempt internal requests from blocklists.
-  http-request allow if { src -f /etc/haproxy/allowlist-internal.lst }
-<% end %>
 <% unless enabled_backends.nil? || @skip_availability_acls %>
 
   # Backend availability

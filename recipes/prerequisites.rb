@@ -57,7 +57,7 @@ node.default['gitlab-haproxy']['api_address'] = eth['addresses'].detect { |_k, v
 # Attribute mapping for backwards compatibility
 node.default['gitlab-haproxy']['main'] = node['gitlab-haproxy']['frontend']
 
-%w(blocklist-uris canary-request-paths allowlist-api allowlist-internal).each do |list|
+%w(blocklist-uris canary-request-paths).each do |list|
   template "/etc/haproxy/#{list}.lst" do
     source "lists/#{list}.lst.erb"
     mode '0600'

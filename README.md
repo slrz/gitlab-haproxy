@@ -173,26 +173,6 @@ The frontend definition will render the following ACLs for use in the template (
   - `GitLab-LB` is set to the HAProxy node's hostname serving the request
   - `GitLab-SV` is set to the backend server name serving the request
 
-#### Allowlists
-
-If you wish to enable the GitLab standard IP and path blocks,
-include the following snippet in the template, right before backend routing:
-
-For an HTTP frontend:
-
-```erb
-<%= render 'boilerplate/http_front-end-security.erb' %>
-```
-
-For an TCP frontend:
-
-```erb
-<%= render 'boilerplate/tcp_front-end-security.erb' %>
-```
-
-For an HTTP frontend the standards internal allowlist is automatically exempt from any blocklists.
-Custom rules should be sandwiched between the frontend definition and the inclusion of the above snippet.
-
 #### Frontend Settings
 
 The frontends can have settings set similar to the `defaults` and `global` sections.

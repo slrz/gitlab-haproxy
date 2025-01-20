@@ -105,22 +105,16 @@ suites:
         blocklist:
           uri:
             "/test": this is a comment
-        allowlist:
-          api:
-            104.196.221.206: shared-runners-manager-4
-            104.196.48.2: shared-runners-manager-3
-          internal:
-            10.221.2.0/23: Gitaly File Subnet Prod#6641
         peers:
           servers:
             haproxy-main-01-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             haproxy-main-02-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             kitchen-vm-under-test:
-            - example.com
+            - dns.google.com
             - 32768
         api:
           httpchk_host: gitlab.com
@@ -153,7 +147,6 @@ suites:
           - "# Overridden to test injection #####"
           - "# override for https frontend"
           - "####################################"
-          rate_limit_allowlist: 1.2.3.4 5.6.7.8
           extra_bind_port: 11443
         kas:
           check_opts: port 8151
@@ -417,9 +410,6 @@ suites:
       frontend:
         blocklist:
           uri: {}
-        allowlist:
-          internal: {}
-          api: {}
         peers:
           servers: {}
         api:
@@ -450,7 +440,6 @@ suites:
           default_weight: '0'
         https:
           custom_config: 
-          rate_limit_allowlist: 127.0.0.1
           extra_bind_port: 
         kas:
           check_opts: port 8151
@@ -564,13 +553,13 @@ suites:
         peers:
           servers:
             haproxy-pages-01-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             haproxy-pages-02-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             kitchen-vm-under-test:
-            - example.com
+            - dns.google.com
             - 32768
         http_backend_listen_port: 80
         https_backend_listen_port: 443
@@ -657,9 +646,6 @@ suites:
       frontend:
         blocklist:
           uri: {}
-        allowlist:
-          internal: {}
-          api: {}
         peers: 
         api:
           httpchk_host: gitlab.com
@@ -689,7 +675,6 @@ suites:
           default_weight: '0'
         https:
           custom_config: 
-          rate_limit_allowlist: 127.0.0.1
           extra_bind_port: 
         kas:
           check_opts: port 8151
@@ -826,13 +811,13 @@ suites:
         peers:
           servers:
             haproxy-registry-01-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             haproxy-registry-02-lb-gprd:
-            - example.com
+            - dns.google.com
             - 32768
             kitchen-vm-under-test:
-            - example.com
+            - dns.google.com
             - 32768
         custom_config:
         - "# Overridden to test injection #####"

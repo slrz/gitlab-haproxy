@@ -69,7 +69,7 @@ control 'haproxy-registry-flavor-checks' do
     its('content') do
       should include('peers registry-peers
   bind 0.0.0.0:32769',
-                     'server haproxy-registry-02-lb-gprd 93.184.215.14:32769')
+                     'server haproxy-registry-02-lb-gprd 8.8.8.8:32769')
     end
     # Validates that local peer detection works, and no IP:port pair is inserted for it
     its('content') { should match /32769\n  server tk-haproxy-registry-ubuntu-\d\d-\d\d-x64-.+? \n/ }

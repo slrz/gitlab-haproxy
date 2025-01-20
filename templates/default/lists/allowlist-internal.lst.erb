@@ -1,9 +1,0 @@
-#---------------------------------------------------------------------
-# Allowlisted IP Address Blocks for Internal GitLlab Servers API Usage
-#---------------------------------------------------------------------
-<% if node['gitlab-haproxy']['frontend']['allowlist']['internal'].any? -%>
-    <% node['gitlab-haproxy']['frontend']['allowlist']['internal'].each do |network, comment| %>
-# <%= comment %>
-<%= network %>
-    <% end %>
-<% end -%>

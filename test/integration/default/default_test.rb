@@ -84,7 +84,7 @@ control 'general-haproxy-checks' do
     its('mode') { should cmp '0750' }
   end
 
-  %w(blocklist-uris allowlist-api allowlist-internal canary-request-paths).each do |list|
+  %w(blocklist-uris canary-request-paths).each do |list|
     describe file("/etc/haproxy/#{list}.lst") do
       it { should be_file }
     end
