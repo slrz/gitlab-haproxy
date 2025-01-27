@@ -59,6 +59,11 @@ control 'haproxy-main-flavor-checks' do
       should include 'option tcp-smart-connect'
     end
 
+    # override for main_api backends
+    its('content') do
+      should include 'timeout server 10m'
+    end
+
     # override for https_git backends
     its('content') do
       should include 'timeout server 1h'
