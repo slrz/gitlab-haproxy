@@ -16,7 +16,6 @@
   :mode => 'http',
   :expect_proxy => 'HTTP',
 } -%>
-<%- https_git_acl_format = get_attribute('gitlab-haproxy', flavor, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
 
   capture request header User-Agent len 64
   acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
@@ -25,22 +24,10 @@
   acl is_api_request path_beg -i /api/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
-  acl is_jwt_auth_request path -i /jwt/auth
   acl is_asset_request path_beg /assets/
-  <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
-  <%= render 'partial_package_acl.erb'  -%>
-  acl is_gitlab_com_go_get query -m str "go-get=1"
-  acl is_gitlab_com_go_get query -m beg "go-get=1&"
-  acl is_gitlab_com_go_get query -m sub "&go-get=1&"
-  acl is_gitlab_com_go_get query -m end "&go-get=1"
+  acl is_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
 
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
-
-  # Set X-GitLab-RateLimit-Bypass header for some requests (and backwards compatibility)
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if { path -i /jwt/auth } # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/692
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_package_registry # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_go_get # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
 
   # Static redirects
   http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if { hdr(host) -i www.gitlab.com }

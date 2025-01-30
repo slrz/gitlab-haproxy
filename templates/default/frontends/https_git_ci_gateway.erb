@@ -7,7 +7,6 @@
   ],
   :mode => 'http',
 } -%>
-<%- https_git_acl_format = get_attribute('gitlab-haproxy', flavor, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
 
   capture request header User-Agent len 64
 
@@ -16,9 +15,30 @@
   acl is_api_jobs_id path_reg -i ^\/api\/v\d\/jobs\/\d+$
   acl is_api_jobs_id_trace path_reg -i ^\/api\/v\d\/jobs\/\d+\/trace$
   acl is_patch_method method PATCH
-
-<%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
   acl is_git_method method GET POST
+
+  ###############################################################
+  # HTTPS git ACLs
+  # HAProxy will OR these acl conditions
+  # See: https://git-scm.com/docs/http-protocol
+  # git HTTP protocol
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git$
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs\?service=git-(upload|receive)-pack$
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/git-(upload|receive)-pack$
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/objects\/[^\/]{2}\/[^\/]{14,}$
+  # See: https://github.com/git-lfs/git-lfs/blob/master/docs/api/server-discovery.md
+  # LFS base endpoint
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs($|\?)
+  # See: https://github.com/git-lfs/git-lfs/blob/master/docs/api/locking.md
+  # LFS file locking
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/locks($|\?)
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/locks/verify$
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/locks\/[^\/]+\/unlock$
+  # See: https://github.com/git-lfs/git-lfs/blob/master/docs/api/batch.md
+  # The actual download is handled via the URL returned in the payload and is not derived from here.
+  acl is_https_git path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/lfs\/objects\/batch$
+  ###############################################################
 
   acl is_git_legacy_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\/info\/refs$
   acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
