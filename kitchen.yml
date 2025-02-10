@@ -65,6 +65,7 @@ platforms:
     pre_converge:
     - remote: timeout 5m cloud-init status --wait
     - remote: sudo apt-get update
+    - remote: sudo rm /etc/apt/apt.conf.d/99needrestart # https://serverfault.com/q/1101391
     - remote: sudo apt-get install -y build-essential
 transport:
   name: speedy_ssh
@@ -131,6 +132,7 @@ suites:
           tcp_check_enable: false
           server_port: '8181'
           ssl_verify: ''
+          use_verbose_acls: false
           default_weight: '100'
         canary_https_git:
           httpchk_host: gitlab.com
@@ -426,6 +428,7 @@ suites:
           tcp_check_enable: false
           server_port: '443'
           ssl_verify: ssl verify none
+          use_verbose_acls: false
           default_weight: '100'
         canary_https_git:
           httpchk_host: gitlab.com
@@ -660,6 +663,7 @@ suites:
           tcp_check_enable: false
           server_port: '443'
           ssl_verify: ssl verify none
+          use_verbose_acls: false
           default_weight: '100'
         canary_https_git:
           httpchk_host: gitlab.com
