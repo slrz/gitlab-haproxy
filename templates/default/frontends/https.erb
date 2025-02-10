@@ -25,7 +25,6 @@
   acl is_api_request path_beg -i /api/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
-  acl is_jwt_auth_request path -i /jwt/auth
   acl is_asset_request path_beg /assets/
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
   <%= render 'partial_package_acl.erb'  -%>
@@ -38,7 +37,6 @@
 
   # Set X-GitLab-RateLimit-Bypass header for some requests (and backwards compatibility)
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if { path -i /jwt/auth } # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/692
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_package_registry # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_go_get # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
 
