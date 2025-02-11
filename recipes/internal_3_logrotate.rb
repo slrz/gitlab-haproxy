@@ -13,8 +13,8 @@ package 'logrotate'
 # if we update gitlab-fluentd to support reading logs from the systemd journal.
 #
 # rubocop:disable Chef/Modernize/CronDFileOrTemplate
-cookbook_file '/etc/cron.hourly/logrotate' do
-  source 'logrotate-cron'
+template '/etc/cron.hourly/logrotate' do
+  source 'logrotate-cron.erb'
   owner 'root'
   group 'root'
   mode '0755'
