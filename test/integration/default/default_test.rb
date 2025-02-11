@@ -111,6 +111,18 @@ control 'logrotate-config-valid' do
     its('mode') { should cmp '0755' }
   end
 
+  # A bug in logrotate in Ubuntu 22.04 breaks the state-lock functionality. Ensure it becomes disabled.
+  # https://bugs.launchpad.net/ubuntu/+source/logrotate/+bug/1977689
+  if os.debian? && os[:release].start_with?('22')
+    describe file('/etc/cron.hourly/logrotate') do
+      its('content') { should match /skip-state-lock/ }
+    end
+  else
+    describe file('/etc/cron.hourly/logrotate') do
+      its('content') { should_not match /skip-state-lock/ }
+    end
+  end
+
   describe file('/etc/cron.daily/logrotate') do
     it { should_not exist }
   end
