@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
 group :test do
-  gem 'berkshelf', '7.0.10'
-  gem 'chef', '14.15.6'
+  gem 'berkshelf', '~> 8.0'  # Latest version with Ruby 3.1 support
+  gem 'chef', '~> 17.0'      # Minimum version with OpenSSL 3.0 support
+  gem 'chefspec', '~> 9.3'   # Compatible with newer Chef
   gem 'chef-vault', '4.1.11'
   gem 'chef-vault-testfixtures', '3.1.2'
-  gem 'chefspec', '7.4.0'
   gem 'cookstyle', '7.32.2'
   gem 'dbus-systemd', '1.1.2'
   gem 'ffi', '< 1.17'
@@ -20,7 +20,7 @@ group :test do
 end
 
 group :ed25519 do
-  gem 'bcrypt_pbkdf', '1.1.0'
-  gem 'rbnacl', '4.0.2'
   gem 'rbnacl-libsodium', '1.0.16'
+  gem 'bcrypt_pbkdf', '~> 1.1'
+  gem 'rbnacl', '~> 7.1'
 end

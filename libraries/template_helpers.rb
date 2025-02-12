@@ -242,12 +242,18 @@ module Gitlab
 
     def self.resolve_peers
       flavor = @@flavor
-      peers = get_attribute('gitlab-haproxy', flavor, 'peers', 'servers')
+      dynamic_lookup_enabled = get_attribute('gitlab-haproxy', flavor, 'peers', 'dynamic_lookup')
+      peers =
+        if dynamic_lookup_enabled
+          dynamic_peer_lookup
+        else
+          get_attribute('gitlab-haproxy', flavor, 'peers', 'servers')
+        end
       hostname = get_attribute('hostname')
       new_peers = Hash.new { |h, k| h[k] = {} }
 
       # Some flavors don't have peers
-      return new_peers if peers.nil?
+      return new_peers if peers.nil? || peers.empty?
 
       peers.each do |name, network|
         # In kitchen we have a `kitchen-vm-under-test` peer.
@@ -259,6 +265,28 @@ module Gitlab
       end
 
       @@peers = new_peers
+    end
+
+    def self.dynamic_peer_lookup
+      Chef::Log.warn("Querying for peers in the #{@@node.chef_environment} environment with flavor #{@@flavor}")
+      peers = Chef::Search::Query.new.search(:node, "chef_environment:#{@@node.chef_environment} AND gitlab-haproxy_flavor:#{@@flavor}")[0]
+      port = get_attribute('gitlab-haproxy', @@flavor, 'peers', 'port')
+
+      servers = {}
+
+      peers.each do |peer|
+        next if peer['gitlab-haproxy']['skip_peering']
+        # Don't allow a node to dynamically discover itself.
+        next if peer.name == @@node.name
+
+        shortname = peer.name.split('.').first
+        Chef::Log.debug("Adding peer #{shortname} with fqdn: #{peer['fqdn']} to my list of peers to resolve.")
+        servers[shortname] = [peer['fqdn'], port]
+      end
+
+      servers[@@node['hostname']] = [@@node['fqdn'], port]
+
+      return servers.sort
     end
 
     def self.backend_servers_for_lb_zone(backend_cfg, zone_id)

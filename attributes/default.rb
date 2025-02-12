@@ -5,6 +5,10 @@
 # This determines whether it will become main, pages, or registry.
 default['gitlab-haproxy']['flavor'] = nil
 
+# If this attribute is set to true, it will be excluded from peering in other nodes config files
+# when gitlab-haproxy.<flavor>.peers.dynamic_lookup is enabled.
+default['gitlab-haproxy']['skip_peering'] = false
+
 # This is a list of enabled frontends.
 # This means they are present in the rendered configuration.
 # Please see `templates/frontend/<name>.erb for details on the frontend.`
@@ -142,6 +146,8 @@ default['gitlab-haproxy']['maxconn'] = 50000
 default['gitlab-haproxy']['frontend']['blocklist']['uri'] = {}
 
 default['gitlab-haproxy']['frontend']['peers']['servers'] = {}
+default['gitlab-haproxy']['frontend']['peers']['port'] = '32768'
+default['gitlab-haproxy']['frontend']['peers']['dynamic_lookup'] = false
 default['gitlab-haproxy']['frontend']['api']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['api']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['api']['check_opts'] = 'check-ssl'
@@ -297,6 +303,8 @@ default['gitlab-haproxy']['pages']['httpchk_path'] = '/-/readiness'
 default['gitlab-haproxy']['pages']['http_custom_config'] = nil
 default['gitlab-haproxy']['pages']['https_custom_config'] = nil
 default['gitlab-haproxy']['pages']['peers']['servers'] = {}
+default['gitlab-haproxy']['pages']['peers']['port'] = '32768'
+default['gitlab-haproxy']['pages']['peers']['dynamic_lookup'] = false
 default['gitlab-haproxy']['pages']['http_backend_listen_port'] = 1080
 default['gitlab-haproxy']['pages']['https_backend_listen_port'] = 1443
 default['gitlab-haproxy']['pages']['https_proxyv2_backend_listen_port'] = 2443
@@ -323,6 +331,8 @@ default['gitlab-haproxy']['pages']['backend']['essential'] = %w(pages)
 
 default['gitlab-haproxy']['canary_registry']['default_weight'] = '0'
 default['gitlab-haproxy']['registry']['peers']['servers'] = {}
+default['gitlab-haproxy']['registry']['peers']['port'] = '32768'
+default['gitlab-haproxy']['registry']['peers']['dynamic_lookup'] = false
 default['gitlab-haproxy']['registry']['custom_config'] = nil
 default['gitlab-haproxy']['registry']['backend_port'] = '5000'
 default['gitlab-haproxy']['registry']['ssl_verify'] = nil

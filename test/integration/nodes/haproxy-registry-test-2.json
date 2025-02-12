@@ -1,0 +1,50 @@
+{
+  "name": "haproxy-registry-02-lb-gprd.c.gitlab-staging-1.internal",
+  "fqdn": "34.74.226.1.nip.io",
+  "environment": "_default",
+  "chef_environment": "_default",
+  "automatic": {
+    "ipaddress": "34.74.226.1",
+    "platform": "ubuntu",
+    "platform_version": "20.04",
+    "fqdn": "34.74.226.1.nip.io",
+    "cpu": {
+      "total": 4,
+      "cores": 2
+    },
+    "memory": {
+      "total": "8GB"
+    }
+  },
+  "default": {
+    "fqdn": "34.74.226.1.nip.io",
+    "gitlab-haproxy": {
+      "flavor": "registry",
+      "listen": {
+        "registry": {
+          "port": 5000,
+          "maxconn": 2000,
+          "mode": "tcp"
+        }
+      },
+      "backend": {
+        "registry": {
+          "balance": "roundrobin",
+          "servers": [
+            "registry-01.internal:5000",
+            "registry-02.internal:5000"
+          ]
+        }
+      }
+    }
+  },
+  "run_list": [
+    "recipe[gitlab-haproxy::default]",
+    "recipe[monitoring::haproxy]"
+  ],
+  "tags": [
+    "haproxy",
+    "registry",
+    "staging"
+  ]
+}

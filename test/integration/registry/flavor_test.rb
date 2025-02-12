@@ -74,6 +74,9 @@ control 'haproxy-registry-flavor-checks' do
     # Validates that local peer detection works, and no IP:port pair is inserted for it
     its('content') { should match /32769\n  server tk-haproxy-registry-ubuntu-\d\d-\d\d-x64-.+? \n/ }
 
+    # Ensure we don't peer with other flavors
+    its('content') { should_not match /haproxy-main-01-lb-gprd/ }
+
     # backend availability. Tests Gitlab::TemplateHelpers::select_backends
     %w(registry canary_registry).each do |backend|
       its('content') do
