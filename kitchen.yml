@@ -14,6 +14,7 @@ provisioner:
   product_name: chef
   product_version: "<%= ENV['GITLAB_KITCHEN_CHEF_VERSION'] || '14.15.6' %>"
   data_bags_path: test/integration/data_bags
+  nodes_path: test/integration/nodes
   always_update_cookbooks: false
 platforms:
 - name: ubuntu-20-04-x64
@@ -810,16 +811,8 @@ suites:
         https_proxyv2_backend_listen_port: 2443
       registry:
         peers:
-          servers:
-            haproxy-registry-01-lb-gprd:
-            - 34.74.226.1.nip.io
-            - 32768
-            haproxy-registry-02-lb-gprd:
-            - 34.74.226.1.nip.io
-            - 32768
-            kitchen-vm-under-test:
-            - 34.74.226.1.nip.io
-            - 32768
+          # A node fixture exists with it's `fqdn` set to 34.74.226.1.nip.io
+          dynamic_lookup: true
         custom_config:
         - "# Overridden to test injection #####"
         - "# override for registry frontend"
