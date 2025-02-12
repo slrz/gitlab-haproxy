@@ -27,13 +27,11 @@
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
   acl is_asset_request path_beg /assets/
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
-  <%= render 'partial_package_acl.erb'  -%>
 
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
 
   # Set X-GitLab-RateLimit-Bypass header for some requests (and backwards compatibility)
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if is_gitlab_com_package_registry # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/710
 
   # Static redirects
   http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if { hdr(host) -i www.gitlab.com }
