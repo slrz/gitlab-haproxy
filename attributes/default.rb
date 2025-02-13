@@ -160,7 +160,6 @@ default['gitlab-haproxy']['frontend']['https_git']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['https_git']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['https_git']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['https_git']['ssl_verify'] = 'ssl verify none'
-default['gitlab-haproxy']['frontend']['https_git']['use_verbose_acls'] = false
 
 # These defaults are set so that we can have different defaults for the canary backend.
 # They can be removed once https://gitlab.com/gitlab-com/gl-infra/production/-/issues/3465 is complete.
