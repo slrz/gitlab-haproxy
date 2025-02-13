@@ -25,6 +25,7 @@
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
   acl is_asset_request path_beg /assets/
+  acl is_https_git path_reg -i ^\/(?!help)[^\/]+\/((?!artifacts|browse|file|tree|blob|blame|commits|raw|find_file|files|graphs|logs_tree|refs|wikis|new|create|edit|update|preview|badges)[^\/]+\/)*[^\/]+\.git($|\/)
 
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
 
