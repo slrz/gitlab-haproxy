@@ -23,6 +23,10 @@
   acl is_git_legacy_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\/info\/refs$
   acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
 
+  # This is the only remaining place where we set X-GitLab-RateLimit-Bypass inside HAProxy,
+  # as other configs have been moved to Cloudflare. We kept this because CI Gateway traffic 
+  # is internal and thus does not pass through Cloudflare beforehand.
+  # https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/26205
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git is_git_method
 
   # Set the canonical host as Host header so that ci-gateway

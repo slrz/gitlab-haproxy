@@ -30,9 +30,6 @@
 
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
 
-  # Set X-GitLab-RateLimit-Bypass header for some requests (and backwards compatibility)
-  http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git # https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/691
-
   # Static redirects
   http-request redirect code 308 location https://gitlab.com%[capture.req.uri] if { hdr(host) -i www.gitlab.com }
 <% end %>
