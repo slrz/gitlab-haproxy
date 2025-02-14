@@ -8,6 +8,8 @@ default['gitlab-haproxy']['flavor'] = nil
 # If this attribute is set to true, it will be excluded from peering in other nodes config files
 # when gitlab-haproxy.<flavor>.peers.dynamic_lookup is enabled.
 default['gitlab-haproxy']['skip_peering'] = false
+# If this attribute is set, the peer lookup will look for other nodes that possess this key instead of `flavor`
+default['gitlab-haproxy']['peering_key'] = nil
 
 # This is a list of enabled frontends.
 # This means they are present in the rendered configuration.

@@ -269,7 +269,13 @@ module Gitlab
 
     def self.dynamic_peer_lookup
       Chef::Log.warn("Querying for peers in the #{@@node.chef_environment} environment with flavor #{@@flavor}")
-      peers = Chef::Search::Query.new.search(:node, "chef_environment:#{@@node.chef_environment} AND gitlab-haproxy_flavor:#{@@flavor}")[0]
+      node_filter =
+        if @@node['gitlab-haproxy']['peering_key']
+          "gitlab-haproxy_peering_key:#{@@node['gitlab-haproxy']['peering_key']}"
+        else
+          "gitlab-haproxy_flavor:#{@@flavor}"
+        end
+      peers = Chef::Search::Query.new.search(:node, "chef_environment:#{@@node.chef_environment} AND #{node_filter}")[0]
       port = get_attribute('gitlab-haproxy', @@flavor, 'peers', 'port')
 
       servers = {}
