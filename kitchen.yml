@@ -133,6 +133,7 @@ suites:
           tcp_check_enable: false
           server_port: '8181'
           ssl_verify: ''
+          use_verbose_acls: false
           default_weight: '100'
         canary_https_git:
           httpchk_host: gitlab.com
@@ -428,6 +429,7 @@ suites:
           tcp_check_enable: false
           server_port: '443'
           ssl_verify: ssl verify none
+          use_verbose_acls: false
           default_weight: '100'
         canary_https_git:
           httpchk_host: gitlab.com
@@ -662,6 +664,7 @@ suites:
           tcp_check_enable: false
           server_port: '443'
           ssl_verify: ssl verify none
+          use_verbose_acls: false
           default_weight: '100'
         canary_https_git:
           httpchk_host: gitlab.com
