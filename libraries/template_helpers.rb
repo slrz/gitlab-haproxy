@@ -253,7 +253,10 @@ module Gitlab
       new_peers = Hash.new { |h, k| h[k] = {} }
 
       # Some flavors don't have peers
-      return new_peers if peers.nil? || peers.empty?
+      if peers.nil? || peers.empty?
+        @@peers = new_peers
+        return
+      end
 
       peers.each do |name, network|
         # In kitchen we have a `kitchen-vm-under-test` peer.
