@@ -62,3 +62,4 @@ push-cookbook:
     - cp /tmp/cookbook-publisher/publisher.rb /tmp/cookbook-publisher/Gemfile /tmp/cookbook-publisher/Gemfile.lock .
     - bundle install
     - bundle exec ruby publisher.rb
+  needs: []
