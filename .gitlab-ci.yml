@@ -43,3 +43,22 @@ kitchen:
         - haproxy-registry-ubuntu-20-04-x64-cinc
         - haproxy-registry-ubuntu-22-04-x64-cinc
         # SUITES_END
+
+# TODO: delete this
+# it's a copy of https://gitlab.com/gitlab-com/gl-infra/common-ci-tasks/-/blob/main/chef-push-cookbook.yml?ref_type=heads
+# with a custom refs, so that we can trigger it pre-merge
+# see also: https://gitlab.com/gitlab-cookbooks/gitlab-haproxy/-/merge_requests/430
+push-cookbook:
+  stage: publish
+  only:
+    refs:
+      - bump-ruby-version
+    variables:
+      - "$OPS_CLONE_USERNAME"
+      - "$OPS_CLONE_PASSWORD"
+  script:
+    - rm -rf Gemfile Gemfile.lock || true
+    - git clone -b "${COOKBOOK_PUBLISHER_BRANCH:-master}" https://$OPS_CLONE_USERNAME:$OPS_CLONE_PASSWORD@ops.gitlab.net/gitlab-cookbooks/cookbook-publisher.git /tmp/cookbook-publisher
+    - cp /tmp/cookbook-publisher/publisher.rb /tmp/cookbook-publisher/Gemfile /tmp/cookbook-publisher/Gemfile.lock .
+    - bundle install
+    - bundle exec ruby publisher.rb
