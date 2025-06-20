@@ -17,35 +17,6 @@ provisioner:
   nodes_path: test/integration/nodes
   always_update_cookbooks: false
 platforms:
-- name: ubuntu-20-04-x64
-  driver:
-    image_project: ubuntu-os-cloud
-    image_family: ubuntu-2004-lts
-    metadata:
-      application: ubuntu
-      release: a
-      version: 2004
-- name: ubuntu-20-04-x64-cinc
-  driver:
-    image_project: ubuntu-os-cloud
-    image_family: ubuntu-2004-lts
-    metadata:
-      application: ubuntu
-      release: a
-      version: 2004
-  provisioner:
-    name: chef_zero
-    product_name: cinc
-    download_url: https://packages.cinc.sh/files/stable/cinc/16.18.30/ubuntu/20.04/cinc_16.18.30-1_amd64.deb
-    product_version: 16.18.30
-    client_rb:
-      ohai.optional_plugins:
-      - :Passwd
-  lifecycle:
-    pre_converge:
-    - remote: timeout 5m cloud-init status --wait
-    - remote: sudo apt-get update
-    - remote: sudo apt-get install -y build-essential
 - name: ubuntu-22-04-x64-cinc
   driver:
     image_project: ubuntu-os-cloud
