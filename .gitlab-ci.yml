@@ -33,13 +33,7 @@ kitchen:
       - KITCHEN_SUITE:
         # generate with: make update-ci
         # SUITES_BEGIN
-        - haproxy-main-ubuntu-20-04-x64
-        - haproxy-main-ubuntu-20-04-x64-cinc
         - haproxy-main-ubuntu-22-04-x64-cinc
-        - haproxy-pages-ubuntu-20-04-x64
-        - haproxy-pages-ubuntu-20-04-x64-cinc
         - haproxy-pages-ubuntu-22-04-x64-cinc
-        - haproxy-registry-ubuntu-20-04-x64
-        - haproxy-registry-ubuntu-20-04-x64-cinc
         - haproxy-registry-ubuntu-22-04-x64-cinc
         # SUITES_END

@@ -25,6 +25,7 @@
   acl is_api_request path_beg -i /api/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
+  acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai/
   acl is_asset_request path_beg /assets/
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
 
