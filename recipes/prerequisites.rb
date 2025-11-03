@@ -72,7 +72,7 @@ end
   end
 end
 
-template '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
+file '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
   action :delete
 end
