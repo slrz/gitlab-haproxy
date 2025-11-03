@@ -97,6 +97,14 @@ suites:
           server_port: '443'
           ssl_verify: ssl verify none
           default_weight: '100'
+        ci_jobs_api:
+          httpchk_host: gitlab.com
+          httpchk_path: "/-/k8s/api/-/readiness"
+          check_opts: check-ssl
+          tcp_check_enable: false
+          server_port: '443'
+          ssl_verify: ssl verify none
+          default_weight: '100'
         https_git:
           httpchk_host: gitlab.com
           httpchk_path: "/-/readiness"
@@ -197,6 +205,9 @@ suites:
         canary_api:
           enable: true
           default_weight: '5'
+        canary_ci_jobs_api:
+          enable: true
+          default_weight: '5'
         canary_registry:
           enable: true
         canary_websockets:
@@ -227,6 +238,8 @@ suites:
                 kas-gke: 10.216.8.102
               canary_kas:
                 gke-cny-web: 10.216.8.85
+              ci_jobs_api:
+                ci-jobs-gke-us-east-1b: 10.216.8.86
               ssh: {}
               web: {}
               web_k8s: {}
@@ -235,6 +248,8 @@ suites:
                 gke-cny-web: 10.216.8.87
               canary_websockets:
                 gke-cny-ws: 10.216.8.15
+              canary_ci_jobs_api:
+                gke-cny-api: 10.216.8.45
               canary_api:
                 gke-cny-api: 10.216.8.44
               canary_ssh:
@@ -244,6 +259,8 @@ suites:
             us-east1-b:
               api:
                 api-gke-us-east1-b: 10.221.13.25
+              ci_jobs_api:
+                ci-jobs-gke-us-east-1b: 10.221.13.26
               web:
                 web-gke-us-east1-b: 10.221.13.65
               ssh:
@@ -257,6 +274,8 @@ suites:
             us-east1-c:
               api:
                 api-gke-us-east1-c: 10.221.14.23
+              ci_jobs_api:
+                ci-jobs-gke-us-east-1b: 10.221.14.26
               web:
                 web-gke-us-east1-c: 10.221.14.55
               ssh:
@@ -270,6 +289,8 @@ suites:
             us-east1-d:
               api:
                 api-gke-us-east1-d: 10.221.15.31
+              ci_jobs_api:
+                ci-jobs-gke-us-east-1b: 10.221.15.26
               web:
                 web-gke-us-east1-d: 10.221.15.66
               ssh:

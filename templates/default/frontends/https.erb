@@ -23,6 +23,7 @@
 <% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
   acl is_api_request path_beg -i /api/
+  acl is_ci_jobs_api_request path_beg -i /api/v4/jobs/request/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai/
@@ -62,6 +63,10 @@
   # AI Assisted routing rules
   use_backend ai_assisted if is_gitlab_com_ai_assisted
   ###############################################################
+
+  # CI jobs API routing rules
+  use_backend ci_jobs_api if is_ci_jobs_api_request
+  use_backend canary_ci_jobs_api if is_ci_jobs_api_request canary_opt_in backend_available_canary_ci_jobs_api
 
   ###############################################################
   # API routing rules

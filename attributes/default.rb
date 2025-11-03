@@ -21,7 +21,7 @@ default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http registry_ht
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
-default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api ci_jobs_api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api canary_ci_jobs_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 
@@ -100,6 +100,7 @@ default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['
 default['gitlab-haproxy']['config']['main']['backend']['https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
+default['gitlab-haproxy']['config']['main']['backend']['ci_jobs_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout tunnel'] = '2h'
@@ -156,6 +157,12 @@ default['gitlab-haproxy']['frontend']['api']['check_opts'] = 'check-ssl'
 default['gitlab-haproxy']['frontend']['api']['tcp_check_enable'] = false
 default['gitlab-haproxy']['frontend']['api']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['api']['ssl_verify'] = 'ssl verify none'
+default['gitlab-haproxy']['frontend']['ci_jobs_api']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['ci_jobs_api']['httpchk_path'] = '/-/health'
+default['gitlab-haproxy']['frontend']['ci_jobs_api']['check_opts'] = 'check-ssl'
+default['gitlab-haproxy']['frontend']['ci_jobs_api']['tcp_check_enable'] = false
+default['gitlab-haproxy']['frontend']['ci_jobs_api']['server_port'] = '443'
+default['gitlab-haproxy']['frontend']['ci_jobs_api']['ssl_verify'] = 'ssl verify none'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_host'] = 'gitlab.com'
 default['gitlab-haproxy']['frontend']['https_git']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['https_git']['check_opts'] = 'check-ssl'
@@ -264,10 +271,12 @@ default['gitlab-haproxy']['frontend']['websockets']['default_weight'] = '100'
 
 default['gitlab-haproxy']['frontend']['canary_web']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_api']['enable'] = true
+default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_https_git']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_registry']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '0'
@@ -285,6 +294,7 @@ default['gitlab-haproxy']['frontend']['backend']['servers']['default']['websocke
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_web'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_websockets'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_api'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ci_jobs_api'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_https_git'] = {}
 
