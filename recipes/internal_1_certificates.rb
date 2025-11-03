@@ -45,6 +45,13 @@ when 'main'
     content "#{haproxy_secrets['ssl']['kas_crt']}\n#{haproxy_secrets['ssl']['kas_key']}\n"
     notifies :run, 'execute[test-haproxy-config]', :delayed
   end
+
+  file '/etc/haproxy/ssl/workspaces.pem' do
+    sensitive true
+    mode '0600'
+    content "#{haproxy_secrets['ssl']['workspaces_crt']}\n#{haproxy_secrets['ssl']['workspaces_key']}\n"
+    notifies :run, 'execute[test-haproxy-config]', :delayed
+  end
 when 'registry'
   file '/etc/haproxy/ssl/registry.pem' do
     sensitive true

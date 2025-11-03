@@ -15,13 +15,13 @@ default['gitlab-haproxy']['peering_key'] = nil
 # This means they are present in the rendered configuration.
 # Please see `templates/frontend/<name>.erb for details on the frontend.`
 # Please enable check_* frontends by setting a backend on `check_frontends` below.
-default['gitlab-haproxy']['enabled_frontends']['main'] = %w(http https kas ssh https_git_ci_gateway)
+default['gitlab-haproxy']['enabled_frontends']['main'] = %w(http https kas workspaces ssh https_git_ci_gateway)
 default['gitlab-haproxy']['enabled_frontends']['pages'] = %w(pages_http pages_https)
 default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http registry_https)
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
-default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy workspaces ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 

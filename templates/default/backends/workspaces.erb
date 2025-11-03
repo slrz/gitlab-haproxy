@@ -1,0 +1,10 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'workspaces',
+  description: 'Targets the Workspaces HTTP Server in KAS on port 8160',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavor, 'workspaces'),
+  override_host: nil,
+  source_nodes: ['workspaces'],
+  port_override: get_attribute('gitlab-haproxy', flavor, 'workspaces', 'server_port'),
+  check_port_override: get_attribute('gitlab-haproxy', flavor, 'workspaces', 'check_port'),
+} -%>

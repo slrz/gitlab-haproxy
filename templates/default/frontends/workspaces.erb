@@ -1,0 +1,30 @@
+<%= render 'boilerplate/frontend_definition.erb', :variables => {
+  :name => 'workspaces',
+  :bind_addresses => get_attribute('gitlab-haproxy', 'listen_addresses'),
+  :bind_port=> get_attribute('gitlab-haproxy', flavor, 'workspaces', 'port'),
+  :bind_extra_options => get_attribute('gitlab-haproxy', flavor, 'workspaces', 'bind_extra_options'),
+  :listen_certificates => [
+    '/etc/haproxy/ssl/workspaces.pem',
+  ],
+  :mode => 'http',
+  :expect_proxy => 'TCP',
+} -%>
+
+<%= render 'boilerplate/http_front-end-security.erb' %>
+
+  timeout http-request 5s
+
+  stick-table type ipv6 size 1m expire 5m store gpc0,conn_rate(1m) <% if peers.any? %>peers <%= flavor %>-peers <% end %>
+
+  ### Injected custom configuration ###########################################
+<%= formatted_custom_config(get_attribute('gitlab-haproxy', flavor, 'workspaces', 'custom_config'), 2) %>\
+  ### End injected custom configuration #######################################
+
+  ###############################################################
+  # Workspaces routing rules
+  # Route *.staging.gitlab.dev and kas.staging.gitlab.com/workspaces to workspaces backend
+  acl is_workspaces_domain hdr_end(host) -i .staging.gitlab.dev
+  acl is_workspaces_path hdr(host) -i kas.staging.gitlab.com path_beg /workspaces
+  
+  use_backend workspaces if is_workspaces_domain
+  use_backend workspaces if is_workspaces_path
