@@ -6,9 +6,5 @@
 
   # Code 307 is important as it hints to the client to redirect keeping the original method,
   # necessary for requests like POST /api/v4/jobs/:id/artifacts which will not be captured by the frontend.
-  <% if get_attribute('gitlab-haproxy', 'ci-gateway', 'redirect_using_lua') %>
-  http-request use-service lua.ci-gateway-redirect-307
-  <% else %>
   <% redirect_uri = "https://#{get_attribute('gitlab-haproxy', 'frontend', 'canonical_host')}%[capture.req.uri]" %>
   http-request redirect code 307 location <%= redirect_uri %>
-  <% end %>

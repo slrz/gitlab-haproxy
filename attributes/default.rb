@@ -358,7 +358,6 @@ default['gitlab-haproxy']['use_canary'] = true
 default['gitlab-haproxy']['ci-gateway']['enabled'] = false
 default['gitlab-haproxy']['ci-gateway']['listen_port'] = 8989
 default['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = []
-default['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] = false
 default['gitlab-haproxy']['ci-gateway']['allow_artifacts'] = false
 
 # Default period to wait for draining operations to complete when halting the HAProxy service.

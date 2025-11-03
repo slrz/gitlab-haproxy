@@ -342,7 +342,6 @@ suites:
         listen_port: 8989
         allowlisted_runner_managers:
         - 10.0.0.0/8
-        redirect_using_lua: false
         _comment: We enable ci-gateway on this cluster so we can monitor the certificate
           of ci-gateway through int.gprd.gitlab.net ILB
   lifecycle:
@@ -586,7 +585,6 @@ suites:
         enabled: false
         listen_port: 8989
         allowlisted_runner_managers: []
-        redirect_using_lua: false
 - name: haproxy-registry
   run_list:
   - recipe[gitlab-haproxy::kitchen_update_ca_certs]
@@ -827,4 +825,3 @@ suites:
         enabled: false
         listen_port: 8989
         allowlisted_runner_managers: []
-        redirect_using_lua: false
