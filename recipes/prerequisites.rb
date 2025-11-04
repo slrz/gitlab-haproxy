@@ -72,12 +72,9 @@ end
   end
 end
 
-template '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
-  source 'ci-gateway-redirect.lua.erb'
-  mode '0600'
-  helpers(Gitlab::TemplateHelpers)
+file '/etc/haproxy/scripts/ci-gateway-redirect.lua' do
   notifies :run, 'execute[test-haproxy-config]', :delayed
-  only_if { node['gitlab-haproxy']['ci-gateway']['redirect_using_lua'] }
+  action :delete
 end
 
 %w(400 403 429 500 502 504 bad_ref).each do |code|
