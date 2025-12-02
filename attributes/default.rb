@@ -362,3 +362,8 @@ default['gitlab-haproxy']['ci-gateway']['allow_artifacts'] = false
 
 # Default period to wait for draining operations to complete when halting the HAProxy service.
 default['gitlab-haproxy']['drain-period-seconds'] = 600
+
+# Server state persistence - saves backend server states on reload and restores them
+# This preserves health check status across HAProxy reloads
+default['gitlab-haproxy']['server_state_persistence']['enable'] = false
+default['gitlab-haproxy']['server_state_persistence']['state_file'] = '/etc/haproxy/state/global'

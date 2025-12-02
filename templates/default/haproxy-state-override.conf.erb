@@ -1,0 +1,12 @@
+# Systemd override to save HAProxy server state on reload
+# This preserves backend health check status across reloads
+# See: https://www.haproxy.com/documentation/haproxy-runtime-api/reference/show-servers-state/
+#
+# Managed by Chef - do not edit manually
+
+[Service]
+ExecReload=
+ExecReload=/bin/sh -c 'echo "show servers state" | /usr/bin/socat stdio unix-connect:/run/haproxy/admin.sock > <%= node['gitlab-haproxy']['server_state_persistence']['state_file'] %>'
+ExecReload=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS
+ExecReload=/bin/kill -USR2 $MAINPID
+KillSignal=SIGUSR1
