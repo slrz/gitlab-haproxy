@@ -36,4 +36,5 @@ kitchen:
         - haproxy-main-ubuntu-22-04-x64-cinc
         - haproxy-pages-ubuntu-22-04-x64-cinc
         - haproxy-registry-ubuntu-22-04-x64-cinc
+        - haproxy-state-persistence-ubuntu-22-04-x64-cinc
         # SUITES_END

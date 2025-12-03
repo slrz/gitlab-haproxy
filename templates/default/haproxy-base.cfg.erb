@@ -19,6 +19,9 @@ global
   node <%= node['hostname'] %>      # Appears throughout interfaces.
   master-worker no-exit-on-failure  #
   pidfile /var/run/haproxy.pid      # Required for proper master-worker support.
+<% if node['gitlab-haproxy']['server_state_persistence']['enable'] -%>
+  server-state-file <%= node['gitlab-haproxy']['server_state_persistence']['state_file'] %>
+<% end -%>
 
   # TLS Settings from Mozilla TLS configurator
   tune.ssl.default-dh-param 2048    # 1024-bit DHE is considered bad practice, and since we are fronted via Cloudflare we do not need to support native connections from Java 6.
@@ -59,6 +62,9 @@ defaults
   #################################################
 
   log global
+<% if node['gitlab-haproxy']['server_state_persistence']['enable'] -%>
+  load-server-state-from-file global
+<% end -%>
   option allbackups                   # If no non-backup servers are available, use all backup servers instead of just the first one.
 
   log-format %ci:%cp\ %fi:%fp\ %bi:%bp\ %si:%sp\ [%t]\ %ft\ %sslv\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %U\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
