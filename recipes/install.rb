@@ -75,6 +75,14 @@ directory ::File.dirname(node['gitlab-haproxy']['server_state_persistence']['sta
   action state_persistence_enabled ? :create : :delete
 end
 
+# Directory for systemd service overrides
+directory '/etc/systemd/system/haproxy.service.d' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action state_persistence_enabled ? :create : :nothing
+end
+
 # Systemd override to save server state before reload
 file '/etc/systemd/system/haproxy.service.d/state-persistence.conf' do
   action state_persistence_enabled ? :nothing : :delete
