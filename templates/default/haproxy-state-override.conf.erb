@@ -14,8 +14,5 @@ ExecReload=/bin/kill -USR2 $MAINPID
 # Save state before stop (for restart scenarios, including unattended-upgrades)
 ExecStop=/bin/sh -c 'echo "show servers state" | /usr/bin/socat stdio unix-connect:/run/haproxy/admin.sock > <%= node['gitlab-haproxy']['server_state_persistence']['state_file'] %> || true'
 
-# Delete state file after start - prevents stale state from being reused after a crash
-ExecStartPost=/bin/rm -f <%= node['gitlab-haproxy']['server_state_persistence']['state_file'] %>
-
 # Use graceful shutdown signal
 KillSignal=SIGUSR1
