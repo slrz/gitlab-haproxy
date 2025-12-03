@@ -62,8 +62,6 @@ suites:
     - test/integration/main
   attributes:
     gitlab-haproxy:
-      server_state_persistence:
-        enable: true
       listen_addresses:
       - 0.0.0.0
       - "::"
@@ -827,3 +825,102 @@ suites:
         enabled: false
         listen_port: 8989
         allowlisted_runner_managers: []
+- name: haproxy-state-persistence
+  run_list:
+  - recipe[gitlab-haproxy::kitchen_update_ca_certs]
+  - recipe[gitlab-haproxy::main]
+  verifier:
+    inspec_tests:
+    - test/integration/state_persistence
+  lifecycle:
+    pre_converge:
+    - remote: timeout 20 /bin/bash -c 'while [[ ! $(grep cloud-init /etc/apt/sources.list)
+        ]]; do sleep 1 ; done'
+    - remote: sudo apt-get update
+    - remote: sudo apt-get install -y build-essential
+  attributes:
+    gitlab-haproxy:
+      server_state_persistence:
+        enable: true
+      listen_addresses:
+      - 0.0.0.0
+      - "::"
+      api_address: 0.0.0.0
+      chef_vault: secrets
+      chef_vault_item: certs
+      errors:
+        '503':
+          title: An internal server error occured.
+          subtitle: Please see our <a href="https://status.gitlab.com">status page</a>
+            for more information.
+      maxconn: '20000'
+      frontend:
+        blocklist:
+          uri: {}
+        peers:
+          servers:
+            kitchen-vm-under-test:
+            - 34.74.226.1.nip.io
+            - 32768
+        api:
+          httpchk_host: gitlab.com
+          httpchk_path: "/-/readiness"
+          check_opts: check-ssl
+          tcp_check_enable: false
+          server_port: '443'
+          ssl_verify: ssl verify none
+          default_weight: '100'
+        web:
+          httpchk_host: gitlab.com
+          httpchk_path: "/-/readiness"
+          check_opts: check-ssl
+          tcp_check_enable: false
+          server_port: '443'
+          ssl_verify: ssl verify none
+          default_weight: '100'
+        https_git:
+          httpchk_host: gitlab.com
+          httpchk_path: "/-/readiness"
+          check_opts: check-ssl
+          tcp_check_enable: false
+          server_port: '443'
+          ssl_verify: ssl verify none
+          default_weight: '100'
+        ssh:
+          httpchk_host: gitlab.com
+          httpchk_path: "/-/health"
+          check_opts: check-ssl
+          tcp_check_enable: false
+          server_port: '443'
+          ssl_verify: ssl verify none
+          default_weight: '100'
+        websockets:
+          httpchk_host: gitlab.com
+          httpchk_path: "/-/readiness"
+          check_opts: check-ssl
+          tcp_check_enable: false
+          server_port: '443'
+          ssl_verify: ssl verify none
+          default_weight: '100'
+        default_check_opts: inter 3s fastinter 1s downinter 5s fall 3
+        enforce_cloudflare_origin_pull: false
+        backend:
+          servers:
+            default:
+              api:
+                api-test: 10.0.0.1
+              web:
+                web-test: 10.0.0.2
+              https_git:
+                git-test: 10.0.0.3
+              ssh:
+                ssh-test: 10.0.0.4
+              websockets:
+                ws-test: 10.0.0.5
+          essential:
+          - api
+          - web
+          - https_git
+          - ssh
+          - websockets
+        canonical_host: gitlab.com
