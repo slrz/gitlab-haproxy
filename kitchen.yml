@@ -62,6 +62,8 @@ suites:
     - test/integration/main
   attributes:
     gitlab-haproxy:
+      server_state_persistence:
+        enable: true
       listen_addresses:
       - 0.0.0.0
       - "::"
