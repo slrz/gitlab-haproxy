@@ -197,6 +197,9 @@ suites:
         canary_api:
           enable: true
           default_weight: '5'
+        canary_ai_assisted:
+          enable: true
+          default_weight: '5'
         canary_registry:
           enable: true
         canary_websockets:
@@ -237,6 +240,8 @@ suites:
                 gke-cny-ws: 10.216.8.15
               canary_api:
                 gke-cny-api: 10.216.8.44
+              canary_ai_assisted:
+                gke-cny-ai-assisted: 10.216.8.2
               canary_ssh:
                 gke-cny-ssh: 10.216.8.61
               canary_https_git:
