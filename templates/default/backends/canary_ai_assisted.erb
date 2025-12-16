@@ -1,0 +1,8 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'canary_ai_assisted',
+  description: 'Targets the canary AI Assisted fleet',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavor, 'canary_ai_assisted'),
+  override_host: nil,
+  source_nodes: ['canary_ai_assisted'],
+} -%>

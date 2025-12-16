@@ -21,7 +21,7 @@ default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http registry_ht
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
-default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted canary_ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 
@@ -244,6 +244,12 @@ default['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_host'] = 'gitlab.c
 default['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_path'] = '/-/health'
 default['gitlab-haproxy']['frontend']['ai_assisted']['server_port'] = '443'
 default['gitlab-haproxy']['frontend']['ai_assisted']['ssl_verify'] = 'ssl verify none'
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['httpchk_host'] = node['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_host']
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['httpchk_path'] = node['gitlab-haproxy']['frontend']['ai_assisted']['httpchk_path']
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['check_opts'] = node['gitlab-haproxy']['frontend']['ai_assisted']['check_opts']
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['tcp_check_enable'] = node['gitlab-haproxy']['frontend']['ai_assisted']['tcp_check_enable']
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['server_port'] = node['gitlab-haproxy']['frontend']['ai_assisted']['server_port']
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['ssl_verify'] = node['gitlab-haproxy']['frontend']['ai_assisted']['ssl_verify']
 default['gitlab-haproxy']['frontend']['default_check_opts'] = 'inter 3s fastinter 1s downinter 5s fall 3'
 
 # Asset requests in staging and production are directly sent to Google Cloud Storage public bucket.
@@ -266,11 +272,13 @@ default['gitlab-haproxy']['frontend']['canary_web']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_api']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_https_git']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_registry']['enable'] = true
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['enable'] = true
 default['gitlab-haproxy']['frontend']['canary_web']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_api']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_ssh']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_https_git']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_websockets']['default_weight'] = '0'
+default['gitlab-haproxy']['frontend']['canary_ai_assisted']['default_weight'] = '0'
 default['gitlab-haproxy']['frontend']['canary_request_path']['path_list'] = []
 default['gitlab-haproxy']['frontend']['enforce_cloudflare_origin_pull'] = false
 
@@ -287,6 +295,7 @@ default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_w
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_api'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_https_git'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ai_assisted'] = {}
 
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git ssh web websockets)
