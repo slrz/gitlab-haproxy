@@ -5,4 +5,5 @@
   health_check: get_attribute('gitlab-haproxy', flavor, 'ai_assisted'),
   override_host: nil,
   source_nodes: ['ai_assisted'],
+  mixin_nodes: ['canary_ai_assisted'],
 } -%>
