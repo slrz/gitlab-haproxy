@@ -16,6 +16,11 @@ node.default['apt']['unattended_upgrades']['origins_patterns'] += [
   'o=LP-PPA-vbernat-haproxy-2.8',
 ]
 
+# Prevent unattended upgrades of haproxy
+node.default['apt']['unattended_upgrades']['package_blacklist'] += [
+  'haproxy',
+]
+
 include_recipe 'apt::unattended-upgrades'
 
 env = node.chef_environment
