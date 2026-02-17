@@ -9,7 +9,7 @@
 
 raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::install" unless node.run_state['HAP_prerequisites_included']
 
-# Install HAProxy 2.8 LTS. Supported until April 2026
+# Install HAProxy 2.8 LTS. Supported until April 2028 - See https://endoflife.date/haproxy
 apt_repository 'haproxy' do
   uri         'ppa:vbernat/haproxy-2.8'
   components  ['main', 'main/debug']
