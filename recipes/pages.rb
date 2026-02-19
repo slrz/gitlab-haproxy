@@ -14,6 +14,11 @@ include_recipe 'gitlab-haproxy::install'
 
 Gitlab::TemplateHelpers.initialize(node)
 
+# To test changes in Non production environment, remove added overrides, and add them to default.rb to rollout to production
+# if node['gitlab-haproxy']['is_production']!= true
+# Add pages-flavor specific overrides here for non-prod envs
+# end
+
 # Because chef code is run at compile time, we need to run this in a runtime block and save it to the run_state.
 ruby_block 'get available certificates' do
   block do
