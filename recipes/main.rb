@@ -29,7 +29,7 @@ unless node['gitlab-haproxy']['ci-gateway']['enabled']
 end
 
 # To test changes in Non production environment, remove added overrides, and add them to default.rb to rollout to production
-if node['gitlab-haproxy']['is_production']!= true
+unless node['gitlab-haproxy']['is_production']
   node.default['gitlab-haproxy']['config']['main']['backend']['api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
   node.default['gitlab-haproxy']['config']['main']['backend']['api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
   node.default['gitlab-haproxy']['config']['main']['backend']['api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
