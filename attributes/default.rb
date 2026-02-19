@@ -11,6 +11,9 @@ default['gitlab-haproxy']['skip_peering'] = false
 # If this attribute is set, the peer lookup will look for other nodes that possess this key instead of `flavor`
 default['gitlab-haproxy']['peering_key'] = nil
 
+# This attribute checks if environment is production or not
+default['gitlab-haproxy']['is_production'] = false
+
 # This is a list of enabled frontends.
 # This means they are present in the rendered configuration.
 # Please see `templates/frontend/<name>.erb for details on the frontend.`
@@ -99,20 +102,8 @@ default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['
 default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
-default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
-default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
-default['gitlab-haproxy']['config']['main']['backend']['main_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
-default['gitlab-haproxy']['config']['main']['backend']['main_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
-default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
-default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
-default['gitlab-haproxy']['config']['main']['backend']['canary_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
-default['gitlab-haproxy']['config']['main']['backend']['canary_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
 default['gitlab-haproxy']['config']['main']['backend']['api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
-default['gitlab-haproxy']['config']['main']['backend']['api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
-default['gitlab-haproxy']['config']['main']['backend']['api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
-default['gitlab-haproxy']['config']['main']['backend']['api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
-default['gitlab-haproxy']['config']['main']['backend']['api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['kas_k8s_proxy']['timeout server'] = '1h # KAS specific tuning for SPDY'

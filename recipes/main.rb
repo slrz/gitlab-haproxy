@@ -28,6 +28,22 @@ unless node['gitlab-haproxy']['ci-gateway']['enabled']
   node.default['gitlab-haproxy']['enabled_backends']['main'].delete('ci_gateway_git_repo_redirection')
 end
 
+# To test changes in Non production environment, remove added overrides, and add them to default.rb to rollout to production
+unless node['gitlab-haproxy']['is_production']
+  node.default['gitlab-haproxy']['config']['main']['backend']['api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
+  node.default['gitlab-haproxy']['config']['main']['backend']['api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
+  node.default['gitlab-haproxy']['config']['main']['backend']['api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
+  node.default['gitlab-haproxy']['config']['main']['backend']['api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
+  node.default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
+  node.default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
+  node.default['gitlab-haproxy']['config']['main']['backend']['canary_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
+  node.default['gitlab-haproxy']['config']['main']['backend']['canary_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
+  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
+  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
+  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
+  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
+end
+
 Gitlab::TemplateHelpers.initialize(node)
 
 # Because chef code is run at compile time, we need to run this in a runtime block and save it to the run_state.
