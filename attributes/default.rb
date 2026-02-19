@@ -11,6 +11,9 @@ default['gitlab-haproxy']['skip_peering'] = false
 # If this attribute is set, the peer lookup will look for other nodes that possess this key instead of `flavor`
 default['gitlab-haproxy']['peering_key'] = nil
 
+# This attribute checks if environment is production or not
+default['gitlab-haproxy']['is_production'] = false
+
 # This is a list of enabled frontends.
 # This means they are present in the rendered configuration.
 # Please see `templates/frontend/<name>.erb for details on the frontend.`
