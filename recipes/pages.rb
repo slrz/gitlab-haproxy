@@ -15,7 +15,7 @@ include_recipe 'gitlab-haproxy::install'
 Gitlab::TemplateHelpers.initialize(node)
 
 # To test changes in Non production environment, remove added overrides, and add them to default.rb to rollout to production
-# if node['gitlab-haproxy']['is_production']!= true
+# unless node['gitlab-haproxy']['is_production']
 # Add pages-flavor specific overrides here for non-prod envs
 # end
 
