@@ -12,7 +12,7 @@ default['gitlab-haproxy']['skip_peering'] = false
 default['gitlab-haproxy']['peering_key'] = nil
 
 # This attribute checks if environment is production or not
-default['gitlab-haproxy']['is_production'] = false
+default['gitlab-haproxy']['is_production'] = true
 
 # This is a list of enabled frontends.
 # This means they are present in the rendered configuration.
