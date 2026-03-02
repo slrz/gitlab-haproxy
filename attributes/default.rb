@@ -199,6 +199,7 @@ default['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] = '/k8s-proxy'
 default['gitlab-haproxy']['frontend']['kas']['proxy_port'] = '8154'
 default['gitlab-haproxy']['frontend']['kas']['server_port'] = '8150'
 default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = false
+default['gitlab-haproxy']['frontend']['kas_grpc']['tcp_check_enable'] = true
 
 default['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] = '100'
 
