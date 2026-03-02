@@ -295,7 +295,7 @@ module Gitlab
 
       servers[@@node['hostname']] = [@@node['fqdn'], port]
 
-      return servers.sort
+      servers.sort
     end
 
     def self.backend_servers_for_lb_zone(backend_cfg, zone_id)
