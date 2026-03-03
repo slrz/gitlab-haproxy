@@ -71,9 +71,9 @@ control 'haproxy-main-flavor-checks' do
 
     # override for kas backends
     its('content') do
-      should include 'timeout tunnel 2h'
+      should include('timeout tunnel 2h').exactly(6).times
       should include('timeout client 1h # KAS specific tuning for SPDY').exactly(:once)
-      should include('timeout server 1h # KAS specific tuning for SPDY').exactly(4).times # kas, kas k8s proxy + canary each
+      should include('timeout server 1h # KAS specific tuning for SPDY').exactly(6).times # kas, kas_grpc, kas_k8s_proxy, canary_kas, canary_kas_grpc, canary_kas_k8s_proxy
     end
   end
 
@@ -95,7 +95,7 @@ control 'haproxy-main-flavor-checks' do
     its('content') { should match /32769\n  server tk-haproxy-main-ubuntu-\d\d-\d\d-x64-.+? \n/ }
 
     # backend availability. Tests Gitlab::TemplateHelpers::select_backends
-    %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection).each do |backend|
+    %w(asset_proxy api main_api ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_grpc kas_k8s_proxy canary_kas canary_kas_grpc canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection).each do |backend|
       its('content') do
         should include "backend #{backend}"
       end
@@ -106,6 +106,12 @@ control 'haproxy-main-flavor-checks' do
       its('content') do
         should include "frontend #{backend}"
       end
+    end
+
+    its('content') do
+      should include 'acl is_http2 fc_http_major eq 2'
+      should include 'use_backend kas_grpc if is_http2'
+      should include "use_backend kas\n"
     end
 
     # Tests Gitlab::TemplateHelpers::merge_check_frontends and its property merging

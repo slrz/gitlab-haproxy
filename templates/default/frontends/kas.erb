@@ -24,33 +24,19 @@
   ###############################################################
   # KAS routing rules
   # KAS main backends don't have weighted canary routing, like the https frontend.
-<% if enabled_backends.include?('kas_grpc') && enabled_backends.include?('kas_websocket') %>
-  # Protocol-based routing (staging only)
+  # Protocol-based routing
   # HTTP/2 traffic → kas_grpc backend (with proto h2 for gRPC)
-  # HTTP/1.1 traffic → kas_websocket backend (without proto h2 for WebSocket)
-  
+  # HTTP/1.1 traffic → kas backend (without proto h2 for WebSocket)
+
   # K8s proxy routing (takes precedence over protocol-based routing)
   use_backend canary_kas_k8s_proxy if is_k8s_proxy_path canary_opt_in backend_available_canary_kas_k8s_proxy
   use_backend kas_k8s_proxy if is_k8s_proxy_path
-  
+
   # HTTP/2 routing to gRPC backend
   acl is_http2 fc_http_major eq 2
   use_backend canary_kas_grpc if is_http2 canary_opt_in backend_available_canary_kas_grpc
   use_backend kas_grpc if is_http2
-  
-  # Default HTTP/1.1 routing to WebSocket backend
-  use_backend canary_kas_websocket if canary_opt_in backend_available_canary_kas_websocket
-  use_backend kas_websocket
-<% else %>
-  # Traditional routing (production)
-  # All traffic to single KAS backend
-  
-  # K8s proxy routing
-  use_backend canary_kas_k8s_proxy if is_k8s_proxy_path canary_opt_in backend_available_canary_kas_k8s_proxy
-  use_backend kas_k8s_proxy if is_k8s_proxy_path
-  
-  # Default routing
+
+  # Default HTTP/1.1 routing
   use_backend canary_kas if canary_opt_in backend_available_canary_kas
   use_backend kas
-<% end %>
-
