@@ -1,0 +1,9 @@
+<%= render 'boilerplate/backend_definition.erb', :variables => {
+  name: 'canary_ci_jobs_api',
+  description: 'Targets the CI Jobs API fleet consisting only of canary backends',
+  mode: 'http',
+  health_check: get_attribute('gitlab-haproxy', flavor, 'ci_jobs_api'),
+  override_host: nil,
+  source_nodes: ['canary_ci_jobs_api'],
+  fallback_values_from_pool: 'ci_jobs_api', # Any values not specifically configured in `canary_api`, will be taken from `api` instead.
+} -%>
