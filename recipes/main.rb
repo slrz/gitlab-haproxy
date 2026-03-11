@@ -60,7 +60,7 @@ unless node['gitlab-haproxy']['is_production']
   node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['tcp_check_enable'] = false
   node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['server_port'] = '443'
   node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['ssl_verify'] = 'ssl verify none'
-`node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['httpchk_host'] = 'gitlab.com'
+node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['httpchk_host'] = 'gitlab.com'
   node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['httpchk_path'] = '/-/health'
   node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['check_opts'] = 'check-ssl'
   node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['tcp_check_enable'] = false
