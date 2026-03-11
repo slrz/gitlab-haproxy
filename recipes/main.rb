@@ -54,6 +54,9 @@ unless node['gitlab-haproxy']['is_production']
 
   # Enable ci_jobs api backends for Staging and Pre , the configs are copied from the old ci_jobs_api NGINX ingress resource
   node.default['gitlab-haproxy']['enabled_backends']['main'].push('ci_jobs_api', 'main_ci_jobs_api', 'canary_ci_jobs_api')
+  node.default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ci_jobs_api'] = {}
+  node.default['gitlab-haproxy']['frontend']['backend']['servers']['default']['main_ci_jobs_api'] = {}
+  node.default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ci_jobs_api'] = {}
   node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['httpchk_host'] = 'gitlab.com'
   node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['httpchk_path'] = '/-/health'
   node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['check_opts'] = 'check-ssl'
