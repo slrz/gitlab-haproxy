@@ -23,7 +23,6 @@
 <% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
   acl is_api_request path_beg -i /api/
-  acl is_ci_jobs_request path_beg -i /api/v4/jobs/requests
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/code_suggestions/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai/
@@ -68,15 +67,6 @@
 
   ###############################################################
   # API routing rules
-  # CI jobs request routing rules
-  # Route runner polling requests to the dedicated backend when enabled.
-  # When ci_jobs_api is enabled, do not send these requests to the api backend.
-  <% if enabled_backends.include? 'ci_jobs_api' -%>
-  use_backend main_ci_jobs_api if is_ci_jobs_request canary_opt_out
-  use_backend canary_ci_jobs_api if is_ci_jobs_request canary_opt_in backend_available_canary_api
-  use_backend canary_ci_jobs_api if is_canary_path is_ci_jobs_request backend_available_canary_api
-  use_backend ci_jobs_api if is_ci_jobs_request backend_available_ci_jobs_api
-  <% end -%>
   use_backend main_api if is_api_request canary_opt_out
   use_backend canary_api if is_api_request canary_opt_in backend_available_canary_api
   use_backend canary_api if is_api_request is_canary_path backend_available_canary_api
