@@ -51,36 +51,6 @@ unless node['gitlab-haproxy']['is_production']
   node.default['gitlab-haproxy']['config']['main']['backend']['canary_kas_grpc']['timeout tunnel'] = '2h'
   node.default['gitlab-haproxy']['config']['main']['backend']['canary_kas_websocket']['timeout server'] = '1h # KAS specific tuning for SPDY'
   node.default['gitlab-haproxy']['config']['main']['backend']['canary_kas_websocket']['timeout tunnel'] = '2h'
-
-  # Enable ci_jobs api backends for Staging and Pre , the configs are copied from the old ci_jobs_api NGINX ingress resource
-  node.default['gitlab-haproxy']['enabled_backends']['main'].push('ci_jobs_api', 'main_ci_jobs_api', 'canary_ci_jobs_api')
-  node.default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ci_jobs_api'] = {}
-  node.default['gitlab-haproxy']['frontend']['backend']['servers']['default']['main_ci_jobs_api'] = {}
-  node.default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ci_jobs_api'] = {}
-  node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['httpchk_host'] = 'gitlab.com'
-  node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['httpchk_path'] = '/-/health'
-  node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['check_opts'] = 'check-ssl'
-  node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['tcp_check_enable'] = false
-  node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['server_port'] = '443'
-  node.default['gitlab-haproxy']['frontend']['ci_jobs_api']['ssl_verify'] = 'ssl verify none'
-  node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['httpchk_host'] = 'gitlab.com'
-  node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['httpchk_path'] = '/-/health'
-  node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['check_opts'] = 'check-ssl'
-  node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['tcp_check_enable'] = false
-  node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['server_port'] = '443'
-  node.default['gitlab-haproxy']['frontend']['main_ci_jobs_api']['ssl_verify'] = 'ssl verify none'
-  node.default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['httpchk_host'] = 'gitlab.com'
-  node.default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['httpchk_path'] = '/-/health'
-  node.default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['check_opts'] = 'check-ssl'
-  node.default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['tcp_check_enable'] = false
-  node.default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['server_port'] = '443'
-  node.default['gitlab-haproxy']['frontend']['canary_ci_jobs_api']['ssl_verify'] = 'ssl verify none'
-  node.default['gitlab-haproxy']['config']['main']['backend']['ci_jobs_api']['timeout connect'] = '300s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['ci_jobs_api']['timeout server'] = '1h'
-  node.default['gitlab-haproxy']['config']['main']['backend']['main_ci_jobs_api']['timeout connect'] = '300s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['main_ci_jobs_api']['timeout server'] = '1h'
-  node.default['gitlab-haproxy']['config']['main']['backend']['canary_ci_jobs_api']['timeout connect'] = '300s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['canary_ci_jobs_api']['timeout server'] = '1h'
 end
 
 Gitlab::TemplateHelpers.initialize(node)
