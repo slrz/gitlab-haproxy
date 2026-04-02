@@ -300,6 +300,9 @@ default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_a
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ssh'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_https_git'] = {}
 default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ai_assisted'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['ci_jobs_api'] = {}
+default['gitlab-haproxy']['frontend']['backend']['servers']['default']['canary_ci_jobs_api'] = {}
+
 
 # Essential backends must have at least one server, otherwise the chef-run will fail
 default['gitlab-haproxy']['frontend']['backend']['essential'] = %w(api https_git ssh web websockets)
