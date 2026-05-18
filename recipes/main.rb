@@ -30,17 +30,6 @@ end
 
 # To test changes in Non production environment, remove added overrides, and add them to default.rb to rollout to production
 unless node['gitlab-haproxy']['is_production']
-<<<<<<< HEAD
-  node.default['gitlab-haproxy']['config']['main']['backend']['api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
-  node.default['gitlab-haproxy']['config']['main']['backend']['api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
-  node.default['gitlab-haproxy']['config']['main']['backend']['api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
-  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
-  node.default['gitlab-haproxy']['config']['main']['backend']['main_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
-=======
->>>>>>> 60e08f6 (move config to default attributes to enable across production)
   node.default['gitlab-haproxy']['enabled_backends']['main'].push('kas_grpc', 'kas_websocket', 'canary_kas_grpc', 'canary_kas_websocket')
   node.default['gitlab-haproxy']['config']['main']['backend']['kas_grpc']['timeout server'] = '1h # KAS specific tuning for SPDY'
   node.default['gitlab-haproxy']['config']['main']['backend']['kas_grpc']['timeout tunnel'] = '2h'
