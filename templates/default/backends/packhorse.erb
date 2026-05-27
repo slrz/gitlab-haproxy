@@ -1,0 +1,8 @@
+<%- packhorse_host = get_attribute('gitlab-haproxy', 'ci-gateway', 'packhorse_host') -%>
+#### Backend packhorse (flavor <%= flavor %>)
+backend packhorse
+  mode http
+  timeout server 1h
+<% unless packhorse_host.nil? || packhorse_host.empty? %>
+  server packhorse_lb <%= packhorse_host %>:8080 check
+<% end %>
