@@ -380,6 +380,12 @@ default['gitlab-haproxy']['ci-gateway']['allow_artifacts'] = false
 default['gitlab-haproxy']['ci-gateway']['packhorse_host']  = ''
 default['gitlab-haproxy']['ci-gateway']['packhorse_repos'] = []
 
+# Interface whose IPv4 address HAProxy uses as the source when connecting
+# to Packhorse. The Packhorse internal LB is only reachable from the
+# ci-gateway-side NIC, so health checks fail unless the source IP is
+# pinned to that interface.
+default['gitlab-haproxy']['ci-gateway']['packhorse_source_interface'] = 'ens5'
+
 # Default period to wait for draining operations to complete when halting the HAProxy service.
 default['gitlab-haproxy']['drain-period-seconds'] = 600
 
