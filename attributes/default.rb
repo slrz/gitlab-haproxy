@@ -24,7 +24,7 @@ default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http registry_ht
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
-default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted canary_ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted canary_ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection packhorse)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 
@@ -102,12 +102,20 @@ default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['
 default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
+default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
+default['gitlab-haproxy']['config']['main']['backend']['main_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
+default['gitlab-haproxy']['config']['main']['backend']['main_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
+default['gitlab-haproxy']['config']['main']['backend']['main_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
 default['gitlab-haproxy']['config']['main']['backend']['canary_api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
 default['gitlab-haproxy']['config']['main']['backend']['api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
+default['gitlab-haproxy']['config']['main']['backend']['api']['timeout connect'] = '300s # Copied from old nginx configuration , proxy_connect_timeout 300s'
+default['gitlab-haproxy']['config']['main']['backend']['api']['timeout client'] = '60s # Copied from old nginx configuration , proxy_send_timeout 60s'
+default['gitlab-haproxy']['config']['main']['backend']['api']['retry-on'] = 'conn-failure response-timeout # To match old nginx configuration'
+default['gitlab-haproxy']['config']['main']['backend']['api']['option'] = 'redispatch # Allows HAproxy to retry another server in case of retry , this behaviour was enabled by default in NGINX'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['kas_k8s_proxy']['timeout server'] = '1h # KAS specific tuning for SPDY'
@@ -376,6 +384,15 @@ default['gitlab-haproxy']['ci-gateway']['enabled'] = false
 default['gitlab-haproxy']['ci-gateway']['listen_port'] = 8989
 default['gitlab-haproxy']['ci-gateway']['allowlisted_runner_managers'] = []
 default['gitlab-haproxy']['ci-gateway']['allow_artifacts'] = false
+
+default['gitlab-haproxy']['ci-gateway']['packhorse_host']  = ''
+default['gitlab-haproxy']['ci-gateway']['packhorse_repos'] = []
+
+# Interface whose IPv4 address HAProxy uses as the source when connecting
+# to Packhorse. The Packhorse internal LB is only reachable from the
+# ci-gateway-side NIC, so health checks fail unless the source IP is
+# pinned to that interface.
+default['gitlab-haproxy']['ci-gateway']['packhorse_source_interface'] = 'ens5'
 
 # Default period to wait for draining operations to complete when halting the HAProxy service.
 default['gitlab-haproxy']['drain-period-seconds'] = 600
