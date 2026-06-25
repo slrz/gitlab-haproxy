@@ -28,6 +28,11 @@ control 'haproxy-main-flavor-checks' do
       should include 'timeout server 90s' # default in template
     end
     its('content') do
+      # https frontend keeps idle connections longer than Cloudflare's 900s proxy idle
+      # timeout, to avoid the keep-alive reuse race (production-engineering#29267)
+      should include 'timeout http-keep-alive 20m'
+    end
+    its('content') do
       should include 'no-memory-trimming'
     end
     its('content') do

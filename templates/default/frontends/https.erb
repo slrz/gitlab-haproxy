@@ -20,6 +20,10 @@
 
   capture request header User-Agent len 64
   capture request header Cf-Ray len 32
+  # Outlive Cloudflare's non-configurable 900s proxy idle timeout, so Cloudflare retires a pooled
+  # connection before HAProxy closes it. A shorter value races on reuse and stalls the request
+  # (production-engineering#29267). Scoped to this frontend because only it is behind Cloudflare.
+  timeout http-keep-alive 20m
   acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
 <% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
