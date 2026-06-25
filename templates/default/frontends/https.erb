@@ -19,7 +19,7 @@
 <%- https_git_acl_format = get_attribute('gitlab-haproxy', flavor, 'https_git', 'use_verbose_acls') ? 'verbose' : 'condensed' -%>
 
   capture request header User-Agent len 64
-  capture request header CF-Ray len 32
+  capture request header Cf-Ray len 32
   acl is_canary_path path_beg -f /etc/haproxy/canary-request-paths.lst
 <% if flavor == 'main' %>
   acl is_websocket hdr(Upgrade) -i WebSocket
