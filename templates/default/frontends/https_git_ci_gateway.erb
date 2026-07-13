@@ -46,8 +46,8 @@
 <%- packhorse_repos = get_attribute('gitlab-haproxy', 'ci-gateway', 'packhorse_repos') || [] -%>
 <%- unless packhorse_repos.empty? -%>
   acl is_packhorse_repo path_beg <%= packhorse_repos.join(' ') %>
-  use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST
-  use_backend packhorse if is_packhorse_repo is_git_new_initial_request is_upload_pack_service METH_GET
+  use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse
+  use_backend packhorse if is_packhorse_repo is_git_new_initial_request is_upload_pack_service METH_GET backend_available_packhorse
 <%- end -%>
 
   ###############################################################
