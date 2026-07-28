@@ -9,23 +9,15 @@
 
 raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::install" unless node.run_state['HAP_prerequisites_included']
 
-directory '/etc/apt/keyrings' do
-  mode '0755'
-end
-
-# Access to https://keyserver.ubuntu.com is not stable from haproxy servers
-# so vendored gpg file in the cookbook
-cookbook_file '/etc/apt/keyrings/vbernat-haproxy.gpg' do
-  source 'vbernat-haproxy.gpg'
-  mode   '0644'
-end
-
 # Install HAProxy 2.8 LTS. Supported until April 2028 - See https://endoflife.date/haproxy
 apt_repository 'haproxy' do
   uri          'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
   distribution node['lsb']['codename']
   components   ['main', 'main/debug']
-  key          ['vbernat-haproxy.gpg'] # cookbook file name
+
+  # Access to https://keyserver.ubuntu.com is not stable from haproxy servers
+  # so vendored gpg file in the cookbook files
+  key          ['vbernat-haproxy.gpg']
 end
 
 # Required as hatop only invokes `python` and ubuntu ships with `python3`.
