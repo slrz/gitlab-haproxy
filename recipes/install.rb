@@ -25,7 +25,7 @@ apt_repository 'haproxy' do
   uri          'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
   distribution node['lsb']['codename']
   components   ['main', 'main/debug']
-  key          '/etc/apt/keyrings/vbernat-haproxy.gpg'
+  key          ['vbernat-haproxy.gpg'] # cookbook file name
 end
 
 # Required as hatop only invokes `python` and ubuntu ships with `python3`.
