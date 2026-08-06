@@ -44,11 +44,11 @@
   ###############################################################
 
 <%- packhorse_repos = get_attribute('gitlab-haproxy', 'ci-gateway', 'packhorse_repos') || [] -%>
+  http-request set-var(req.packhorse_upstream) int(1) if { hdr(X-Packhorse-Upstream) -m found }
+  http-request del-header X-Packhorse-Upstream
 <%- unless packhorse_repos.empty? -%>
   acl is_packhorse_repo path_beg <%= packhorse_repos.join(' ') %>
-  http-request set-var(req.packhorse_upstream) int(1) if { hdr(X-Packhorse-Upstream) -m found }
   acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0
-  http-request del-header X-Packhorse-Upstream
   use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream
   use_backend packhorse if is_packhorse_repo is_git_new_initial_request is_upload_pack_service METH_GET backend_available_packhorse !is_packhorse_upstream
 <%- end -%>

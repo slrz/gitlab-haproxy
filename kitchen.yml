@@ -347,6 +347,8 @@ suites:
         listen_port: 8989
         allowlisted_runner_managers:
         - 10.0.0.0/8
+        packhorse_repos:
+        - /gitlab-org/gitlab.git
         _comment: We enable ci-gateway on this cluster so we can monitor the certificate
           of ci-gateway through int.gprd.gitlab.net ILB
   lifecycle:

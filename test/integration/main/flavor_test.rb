@@ -129,6 +129,20 @@ control 'haproxy-main-flavor-checks' do
                      'acl backend_available_api nbsrv(api) gt 0'
     end
 
+    # Verifies packhorse loop-prevention ACL and unconditional header strip.
+    # set-var must appear before del-header so the variable is captured
+    # before the header is removed (http-request rules run in declaration order).
+    its('content') do
+      should match(/http-request set-var\(req\.packhorse_upstream\).*\n.*http-request del-header X-Packhorse-Upstream/)
+    end
+    its('content') do
+      should include 'http-request del-header X-Packhorse-Upstream',
+                     'http-request set-var(req.packhorse_upstream) int(1) if { hdr(X-Packhorse-Upstream) -m found }',
+                     'acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0',
+                     'acl is_packhorse_repo path_beg /gitlab-org/gitlab.git',
+                     'use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream'
+    end
+
     # Verifies correct template handling in backend definition
     # Also verifies correct behaviour of
     #  - Gitlab::TemplateHelpers::backend_servers_for_lb_zone
