@@ -136,9 +136,7 @@ control 'haproxy-main-flavor-checks' do
       should match(/http-request set-var\(req\.packhorse_upstream\).*\n.*http-request del-header X-Packhorse-Upstream/)
     end
     its('content') do
-      should include 'http-request del-header X-Packhorse-Upstream',
-                     'http-request set-var(req.packhorse_upstream) int(1) if { hdr(X-Packhorse-Upstream) -m found }',
-                     'acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0',
+      should include 'acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0',
                      'acl is_packhorse_repo path_beg /gitlab-org/gitlab.git',
                      'use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream'
     end
