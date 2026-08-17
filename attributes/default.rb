@@ -24,7 +24,7 @@ default['gitlab-haproxy']['enabled_frontends']['registry'] = %w(http registry_ht
 
 # This is a list of enabled backends.
 # This means they are present in the rendered configuration, not necessarily that there is traffic routed to them.
-default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted canary_ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_k8s_proxy canary_kas canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection packhorse)
+default['gitlab-haproxy']['enabled_backends']['main'] = %w(asset_proxy api main_api ai_assisted canary_ai_assisted https_git web main_web canary_web canary_https_git canary_api kas kas_grpc kas_k8s_proxy canary_kas canary_kas_grpc canary_kas_k8s_proxy ssh websockets ci_gateway_catch_all ci_gateway_git_repo_redirection packhorse)
 default['gitlab-haproxy']['enabled_backends']['pages'] = %w(pages_https pages_http)
 default['gitlab-haproxy']['enabled_backends']['registry'] = %w(registry canary_registry)
 
@@ -98,6 +98,8 @@ default['gitlab-haproxy']['config']['pages']['defaults']['option redispatch'] = 
 default['gitlab-haproxy']['config']['main']['backend']['canary_https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['canary_kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['canary_kas']['timeout tunnel'] = '2h'
+default['gitlab-haproxy']['config']['main']['backend']['canary_kas_grpc']['timeout server'] = '1h # KAS specific tuning for SPDY'
+default['gitlab-haproxy']['config']['main']['backend']['canary_kas_grpc']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['canary_kas_k8s_proxy']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['https_git']['timeout server'] = '1h # Because HTTPS-git requests might take very long to process (packing commits), we need to override the server timeout.'
@@ -110,6 +112,8 @@ default['gitlab-haproxy']['config']['main']['backend']['canary_api']['option'] =
 default['gitlab-haproxy']['config']['main']['backend']['api']['timeout server'] = '10m # Because some API requests might take very long to process (packages/generic), we need to override the server timeout.'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['kas']['timeout tunnel'] = '2h'
+default['gitlab-haproxy']['config']['main']['backend']['kas_grpc']['timeout server'] = '1h # KAS specific tuning for SPDY'
+default['gitlab-haproxy']['config']['main']['backend']['kas_grpc']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['kas_k8s_proxy']['timeout server'] = '1h # KAS specific tuning for SPDY'
 default['gitlab-haproxy']['config']['main']['backend']['kas_k8s_proxy']['timeout tunnel'] = '2h'
 default['gitlab-haproxy']['config']['main']['backend']['ssh']['no option redispatch'] = '# Redispatching a TLS connection does not make sense. This would only happen after a connection was established, so the tunnel would be dead anyways.'
