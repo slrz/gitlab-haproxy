@@ -390,6 +390,13 @@ default['gitlab-haproxy']['ci-gateway']['packhorse_repos'] = []
 # pinned to that interface.
 default['gitlab-haproxy']['ci-gateway']['packhorse_source_interface'] = 'ens5'
 
+default['gitlab-haproxy']['frontend']['packhorse_host']  = ''
+default['gitlab-haproxy']['frontend']['packhorse_repos'] = []
+
+# Interface whose IPv4 address HAProxy uses as the source when connecting
+# to Packhorse on the main (frontend) HAProxy nodes.
+default['gitlab-haproxy']['frontend']['packhorse_source_interface'] = 'eth0'
+
 # Default period to wait for draining operations to complete when halting the HAProxy service.
 default['gitlab-haproxy']['drain-period-seconds'] = 600
 

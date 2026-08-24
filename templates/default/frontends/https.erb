@@ -28,6 +28,9 @@
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai_assisted/
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai/
   acl is_asset_request path_beg /assets/
+  acl is_git_upload_pack_post path_reg -i \.git\/git-upload-pack$
+  acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
+  acl is_upload_pack_service urlp_reg(service) -i ^git-upload-pack$
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
 
   http-request set-header X-GitLab-Show-Login-Captcha 1 if { src -f /etc/haproxy/recaptcha/require-captcha.lst }
@@ -73,6 +76,19 @@
   use_backend canary_api if is_api_request is_canary_path backend_available_canary_api
   use_backend api if is_api_request
 
+<%- packhorse_repos = get_attribute('gitlab-haproxy', 'frontend', 'packhorse_repos') || [] -%>
+  http-request set-var(req.packhorse_upstream) int(1) if { hdr(X-Packhorse-Upstream) -m found }
+  http-request del-header X-Packhorse-Upstream
+<%- unless packhorse_repos.empty? -%>
+  ###############################################################
+  # Packhorse routing rules
+  acl is_packhorse_repo path_beg <%= packhorse_repos.join(' ') %>
+  acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0
+  use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream
+  use_backend packhorse if is_packhorse_repo is_git_new_initial_request is_upload_pack_service METH_GET backend_available_packhorse !is_packhorse_upstream
+  ###############################################################
+
+<%- end -%>
   ###############################################################
   # HTTPS GIT routing rules
   # There is no request path based canary routing for HTTPS GIT
