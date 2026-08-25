@@ -29,7 +29,7 @@
   acl is_gitlab_com_ai_assisted path_beg -i /api/v4/ai/
   acl is_asset_request path_beg /assets/
   acl is_git_upload_pack_post path_reg -i \.git\/git-upload-pack$
-  acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
+  acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$
   acl is_upload_pack_service urlp_reg(service) -i ^git-upload-pack$
   <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
 

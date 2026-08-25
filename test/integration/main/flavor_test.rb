@@ -156,7 +156,7 @@ control 'haproxy-main-flavor-checks' do
     # the https frontend so that the main HAProxy nodes can route to Packhorse.
     its('content') do
       should include 'acl is_git_upload_pack_post path_reg -i \.git\/git-upload-pack$',
-                     'acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$',
+                     'acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$',
                      'acl is_upload_pack_service urlp_reg(service) -i ^git-upload-pack$'
     end
     its('content') do

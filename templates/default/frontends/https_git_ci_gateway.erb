@@ -23,7 +23,7 @@
   acl is_git_method method GET POST
 
   acl is_git_legacy_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\/info\/refs$
-  acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+.git\/info\/refs$
+  acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$
 
   acl is_git_upload_pack_post path_reg -i \.git\/git-upload-pack$
   acl is_upload_pack_service urlp_reg(service) -i ^git-upload-pack$
