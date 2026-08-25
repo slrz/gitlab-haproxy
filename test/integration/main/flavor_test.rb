@@ -138,9 +138,10 @@ control 'haproxy-main-flavor-checks' do
                      'acl backend_available_api nbsrv(api) gt 0'
     end
 
-    # Verifies packhorse loop-prevention ACL and unconditional header strip.
-    # set-var must appear before del-header so the variable is captured
-    # before the header is removed (http-request rules run in declaration order).
+    # Verifies packhorse loop-prevention ACL and unconditional header strip
+    # in the ci-gateway frontend. set-var must appear before del-header so
+    # the variable is captured before the header is removed (http-request
+    # rules run in declaration order).
     its('content') do
       should match(/http-request set-var\(req\.packhorse_upstream\).*\n.*http-request del-header X-Packhorse-Upstream/)
     end
@@ -148,6 +149,22 @@ control 'haproxy-main-flavor-checks' do
       should include 'acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0',
                      'acl is_packhorse_repo path_beg /gitlab-org/gitlab.git',
                      'use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream'
+    end
+
+    # Verifies packhorse routing in the main (frontend) https frontend.
+    # The loop-prevention header handling and repo ACL must also appear in
+    # the https frontend so that the main HAProxy nodes can route to Packhorse.
+    its('content') do
+      should include 'acl is_git_upload_pack_post path_reg -i \.git\/git-upload-pack$',
+                     'acl is_git_new_initial_request path_reg -i ^\/[^\/]+(\/[^\/]+)+\.git\/info\/refs$',
+                     'acl is_upload_pack_service urlp_reg(service) -i ^git-upload-pack$'
+    end
+    its('content') do
+      should include 'use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream',
+                     'use_backend packhorse if is_packhorse_repo is_git_new_initial_request is_upload_pack_service METH_GET backend_available_packhorse !is_packhorse_upstream'
+    end
+    its('content') do
+      should include 'server packhorse_lb 10.0.1.100:8080 check'
     end
 
     # Verifies correct template handling in backend definition
