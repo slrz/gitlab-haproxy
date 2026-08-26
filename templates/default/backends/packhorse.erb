@@ -1,6 +1,7 @@
-<%- packhorse_host = get_attribute('gitlab-haproxy', 'ci-gateway', 'packhorse_host') -%>
-<%- source_iface = get_attribute('gitlab-haproxy', 'ci-gateway', 'packhorse_source_interface') -%>
-<%- source_ip = (get_attribute('network', 'interfaces', source_iface, 'addresses') || {}).find { |_addr, props| props['family'] == 'inet' }&.first -%>
+<%- packhorse_namespace = flavor == 'main' ? 'frontend' : 'ci-gateway' -%>
+<%- packhorse_host = get_attribute('gitlab-haproxy', packhorse_namespace, 'packhorse_host') -%>
+<%- source_iface = flavor == 'main' ? nil : get_attribute('gitlab-haproxy', 'ci-gateway', 'packhorse_source_interface') -%>
+<%- source_ip = source_iface && (get_attribute('network', 'interfaces', source_iface, 'addresses') || {}).find { |_addr, props| props['family'] == 'inet' }&.first -%>
 #### Backend packhorse (flavor <%= flavor %>)
 backend packhorse
   mode http

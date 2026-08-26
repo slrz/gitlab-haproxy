@@ -293,6 +293,9 @@ suites:
           - websockets
         canonical_host: gitlab.com
         delay_speed_ms: '30000'
+        packhorse_host: 10.0.1.100
+        packhorse_repos:
+        - /gitlab-org/gitlab.git
       kas:
         enable: true
         timeout_tunnel: 2h
