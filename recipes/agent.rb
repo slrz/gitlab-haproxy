@@ -45,6 +45,8 @@ if agent['enable']
     creates "#{install_dir}/gitlab-haproxy-agent"
   end
 
+  # Operator convenience only (on PATH, like hatop); the service runs the
+  # versioned path directly.
   link '/usr/local/bin/gitlab-haproxy-agent' do
     to "#{install_dir}/gitlab-haproxy-agent"
   end
@@ -58,7 +60,7 @@ if agent['enable']
       Wants=network-online.target
 
       [Service]
-      ExecStart=/usr/local/bin/gitlab-haproxy-agent \\
+      ExecStart=#{install_dir}/gitlab-haproxy-agent \\
         --listen-addr #{agent['listen_addr']} \\
         --monitoring-addr #{agent['monitoring_addr']} \\
         --pprof-addr #{agent['pprof_addr']} \\
@@ -81,9 +83,9 @@ if agent['enable']
   end
 
   service 'gitlab-haproxy-agent' do
+    # Version bumps change ExecStart, so the unit resource drives restarts.
     action %i(enable start)
     subscribes :restart, 'systemd_unit[gitlab-haproxy-agent.service]', :delayed
-    subscribes :restart, 'link[/usr/local/bin/gitlab-haproxy-agent]', :delayed
   end
 else
   systemd_unit 'gitlab-haproxy-agent.service' do
