@@ -62,6 +62,10 @@ suites:
     - test/integration/main
   attributes:
     gitlab-haproxy:
+      agent:
+        enable: true
+        use_deploy_token: false
+        download_url_base: https://gitlab.com/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent
       listen_addresses:
       - 0.0.0.0
       - "::"
