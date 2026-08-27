@@ -12,14 +12,18 @@ control 'gitlab-haproxy-agent' do
       • the versioned release binary is installed and actually executes
       • the systemd unit exists, carries the configured flags, and is enabled'
 
-  describe command('/opt/gitlab-haproxy-agent/*/gitlab-haproxy-agent --version') do
+  describe file('/opt/gitlab-haproxy-agent/bin/gitlab-haproxy-agent') do
+    it { should be_symlink }
+  end
+
+  describe command('/opt/gitlab-haproxy-agent/bin/gitlab-haproxy-agent --version') do
     its('exit_status') { should eq 0 }
     its('stdout') { should match(/\d+\.\d+\.\d+/) }
   end
 
   describe file('/etc/systemd/system/gitlab-haproxy-agent.service') do
     it { should exist }
-    its('content') { should match %r{ExecStart=/opt/gitlab-haproxy-agent/[\d.]+/gitlab-haproxy-agent} }
+    its('content') { should include 'ExecStart=/opt/gitlab-haproxy-agent/bin/gitlab-haproxy-agent' }
     its('content') { should include '--listen-addr 127.0.0.1:9777' }
     its('content') { should include '--monitoring-addr :9778' }
     its('content') { should include 'Restart=always' }
