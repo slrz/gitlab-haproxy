@@ -45,12 +45,6 @@ if agent['enable']
     creates "#{install_dir}/gitlab-haproxy-agent"
   end
 
-  # Operator convenience only (on PATH, like hatop); the service runs the
-  # versioned path directly.
-  link '/usr/local/bin/gitlab-haproxy-agent' do
-    to "#{install_dir}/gitlab-haproxy-agent"
-  end
-
   systemd_unit 'gitlab-haproxy-agent.service' do
     content <<~UNIT
       [Unit]
@@ -91,10 +85,6 @@ else
   systemd_unit 'gitlab-haproxy-agent.service' do
     triggers_reload true
     action %i(stop disable delete)
-  end
-
-  link '/usr/local/bin/gitlab-haproxy-agent' do
-    action :delete
   end
 
   directory install_root do

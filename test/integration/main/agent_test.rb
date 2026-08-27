@@ -9,16 +9,10 @@ control 'gitlab-haproxy-agent' do
     The kitchen VM has no consul, so the agent cannot reach a running state
     (it exits until the first consul sync succeeds and relies on systemd
     restarting it). This control covers everything up to that point:
-      • the release binary is installed and actually executes
+      • the versioned release binary is installed and actually executes
       • the systemd unit exists, carries the configured flags, and is enabled'
 
-  describe file('/usr/local/bin/gitlab-haproxy-agent') do
-    it { should exist }
-    it { should be_symlink }
-    it { should be_executable }
-  end
-
-  describe command('/usr/local/bin/gitlab-haproxy-agent --version') do
+  describe command('/opt/gitlab-haproxy-agent/*/gitlab-haproxy-agent --version') do
     its('exit_status') { should eq 0 }
     its('stdout') { should match(/\d+\.\d+\.\d+/) }
   end
