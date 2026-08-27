@@ -13,19 +13,30 @@
 
 agent = node['gitlab-haproxy']['agent']
 tarball = "#{Chef::Config['file_cache_path']}/gitlab-haproxy-agent_#{agent['version']}_Linux_x86_64.tar.gz"
+install_root = '/opt/gitlab-haproxy-agent'
+install_dir = "#{install_root}/#{agent['version']}"
 
 if agent['enable']
   remote_file tarball do
-    source "https://gitlab.com/gitlab-com/gl-infra/gitlab-haproxy-agent/-/releases/v#{agent['version']}/downloads/gitlab-haproxy-agent_#{agent['version']}_Linux_x86_64.tar.gz"
+    # The ops mirror, not gitlab.com: installs must keep working during a
+    # gitlab.com outage.
+    source "https://ops.gitlab.net/gitlab-com/gl-infra/gitlab-haproxy-agent/-/releases/v#{agent['version']}/downloads/gitlab-haproxy-agent_#{agent['version']}_Linux_x86_64.tar.gz"
     checksum agent['checksum']
     mode '0644'
     retries 3
-    notifies :run, 'execute[extract-gitlab-haproxy-agent]', :immediately
+  end
+
+  directory install_dir do
+    recursive true
   end
 
   execute 'extract-gitlab-haproxy-agent' do
-    command "tar -C /usr/local/bin -xzf #{tarball} gitlab-haproxy-agent"
-    action :nothing
+    command "tar -C #{install_dir} -xzf #{tarball} gitlab-haproxy-agent"
+    creates "#{install_dir}/gitlab-haproxy-agent"
+  end
+
+  link '/usr/local/bin/gitlab-haproxy-agent' do
+    to "#{install_dir}/gitlab-haproxy-agent"
   end
 
   systemd_unit 'gitlab-haproxy-agent.service' do
@@ -62,7 +73,7 @@ if agent['enable']
   service 'gitlab-haproxy-agent' do
     action %i(enable start)
     subscribes :restart, 'systemd_unit[gitlab-haproxy-agent.service]', :delayed
-    subscribes :restart, 'execute[extract-gitlab-haproxy-agent]', :delayed
+    subscribes :restart, 'link[/usr/local/bin/gitlab-haproxy-agent]', :delayed
   end
 else
   systemd_unit 'gitlab-haproxy-agent.service' do
@@ -70,7 +81,12 @@ else
     action %i(stop disable delete)
   end
 
-  file '/usr/local/bin/gitlab-haproxy-agent' do
+  link '/usr/local/bin/gitlab-haproxy-agent' do
+    action :delete
+  end
+
+  directory install_root do
+    recursive true
     action :delete
   end
 
