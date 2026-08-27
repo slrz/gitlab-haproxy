@@ -102,3 +102,5 @@ template '/etc/systemd/system/haproxy.service.d/state-persistence.conf' do
   action state_persistence_enabled ? :create : :nothing
   notifies :run, 'execute[systemctl-daemon-reload]', :immediately
 end
+
+include_recipe 'gitlab-haproxy::agent' if node['gitlab-haproxy']['agent']['enable']

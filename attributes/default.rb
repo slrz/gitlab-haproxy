@@ -400,3 +400,16 @@ default['gitlab-haproxy']['drain-period-seconds'] = 600
 # This preserves health check status across HAProxy reloads
 default['gitlab-haproxy']['server_state_persistence']['enable'] = false
 default['gitlab-haproxy']['server_state_persistence']['state_file'] = '/etc/haproxy/state/global'
+
+# gitlab-haproxy-agent: the agent-check responder for the HAProxy control
+# plane. https://gitlab.com/gitlab-com/gl-infra/gitlab-haproxy-agent
+default['gitlab-haproxy']['agent']['enable'] = false
+default['gitlab-haproxy']['agent']['version'] = '1.0.2'
+default['gitlab-haproxy']['agent']['checksum'] = 'd3de9447a3cb4b0a2e8b2c897a4922793ebb65f6f91ee3bfaad7401016f8f7b2'
+# haproxy reaches the agent over loopback (agent-addr 127.0.0.1).
+default['gitlab-haproxy']['agent']['listen_addr'] = '127.0.0.1:9777'
+# The monitoring port binds all interfaces: prometheus scrapes it from
+# outside the node.
+default['gitlab-haproxy']['agent']['monitoring_addr'] = ':9778'
+default['gitlab-haproxy']['agent']['pprof_addr'] = '127.0.0.1:9779'
+default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
