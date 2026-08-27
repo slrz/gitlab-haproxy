@@ -20,9 +20,10 @@ if agent['enable']
   download_headers = {}
 
   if agent['use_deploy_token']
-    env = node.chef_environment == '_default' ? 'gprd' : node.chef_environment
+    # No environment fallback: a node with a misconfigured environment must
+    # fail here rather than silently use another environment's token.
     token_secret = get_secrets('hashicorp_vault',
-                               { 'path' => "env/#{env}/cookbook/gitlab-haproxy/agent", 'mount' => 'chef' },
+                               { 'path' => "env/#{node.chef_environment}/cookbook/gitlab-haproxy/agent", 'mount' => 'chef' },
                                nil)
     download_headers['DEPLOY-TOKEN'] = token_secret['token']
   end
@@ -49,6 +50,18 @@ if agent['enable']
 
   link "#{install_root}/bin/gitlab-haproxy-agent" do
     to "#{install_dir}/gitlab-haproxy-agent"
+  end
+
+  stale_installs = lambda do
+    Dir.glob("#{install_root}/*").reject { |p| ['bin', agent['version']].include?(File.basename(p)) } +
+      Dir.glob("#{Chef::Config['file_cache_path']}/gitlab-haproxy-agent_*_Linux_x86_64.tar.gz").reject { |p| p == tarball }
+  end
+
+  ruby_block 'prune-old-gitlab-haproxy-agent-versions' do
+    block do
+      stale_installs.call.each { |path| FileUtils.rm_rf(path) }
+    end
+    only_if { stale_installs.call.any? }
   end
 
   systemd_unit 'gitlab-haproxy-agent.service' do
