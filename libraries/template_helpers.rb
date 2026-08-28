@@ -75,6 +75,14 @@ module Gitlab
       certs
     end
 
+    def build_agent_check_opts(backend_name, server_name)
+      agent = get_attribute('gitlab-haproxy', 'agent') || {}
+      return unless agent['enable'] && (agent['check_backends'] || []).include?(backend_name)
+
+      host, port = agent['listen_addr'].split(':')
+      "agent-check agent-addr #{host} agent-port #{port} agent-send \"#{backend_name}/#{server_name}\\n\" agent-inter #{agent['check_inter']}"
+    end
+
     def build_check_opts(backend_name)
       flavored_attrs = get_attribute('gitlab-haproxy', @@flavor) || {}
       "#{flavored_attrs.dig(backend_name, 'check_opts')} #{flavored_attrs['default_check_opts']}".sub(/port\s+\d+/, '').squeeze(' ').strip
