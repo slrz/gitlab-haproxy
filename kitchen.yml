@@ -66,8 +66,6 @@ suites:
         enable: true
         use_deploy_token: false
         download_url_base: https://gitlab.com/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent
-        # The gitlab.com artifact differs byte-wise from the ops one.
-        checksum: d3de9447a3cb4b0a2e8b2c897a4922793ebb65f6f91ee3bfaad7401016f8f7b2
         check_backends:
         - canary_web
       listen_addresses:
