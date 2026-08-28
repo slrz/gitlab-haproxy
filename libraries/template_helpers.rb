@@ -75,9 +75,6 @@ module Gitlab
       certs
     end
 
-    # The agent-check options for a server line, or nil when the backend is
-    # not enrolled. The agent-send identity is the KV key the agent looks
-    # up: <backend>/<server> under the agent's kv-prefix.
     def build_agent_check_opts(backend_name, server_name)
       agent = get_attribute('gitlab-haproxy', 'agent') || {}
       return unless agent['enable'] && (agent['check_backends'] || []).include?(backend_name)
