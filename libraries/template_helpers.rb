@@ -75,6 +75,17 @@ module Gitlab
       certs
     end
 
+    # The agent-check options for a server line, or nil when the backend is
+    # not enrolled. The agent-send identity is the KV key the agent looks
+    # up: <backend>/<server> under the agent's kv-prefix.
+    def build_agent_check_opts(backend_name, server_name)
+      agent = get_attribute('gitlab-haproxy', 'agent') || {}
+      return unless agent['enable'] && (agent['check_backends'] || []).include?(backend_name)
+
+      host, port = agent['listen_addr'].split(':')
+      "agent-check agent-addr #{host} agent-port #{port} agent-send \"#{backend_name}/#{server_name}\\n\" agent-inter #{agent['check_inter']}"
+    end
+
     def build_check_opts(backend_name)
       flavored_attrs = get_attribute('gitlab-haproxy', @@flavor) || {}
       "#{flavored_attrs.dig(backend_name, 'check_opts')} #{flavored_attrs['default_check_opts']}".sub(/port\s+\d+/, '').squeeze(' ').strip

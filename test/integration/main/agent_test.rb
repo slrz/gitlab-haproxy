@@ -32,4 +32,8 @@ control 'gitlab-haproxy-agent' do
   describe service('gitlab-haproxy-agent') do
     it { should be_enabled }
   end
+
+  describe file('/etc/haproxy/haproxy.cfg') do
+    its('content') { should match %r{server gke-cny-web .* agent-check agent-addr 127\.0\.0\.1 agent-port 9777 agent-send "canary_web/gke-cny-web\\n" agent-inter 2s} }
+  end
 end
