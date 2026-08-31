@@ -64,6 +64,20 @@ if agent['enable']
     only_if { stale_installs.call.any? }
   end
 
+  agent_argv = [
+    '--listen-addr', agent['listen_addr'],
+    '--monitoring-addr', agent['monitoring_addr'],
+    '--kv-prefix', agent['kv_prefix']
+  ] + Array(agent['extra_args'])
+
+  # Each argv element becomes one systemd-quoted word: backslash escaping
+  # for the quoting, doubled % and $ so nothing expands.
+  agent_args = agent_argv.map do |arg|
+    raise "invalid agent arg #{arg.inspect}" if arg.include?("\n")
+
+    %("#{arg.gsub(/[\\"]/) { |c| "\\#{c}" }.gsub('%', '%%').gsub('$', '$$')}")
+  end
+
   systemd_unit 'gitlab-haproxy-agent.service' do
     content <<~UNIT
       [Unit]
@@ -73,11 +87,7 @@ if agent['enable']
       Wants=network-online.target
 
       [Service]
-      ExecStart=#{install_root}/bin/gitlab-haproxy-agent \\
-        --listen-addr #{agent['listen_addr']} \\
-        --monitoring-addr #{agent['monitoring_addr']} \\
-        --pprof-addr #{agent['pprof_addr']} \\
-        --kv-prefix #{agent['kv_prefix']}
+      ExecStart=#{install_root}/bin/gitlab-haproxy-agent #{agent_args.join(' ')}
       # The agent exits when consul is unreachable at startup and relies on
       # being restarted until the first sync succeeds.
       Restart=always
