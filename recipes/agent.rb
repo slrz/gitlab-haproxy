@@ -70,7 +70,6 @@ if agent['enable']
     "--kv-prefix #{agent['kv_prefix']}",
   ] + Array(agent['extra_args'])
 
-  # Newlines would inject unit directives, %% is a systemd specifier.
   agent_args.each do |arg|
     raise "invalid agent arg #{arg.inspect}" if arg.match?(/[\n%]/)
   end
