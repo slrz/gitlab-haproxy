@@ -207,7 +207,16 @@ default['gitlab-haproxy']['frontend']['kas']['proxy_endpoint'] = '/k8s-proxy'
 default['gitlab-haproxy']['frontend']['kas']['proxy_port'] = '8154'
 default['gitlab-haproxy']['frontend']['kas']['server_port'] = '8150'
 default['gitlab-haproxy']['frontend']['kas']['tcp_check_enable'] = false
-default['gitlab-haproxy']['frontend']['kas_grpc']['tcp_check_enable'] = true
+# Health check the gRPC backend over HTTP on the observability port, same as the kas backend.
+# /readiness reports the state of the Relay instance, so the backend drains when an instance
+# starts shutting down. /liveness does not, by design.
+default['gitlab-haproxy']['frontend']['kas_grpc']['httpchk_host'] = 'gitlab.com'
+default['gitlab-haproxy']['frontend']['kas_grpc']['httpchk_path'] = '/readiness'
+# The servers in this backend carry `proto h2` for gRPC traffic, and HAProxy uses the server's
+# protocol for health check connections too. The observability port only speaks HTTP/1.1, so the
+# check has to be pinned to it.
+default['gitlab-haproxy']['frontend']['kas_grpc']['httpchk_proto'] = 'h1'
+default['gitlab-haproxy']['frontend']['kas_grpc']['tcp_check_enable'] = false
 
 default['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] = '100'
 
