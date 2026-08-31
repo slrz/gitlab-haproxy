@@ -413,15 +413,10 @@ default['gitlab-haproxy']['server_state_persistence']['state_file'] = '/etc/hapr
 # gitlab-haproxy-agent: the agent-check responder for the HAProxy control
 # plane. https://gitlab.com/gitlab-com/gl-infra/gitlab-haproxy-agent
 default['gitlab-haproxy']['agent']['enable'] = false
-default['gitlab-haproxy']['agent']['version'] = '1.0.2'
-# The checksum of the OPS artifact, not the gitlab.com one: the two are
-# separate builds of the same tag and differ byte-wise. Get it from
-# /projects/<id>/packages/<pkg>/package_files on ops.
-default['gitlab-haproxy']['agent']['checksum'] = '829248cfa2b79653bf3ec9f2c4ffda3849e9fb9c5d9209b78b842c44c2b98edf'
-# The ops mirror, not gitlab.com: installs must keep working during a
-# gitlab.com outage. The mirror is internal, so downloads authenticate with
-# a deploy token from the chef vault mount. Kitchen overrides the URL to the
-# public canonical project and skips the token.
+default['gitlab-haproxy']['agent']['version'] = '1.1.0'
+default['gitlab-haproxy']['agent']['checksum'] = '6cddca021616110fba6d298d4c4bff1758074312e2ec6c9c5796cb134a49802e'
+# The ops mirror, so installs work during a gitlab.com outage. Kitchen
+# overrides this to the public canonical project and skips the token.
 default['gitlab-haproxy']['agent']['download_url_base'] = 'https://ops.gitlab.net/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent'
 default['gitlab-haproxy']['agent']['use_deploy_token'] = true
 # haproxy reaches the agent over loopback (agent-addr 127.0.0.1).
@@ -429,7 +424,7 @@ default['gitlab-haproxy']['agent']['listen_addr'] = '127.0.0.1:9777'
 # The monitoring port binds all interfaces: prometheus scrapes it from
 # outside the node.
 default['gitlab-haproxy']['agent']['monitoring_addr'] = ':9778'
-default['gitlab-haproxy']['agent']['pprof_addr'] = '127.0.0.1:9779'
 default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
+default['gitlab-haproxy']['agent']['extra_args'] = []
 default['gitlab-haproxy']['agent']['check_backends'] = []
 default['gitlab-haproxy']['agent']['check_inter'] = '2s'
