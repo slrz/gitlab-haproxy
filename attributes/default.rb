@@ -413,11 +413,11 @@ default['gitlab-haproxy']['server_state_persistence']['state_file'] = '/etc/hapr
 # gitlab-haproxy-agent: the agent-check responder for the HAProxy control
 # plane. https://gitlab.com/gitlab-com/gl-infra/gitlab-haproxy-agent
 default['gitlab-haproxy']['agent']['enable'] = false
-default['gitlab-haproxy']['agent']['version'] = '1.0.2'
+default['gitlab-haproxy']['agent']['version'] = '1.1.0'
 # The checksum of the OPS artifact, not the gitlab.com one: the two are
 # separate builds of the same tag and differ byte-wise. Get it from
 # /projects/<id>/packages/<pkg>/package_files on ops.
-default['gitlab-haproxy']['agent']['checksum'] = '829248cfa2b79653bf3ec9f2c4ffda3849e9fb9c5d9209b78b842c44c2b98edf'
+default['gitlab-haproxy']['agent']['checksum'] = '6cddca021616110fba6d298d4c4bff1758074312e2ec6c9c5796cb134a49802e'
 # The ops mirror, not gitlab.com: installs must keep working during a
 # gitlab.com outage. The mirror is internal, so downloads authenticate with
 # a deploy token from the chef vault mount. Kitchen overrides the URL to the
