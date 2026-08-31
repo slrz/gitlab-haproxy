@@ -71,7 +71,7 @@ if agent['enable']
   ] + Array(agent['extra_args'])
 
   agent_args.each do |arg|
-    raise "invalid agent arg #{arg.inspect}" if arg.match?(/[\n%]/)
+    raise "invalid agent arg #{arg.inspect}" if arg.match?(/[\n%$]/)
   end
 
   systemd_unit 'gitlab-haproxy-agent.service' do
