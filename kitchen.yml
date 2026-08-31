@@ -65,7 +65,8 @@ suites:
       agent:
         enable: true
         extra_args:
-        - --consul-addr 127.0.0.1:8500
+        - --consul-addr
+        - 127.0.0.1:8500
         use_deploy_token: false
         download_url_base: https://gitlab.com/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent
         # The gitlab.com artifact differs byte-wise from the ops one.
