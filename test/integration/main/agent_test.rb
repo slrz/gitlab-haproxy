@@ -26,6 +26,7 @@ control 'gitlab-haproxy-agent' do
     its('content') { should include 'ExecStart=/opt/gitlab-haproxy-agent/bin/gitlab-haproxy-agent' }
     its('content') { should include '--listen-addr 127.0.0.1:9777' }
     its('content') { should include '--monitoring-addr :9778' }
+    its('content') { should include '--consul-addr 127.0.0.1:8500' }
     its('content') { should include 'Restart=always' }
   end
 

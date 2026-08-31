@@ -429,7 +429,8 @@ default['gitlab-haproxy']['agent']['listen_addr'] = '127.0.0.1:9777'
 # The monitoring port binds all interfaces: prometheus scrapes it from
 # outside the node.
 default['gitlab-haproxy']['agent']['monitoring_addr'] = ':9778'
-default['gitlab-haproxy']['agent']['pprof_addr'] = '127.0.0.1:9779'
 default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
+# Appended to ExecStart, so new agent flags need no cookbook release.
+default['gitlab-haproxy']['agent']['extra_args'] = []
 default['gitlab-haproxy']['agent']['check_backends'] = []
 default['gitlab-haproxy']['agent']['check_inter'] = '2s'
