@@ -33,11 +33,9 @@
   use_backend kas_k8s_proxy if is_k8s_proxy_path
 
   # HTTP/2 routing to gRPC backend
-  # Canary phase: only canary-opted-in HTTP/2 traffic is routed to gRPC.
-  # Main HTTP/2 traffic still falls through to the kas backend below until the
-  # main cutover (follow-up MR adds `use_backend kas_grpc if is_http2`).
   acl is_http2 fc_http_major eq 2
   use_backend canary_kas_grpc if is_http2 canary_opt_in backend_available_canary_kas_grpc
+  use_backend kas_grpc if is_http2
 
   # Default HTTP/1.1 routing
   use_backend canary_kas if canary_opt_in backend_available_canary_kas

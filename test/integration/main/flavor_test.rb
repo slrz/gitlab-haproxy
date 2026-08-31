@@ -110,10 +110,8 @@ control 'haproxy-main-flavor-checks' do
 
     its('content') do
       should include 'acl is_http2 fc_http_major eq 2'
-      # Canary phase: only canary HTTP/2 traffic is routed to gRPC; main HTTP/2
-      # falls through to the kas backend until the main cutover (follow-up MR).
       should include 'use_backend canary_kas_grpc if is_http2'
-      should_not include "use_backend kas_grpc if is_http2\n"
+      should include 'use_backend kas_grpc if is_http2'
       should include "use_backend kas\n"
     end
 
