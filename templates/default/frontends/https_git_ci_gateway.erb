@@ -17,6 +17,7 @@
   acl is_api_jobs_id path_reg -i ^\/api\/v\d\/jobs\/\d+$
   acl is_api_jobs_id_trace path_reg -i ^\/api\/v\d\/jobs\/\d+\/trace$
   acl is_api_jobs_id_artifacts path_reg -i ^\/api\/v\d\/jobs\/\d+\/artifacts($|\?)
+  acl is_api_runners_verify path_reg -i ^\/api\/v\d\/runners\/verify$
   acl is_patch_method method PATCH
 
 <%= render "partial_is_https_git_#{https_git_acl_format}.erb" -%>
@@ -63,6 +64,7 @@
   use_backend api if is_runner_manager is_api_jobs_request METH_POST
   use_backend api if is_runner_manager is_api_jobs_id METH_PUT
   use_backend api if is_runner_manager is_api_jobs_id_trace is_patch_method
+  use_backend api if is_runner_manager is_api_runners_verify METH_POST
   ###############################################################
 
 <% if get_attribute('gitlab-haproxy', 'ci-gateway', 'allow_artifacts') %>

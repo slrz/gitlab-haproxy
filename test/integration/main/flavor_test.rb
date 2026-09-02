@@ -149,6 +149,12 @@ control 'haproxy-main-flavor-checks' do
                      'use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream'
     end
 
+    # Verifies the ci-gateway limited API allowlist for runner managers.
+    its('content') do
+      should include 'acl is_api_runners_verify path_reg -i ^\/api\/v\d\/runners\/verify$',
+                     'use_backend api if is_runner_manager is_api_runners_verify METH_POST'
+    end
+
     # Verifies packhorse routing in the main (frontend) https frontend.
     # The loop-prevention header handling and repo ACL must also appear in
     # the https frontend so that the main HAProxy nodes can route to Packhorse.
