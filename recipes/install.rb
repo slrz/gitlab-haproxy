@@ -10,14 +10,19 @@
 raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::install" unless node.run_state['HAP_prerequisites_included']
 
 # Install HAProxy 2.8 LTS. Supported until April 2028 - See https://endoflife.date/haproxy
-apt_repository 'haproxy' do
-  uri          'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
-  distribution node['lsb']['codename']
-  components   ['main', 'main/debug']
+#
+# Source, components and key are attributes so an environment can point at the
+# internal apt mirror instead of the PPA; see attributes/default.rb for why the
+# three have to be overridden together. The key is a vendored cookbook file
+# either way, because access to https://keyserver.ubuntu.com is not stable from
+# haproxy servers.
+apt = node['gitlab-haproxy']['apt']
 
-  # Access to https://keyserver.ubuntu.com is not stable from haproxy servers
-  # so vendored gpg file in the cookbook files
-  key          ['vbernat-haproxy.gpg']
+apt_repository 'haproxy' do
+  uri          apt['uri']
+  distribution node['lsb']['codename']
+  components   apt['components']
+  key          apt['key']
 end
 
 # Required as hatop only invokes `python` and ubuntu ships with `python3`.
