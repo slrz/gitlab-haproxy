@@ -428,3 +428,21 @@ default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
 default['gitlab-haproxy']['agent']['extra_args'] = []
 default['gitlab-haproxy']['agent']['check_backends'] = []
 default['gitlab-haproxy']['agent']['check_inter'] = '2s'
+
+# Where the haproxy package comes from.
+#
+# The default is the upstream vbernat PPA, which publishes exactly one build per
+# series: once a 2.8 minor is superseded there is no way back from upstream.
+# Pointing these at the internal apt mirror keeps a downgrade path, because the
+# mirror accumulates versions rather than replacing them.
+# See https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/27726
+#
+# The three move together. The mirror publishes only `main` -- the PPA's jammy
+# Release declares no `main/debug` component, so it cannot be mirrored -- and it
+# signs its metadata with a per-environment key (apt-mirror-gstg.gpg,
+# apt-mirror-gprd.gpg), so the key file differs too.
+# Overriding the uri alone leaves apt asking for a component the mirror does not
+# serve, which fails `apt-get update` on the next converge.
+default['gitlab-haproxy']['apt']['uri'] = 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
+default['gitlab-haproxy']['apt']['components'] = ['main', 'main/debug']
+default['gitlab-haproxy']['apt']['key'] = ['vbernat-haproxy.gpg']
