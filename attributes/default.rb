@@ -414,7 +414,7 @@ default['gitlab-haproxy']['server_state_persistence']['state_file'] = '/etc/hapr
 # plane. https://gitlab.com/gitlab-com/gl-infra/gitlab-haproxy-agent
 default['gitlab-haproxy']['agent']['enable'] = false
 default['gitlab-haproxy']['agent']['version'] = '1.2.0'
-default['gitlab-haproxy']['agent']['checksum'] = 'TBD_1.2.0_RELEASE_CHECKSUM'
+default['gitlab-haproxy']['agent']['checksum'] = 'c1c0e3397c00f3c75a5f4d364b9f29e0668147c3f9ab32cb48269de4e77cf3dd'
 # The ops mirror, so installs work during a gitlab.com outage. Kitchen
 # overrides this to the public canonical project and skips the token.
 default['gitlab-haproxy']['agent']['download_url_base'] = 'https://ops.gitlab.net/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent'
