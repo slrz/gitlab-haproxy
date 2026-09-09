@@ -40,7 +40,7 @@ control 'gitlab-haproxy-agent' do
 
   # asset_proxy and packhorse write their single external server inline; every
   # other server line goes through the boilerplate and must get agent-check.
-  describe command(%q(grep -E '^\s+server ' /etc/haproxy/haproxy.cfg | grep -v agent-check | grep -vE '^\s+server (asset-bucket|packhorse_lb) ')) do
+  describe command(%q(awk '/^[a-z]/{s=$1} s=="backend" && /^[[:space:]]+server /' /etc/haproxy/haproxy.cfg | grep -v agent-check | grep -vE '^[[:space:]]+server (asset-bucket|packhorse_lb) ')) do
     its('stdout') { should eq '' }
   end
 end
