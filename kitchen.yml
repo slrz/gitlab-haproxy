@@ -303,6 +303,9 @@ suites:
         packhorse_host: 10.0.1.100
         packhorse_repos:
         - /gitlab-org/gitlab.git
+        <% 70.times do |i| %>
+        - /kitchen-group-<%= i %>/repo-<%= i %>.git
+        <% end %>
       kas:
         enable: true
         timeout_tunnel: 2h
@@ -360,6 +363,9 @@ suites:
         packhorse_host: 10.0.1.100
         packhorse_repos:
         - /gitlab-org/gitlab.git
+        <% 70.times do |i| %>
+        - /kitchen-group-<%= i %>/repo-<%= i %>.git
+        <% end %>
         _comment: We enable ci-gateway on this cluster so we can monitor the certificate
           of ci-gateway through int.gprd.gitlab.net ILB
   lifecycle:
