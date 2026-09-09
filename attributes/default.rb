@@ -426,7 +426,6 @@ default['gitlab-haproxy']['agent']['listen_addr'] = '127.0.0.1:9777'
 default['gitlab-haproxy']['agent']['monitoring_addr'] = ':9778'
 default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
 default['gitlab-haproxy']['agent']['extra_args'] = []
-default['gitlab-haproxy']['agent']['check_backends'] = []
 default['gitlab-haproxy']['agent']['check_inter'] = '2s'
 
 # Where the haproxy package comes from.

@@ -69,8 +69,6 @@ suites:
         - 127.0.0.1:8500
         use_deploy_token: false
         download_url_base: https://gitlab.com/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent
-        check_backends:
-        - canary_web
       listen_addresses:
       - 0.0.0.0
       - "::"
