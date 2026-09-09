@@ -77,7 +77,7 @@ module Gitlab
 
     def build_agent_check_opts(backend_name, server_name)
       agent = get_attribute('gitlab-haproxy', 'agent') || {}
-      return unless agent['enable'] && (agent['check_backends'] || []).include?(backend_name)
+      return unless agent['enable']
 
       host, port = agent['listen_addr'].split(':')
       "agent-check agent-addr #{host} agent-port #{port} agent-send \"#{backend_name}/#{server_name}\\n\" agent-inter #{agent['check_inter']}"

@@ -37,4 +37,10 @@ control 'gitlab-haproxy-agent' do
   describe file('/etc/haproxy/haproxy.cfg') do
     its('content') { should match %r{server gke-cny-web .* agent-check agent-addr 127\.0\.0\.1 agent-port 9777 agent-send "canary_web/gke-cny-web\\n" agent-inter 2s} }
   end
+
+  # asset_proxy and packhorse write their single external server inline; every
+  # other server line goes through the boilerplate and must get agent-check.
+  describe command(%q(awk '/^[a-z]/{s=$1} s=="backend" && /^[[:space:]]+server /' /etc/haproxy/haproxy.cfg | grep -v agent-check | grep -vE '^[[:space:]]+server (asset-bucket|packhorse_lb) ')) do
+    its('stdout') { should eq '' }
+  end
 end
