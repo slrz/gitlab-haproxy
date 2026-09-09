@@ -75,8 +75,6 @@ module Gitlab
       certs
     end
 
-    # The agent answers from the first key that has a KV entry, so the row
-    # key goes first and group keys after it.
     def build_agent_check_opts(backend_name, server_name, pool_name = nil)
       agent = get_attribute('gitlab-haproxy', 'agent') || {}
       return unless agent['enable']

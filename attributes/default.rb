@@ -426,8 +426,6 @@ default['gitlab-haproxy']['agent']['listen_addr'] = '127.0.0.1:9777'
 default['gitlab-haproxy']['agent']['monitoring_addr'] = ':9778'
 default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
 default['gitlab-haproxy']['agent']['extra_args'] = []
-# Group keys appended to agent-send for servers from these pools, so one KV
-# key drains the whole group. See the agent README for the lookup order.
 default['gitlab-haproxy']['agent']['groups']['canary'] = %w(
   canary_ai_assisted
   canary_api

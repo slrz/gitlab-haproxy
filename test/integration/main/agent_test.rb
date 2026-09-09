@@ -39,7 +39,6 @@ control 'gitlab-haproxy-agent' do
     its('content') { should match %r{agent-send "web/gke-cny-web canary\\n"} }
   end
 
-  # Only servers from canary pools get the group key.
   describe command(%q(grep -E 'agent-send "[^"]* canary\\n"' /etc/haproxy/haproxy.cfg | grep -v -- '-cny-')) do
     its('stdout') { should eq '' }
   end
