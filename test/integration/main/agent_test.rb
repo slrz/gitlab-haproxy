@@ -35,7 +35,12 @@ control 'gitlab-haproxy-agent' do
   end
 
   describe file('/etc/haproxy/haproxy.cfg') do
-    its('content') { should match %r{server gke-cny-web .* agent-check agent-addr 127\.0\.0\.1 agent-port 9777 agent-send "canary_web/gke-cny-web\\n" agent-inter 2s} }
+    its('content') { should match %r{server gke-cny-web .* agent-check agent-addr 127\.0\.0\.1 agent-port 9777 agent-send "canary_web/gke-cny-web canary\\n" agent-inter 2s} }
+    its('content') { should match %r{agent-send "web/gke-cny-web canary\\n"} }
+  end
+
+  describe command(%q(grep -E 'agent-send "[^"]* canary\\n"' /etc/haproxy/haproxy.cfg | grep -v -- '-cny-')) do
+    its('stdout') { should eq '' }
   end
 
   # asset_proxy and packhorse write their single external server inline; every

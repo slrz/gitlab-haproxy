@@ -75,12 +75,19 @@ module Gitlab
       certs
     end
 
-    def build_agent_check_opts(backend_name, server_name)
+    def build_agent_check_opts(backend_name, server_name, pool_name = nil)
       agent = get_attribute('gitlab-haproxy', 'agent') || {}
       return unless agent['enable']
 
+      keys = ["#{backend_name}/#{server_name}"]
+      (agent['groups'] || {}).each do |group, pools|
+        raise "agent group name #{group.inspect} must not contain '/' or whitespace" if group =~ %r{[/\s]}
+
+        keys << group if pools.include?(pool_name)
+      end
+
       host, port = agent['listen_addr'].split(':')
-      "agent-check agent-addr #{host} agent-port #{port} agent-send \"#{backend_name}/#{server_name}\\n\" agent-inter #{agent['check_inter']}"
+      "agent-check agent-addr #{host} agent-port #{port} agent-send \"#{keys.join(' ')}\\n\" agent-inter #{agent['check_inter']}"
     end
 
     def build_check_opts(backend_name)
