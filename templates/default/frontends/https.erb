@@ -82,7 +82,9 @@
 <%- unless packhorse_repos.empty? -%>
   ###############################################################
   # Packhorse routing rules
-  acl is_packhorse_repo path_beg <%= packhorse_repos.join(' ') %>
+<%- packhorse_repos.each_slice(50) do |chunk| -%>
+  acl is_packhorse_repo path_beg <%= chunk.join(' ') %>
+<%- end -%>
   acl is_packhorse_upstream var(req.packhorse_upstream) -m int gt 0
   use_backend packhorse if is_packhorse_repo is_git_upload_pack_post METH_POST backend_available_packhorse !is_packhorse_upstream
   use_backend packhorse if is_packhorse_repo is_git_new_initial_request is_upload_pack_service METH_GET backend_available_packhorse !is_packhorse_upstream
