@@ -197,7 +197,7 @@ control 'haproxy-main-flavor-checks' do
   server api-gke-us-east1-c 10.221.14.23:443 weight 100 backup agent-check agent-addr 127.0.0.1 agent-port 9777 agent-send "api/api-gke-us-east1-c\\n" agent-inter 2s
   server api-gke-us-east1-d 10.221.15.31:443 weight 100 backup agent-check agent-addr 127.0.0.1 agent-port 9777 agent-send "api/api-gke-us-east1-d\\n" agent-inter 2s
   # node pool \'canary_api\'
-  server gke-cny-api 10.216.8.44:443 weight 5 agent-check agent-addr 127.0.0.1 agent-port 9777 agent-send "api/gke-cny-api\\n" agent-inter 2s
+  server gke-cny-api 10.216.8.44:443 weight 5 agent-check agent-addr 127.0.0.1 agent-port 9777 agent-send "api/gke-cny-api canary\\n" agent-inter 2s
 ',
                # Validates the TCP check variant of the healthcheck
                'option tcp-check

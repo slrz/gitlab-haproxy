@@ -413,8 +413,8 @@ default['gitlab-haproxy']['server_state_persistence']['state_file'] = '/etc/hapr
 # gitlab-haproxy-agent: the agent-check responder for the HAProxy control
 # plane. https://gitlab.com/gitlab-com/gl-infra/gitlab-haproxy-agent
 default['gitlab-haproxy']['agent']['enable'] = false
-default['gitlab-haproxy']['agent']['version'] = '1.1.0'
-default['gitlab-haproxy']['agent']['checksum'] = '6cddca021616110fba6d298d4c4bff1758074312e2ec6c9c5796cb134a49802e'
+default['gitlab-haproxy']['agent']['version'] = '1.2.0'
+default['gitlab-haproxy']['agent']['checksum'] = 'c1c0e3397c00f3c75a5f4d364b9f29e0668147c3f9ab32cb48269de4e77cf3dd'
 # The ops mirror, so installs work during a gitlab.com outage. Kitchen
 # overrides this to the public canonical project and skips the token.
 default['gitlab-haproxy']['agent']['download_url_base'] = 'https://ops.gitlab.net/api/v4/projects/gitlab-com%2Fgl-infra%2Fgitlab-haproxy-agent/packages/generic/gitlab-haproxy-agent'
@@ -426,6 +426,17 @@ default['gitlab-haproxy']['agent']['listen_addr'] = '127.0.0.1:9777'
 default['gitlab-haproxy']['agent']['monitoring_addr'] = ':9778'
 default['gitlab-haproxy']['agent']['kv_prefix'] = 'gitlab-haproxy-agent/state'
 default['gitlab-haproxy']['agent']['extra_args'] = []
+default['gitlab-haproxy']['agent']['groups']['canary'] = %w(
+  canary_ai_assisted
+  canary_api
+  canary_https_git
+  canary_kas
+  canary_pages
+  canary_registry
+  canary_ssh
+  canary_web
+  canary_websockets
+)
 default['gitlab-haproxy']['agent']['check_inter'] = '2s'
 
 # Where the haproxy package comes from.
