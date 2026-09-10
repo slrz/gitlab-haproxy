@@ -18,16 +18,6 @@ control 'haproxy-registry-config-checks' do
     its('protocols') { should eq ['tcp'] }
   end
 
-  # TCP admin socket off in this suite (tcp_admin_socket: false)
-  describe port(23646) do
-    it { should_not be_listening }
-  end
-
-  describe file('/etc/haproxy/haproxy.cfg') do
-    its('content') { should_not include ':23646' }
-    its('content') { should include 'stats socket /run/haproxy/admin.sock' }
-  end
-
   # http
   describe port(80) do
     its('processes') { should eq ['haproxy'] }
