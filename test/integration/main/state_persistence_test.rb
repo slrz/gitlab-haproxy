@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# InSpec tests for server state persistence feature (disabled by default)
+# InSpec tests: server state persistence was removed in 7.38.0
 
-control 'server-state-persistence-disabled-by-default' do
+control 'server-state-persistence-removed' do
   impact 1.0
-  title 'Server state persistence is disabled by default'
+  title 'Server state persistence is gone'
   desc '
-    This control ensures that server state persistence is disabled by default:
+    This control ensures nothing of server state persistence remains:
       • State directory does not exist
       • HAProxy config does not include server-state-file directive
       • HAProxy config does not include load-server-state-from-file directive
