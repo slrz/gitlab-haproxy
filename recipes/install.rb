@@ -67,44 +67,19 @@ end
 # socat is required to communicate with HAProxy's admin socket
 package 'socat'
 
-# Server state persistence - saves backend server states on reload
-# This preserves health check status across HAProxy reloads
-state_persistence_enabled = node['gitlab-haproxy']['server_state_persistence']['enable']
-
 execute 'systemctl-daemon-reload' do
   command 'systemctl daemon-reload'
   action :nothing
 end
 
-# Directory to store the server state file
-directory ::File.dirname(node['gitlab-haproxy']['server_state_persistence']['state_file']) do
-  owner 'haproxy'
-  group 'haproxy'
-  mode '0700'
+# Server state persistence was removed in 7.38.0; clean up what it left behind.
+directory '/etc/haproxy/state' do
   recursive true
-  action state_persistence_enabled ? :create : :delete
+  action :delete
 end
 
-# Directory for systemd service overrides
-directory '/etc/systemd/system/haproxy.service.d' do
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action state_persistence_enabled ? :create : :nothing
-end
-
-# Systemd override to save server state before reload
 file '/etc/systemd/system/haproxy.service.d/state-persistence.conf' do
-  action state_persistence_enabled ? :nothing : :delete
-  notifies :run, 'execute[systemctl-daemon-reload]', :immediately
-end
-
-template '/etc/systemd/system/haproxy.service.d/state-persistence.conf' do
-  source 'haproxy-state-override.conf.erb'
-  owner 'root'
-  group 'root'
-  mode '0644'
-  action state_persistence_enabled ? :create : :nothing
+  action :delete
   notifies :run, 'execute[systemctl-daemon-reload]', :immediately
 end
 
