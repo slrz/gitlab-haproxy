@@ -18,6 +18,12 @@ control 'haproxy-main-config-checks' do
     its('protocols') { should eq ['tcp'] }
   end
 
+  # TCP admin socket, on by default
+  describe port(23646) do
+    its('processes') { should eq ['haproxy'] }
+    its('protocols') { should eq ['tcp'] }
+  end
+
   # http
   describe port(80) do
     its('processes') { should eq ['haproxy'] }
