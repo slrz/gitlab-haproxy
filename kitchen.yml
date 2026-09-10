@@ -72,7 +72,6 @@ suites:
       listen_addresses:
       - 0.0.0.0
       - "::"
-      api_address: 0.0.0.0
       chef_vault: secrets
       chef_vault_item: certs
       errors:
@@ -393,7 +392,6 @@ suites:
       listen_addresses:
       - 0.0.0.0
       - "::"
-      api_address: 0.0.0.0
       chef_vault: secrets
       chef_vault_item: certs
       errors:
@@ -628,8 +626,6 @@ suites:
       listen_addresses:
       - 0.0.0.0
       - "::"
-      api_address: 0.0.0.0
-      tcp_admin_socket: false
       chef_vault: secrets
       chef_vault_item: certs
       errors:
@@ -864,7 +860,6 @@ suites:
       listen_addresses:
       - 0.0.0.0
       - "::"
-      api_address: 0.0.0.0
       chef_vault: secrets
       chef_vault_item: certs
       errors:
