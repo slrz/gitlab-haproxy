@@ -36,7 +36,7 @@ if apt['keyring']
   end
 
   cookbook_file "/etc/apt/keyrings/#{apt['keyring']}" do
-    source apt['key'].first
+    source Array(apt['key']).first
     owner 'root'
     group 'root'
     mode '0644'
