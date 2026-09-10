@@ -458,3 +458,10 @@ default['gitlab-haproxy']['agent']['check_inter'] = '2s'
 default['gitlab-haproxy']['apt']['uri'] = 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
 default['gitlab-haproxy']['apt']['components'] = ['main', 'main/debug']
 default['gitlab-haproxy']['apt']['key'] = ['vbernat-haproxy.gpg']
+
+# Name of a keyring file under /etc/apt/keyrings. When set, the key is written
+# there and the source line carries signed-by=, so it is trusted for this
+# repository alone. Left nil, the repository is managed by apt_repository,
+# which on Cinc 16 has no signed_by property and adds the key to the global
+# /etc/apt/trusted.gpg instead.
+default['gitlab-haproxy']['apt']['keyring'] = nil
