@@ -147,6 +147,8 @@ default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please see our <a href
 default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['listen_addresses'] = node['gitlab-haproxy']['listen_address'].nil? ? ['0.0.0.0', '::'] : [node['gitlab-haproxy']['listen_address']]
 default['gitlab-haproxy']['api_address'] = '0.0.0.0'
+# The TCP admin listener on api_address:23646. The unix socket is unaffected.
+default['gitlab-haproxy']['tcp_admin_socket'] = true
 default['gitlab-haproxy']['maxconn'] = 50000
 
 ###############################################################################
