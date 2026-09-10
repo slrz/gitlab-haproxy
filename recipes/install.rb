@@ -19,6 +19,13 @@ raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::
 apt = node['gitlab-haproxy']['apt']
 
 if apt['keyring']
+  # signed-by= names a single keyring file, so more than one key cannot be
+  # expressed this way. Fail rather than silently using only the first.
+  if Array(apt['key']).length > 1
+    raise "#{cookbook_name}: apt.keyring takes one key, got #{apt['key'].inspect}. " \
+          'Concatenate them into a single keyring file instead.'
+  end
+
   # Scope the key to this repository. apt_repository cannot: Cinc 16 has no
   # signed_by property, so it falls back to `apt-key add` and the key lands in
   # /etc/apt/trusted.gpg, where it is trusted for every repository on the node.
@@ -33,6 +40,7 @@ if apt['keyring']
     owner 'root'
     group 'root'
     mode '0644'
+    notifies :update, 'apt_update[haproxy]', :immediately
   end
 
   apt_update 'haproxy' do
