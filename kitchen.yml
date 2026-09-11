@@ -80,6 +80,11 @@ suites:
           subtitle: Please see our <a href="https://status.gitlab.com">status page</a>
             for more information.
       maxconn: '20000'
+      server_tcp_keepalive:
+        kas_grpc:
+          idle: 30s
+          intvl: 10s
+          cnt: 3
       frontend:
         blocklist:
           uri:
