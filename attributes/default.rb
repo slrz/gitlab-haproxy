@@ -147,9 +147,7 @@ default['gitlab-haproxy']['errors']['503']['subtitle'] = 'Please see our <a href
 default['gitlab-haproxy']['admin_password'] = nil
 default['gitlab-haproxy']['listen_addresses'] = node['gitlab-haproxy']['listen_address'].nil? ? ['0.0.0.0', '::'] : [node['gitlab-haproxy']['listen_address']]
 default['gitlab-haproxy']['maxconn'] = 50000
-# Server-side TCP keepalive per backend: `option srvtcpka` plus srvtcpka-idle/intvl/cnt. Without it the
-# kernel defaults apply (first probe after 7200s idle), so a server path that stops forwarding is only
-# noticed at `timeout server`. Keyed by backend name, e.g. 'kas_grpc' => { 'idle' => '30s', 'intvl' => '10s', 'cnt' => 3 }.
+# Per backend srvtcpka-idle/intvl/cnt, e.g. 'kas_grpc' => { 'idle' => '30s', 'intvl' => '10s', 'cnt' => 3 }. Kernel defaults (7200s idle) otherwise.
 default['gitlab-haproxy']['server_tcp_keepalive'] = {}
 
 ###############################################################################
