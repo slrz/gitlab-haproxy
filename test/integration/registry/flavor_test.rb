@@ -56,6 +56,9 @@ control 'haproxy-registry-flavor-checks' do
     its('content') do
       should include 'option tcp-smart-connect'
     end
+    its('content') do
+      should_not include 'srvtcpka'
+    end
   end
 
   # General config related flavor differences

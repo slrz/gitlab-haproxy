@@ -14,6 +14,13 @@ backend <%= @name %>
 <% end %>
   #################################################
 
+<%- keepalive = server_tcp_keepalive(@name) -%>
+<% if keepalive %>
+  option srvtcpka
+  srvtcpka-idle <%= keepalive['idle'] %>
+  srvtcpka-intvl <%= keepalive['intvl'] %>
+  srvtcpka-cnt <%= keepalive['cnt'] %>
+<% end %>
 <% if @health_check %>
 <%= render 'boilerplate/backend_healthcheck.erb', :variables => { :health_check => @health_check, } -%>
 <% end %>
