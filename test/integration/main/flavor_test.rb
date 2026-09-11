@@ -76,7 +76,6 @@ control 'haproxy-main-flavor-checks' do
       should include('timeout server 1h # KAS specific tuning for SPDY').exactly(6).times # kas, kas_grpc, kas_k8s_proxy, canary_kas, canary_kas_grpc, canary_kas_k8s_proxy
     end
 
-    # frontend.kas_grpc.server_tcp_keepalive is set in this suite, nothing else has it
     its('content') do
       should include('option srvtcpka').exactly(:once)
       should match(/^backend kas_grpc\n(?:(?!backend ).*\n)*?  option srvtcpka\n  srvtcpka-idle 30s\n  srvtcpka-intvl 10s\n  srvtcpka-cnt 3\n/)

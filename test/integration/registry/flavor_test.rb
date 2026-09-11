@@ -56,7 +56,6 @@ control 'haproxy-registry-flavor-checks' do
     its('content') do
       should include 'option tcp-smart-connect'
     end
-    # no backend has server_tcp_keepalive in this suite
     its('content') do
       should_not include 'srvtcpka'
     end
