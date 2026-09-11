@@ -141,6 +141,11 @@ suites:
           proxy_port: '8154'
           server_port: '8150'
           tcp_check_enable: false
+        kas_grpc:
+          server_tcp_keepalive:
+            idle: 30s
+            intvl: 10s
+            cnt: 3
         canary_kas:
           default_weight: '5'
         ssh:

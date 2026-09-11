@@ -90,6 +90,16 @@ module Gitlab
       "agent-check agent-addr #{host} agent-port #{port} agent-send \"#{keys.join(' ')}\\n\" agent-inter #{agent['check_inter']}"
     end
 
+    def server_tcp_keepalive(backend_name)
+      keepalive = get_attribute('gitlab-haproxy', @@flavor, backend_name, 'server_tcp_keepalive')
+      return if keepalive.nil?
+
+      missing = %w(idle intvl cnt).reject { |k| keepalive[k] }
+      raise "server_tcp_keepalive for backend #{backend_name} needs idle, intvl and cnt; missing #{missing.join(', ')}" unless missing.empty?
+
+      keepalive
+    end
+
     def build_check_opts(backend_name)
       flavored_attrs = get_attribute('gitlab-haproxy', @@flavor) || {}
       "#{flavored_attrs.dig(backend_name, 'check_opts')} #{flavored_attrs['default_check_opts']}".sub(/port\s+\d+/, '').squeeze(' ').strip

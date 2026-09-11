@@ -216,6 +216,8 @@ default['gitlab-haproxy']['frontend']['kas_grpc']['httpchk_path'] = '/readiness'
 # check has to be pinned to it.
 default['gitlab-haproxy']['frontend']['kas_grpc']['httpchk_proto'] = 'h1'
 default['gitlab-haproxy']['frontend']['kas_grpc']['tcp_check_enable'] = false
+# srvtcpka-idle/intvl/cnt for the backend, e.g. { 'idle' => '30s', 'intvl' => '10s', 'cnt' => 3 }. Kernel defaults (7200s idle) when nil.
+default['gitlab-haproxy']['frontend']['kas_grpc']['server_tcp_keepalive'] = nil
 
 default['gitlab-haproxy']['frontend']['canary_kas']['default_weight'] = '100'
 
