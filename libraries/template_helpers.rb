@@ -91,7 +91,7 @@ module Gitlab
     end
 
     def server_tcp_keepalive(backend_name)
-      keepalive = get_attribute('gitlab-haproxy', 'server_tcp_keepalive', backend_name)
+      keepalive = get_attribute('gitlab-haproxy', @@flavor, backend_name, 'server_tcp_keepalive')
       return if keepalive.nil?
 
       missing = %w(idle intvl cnt).reject { |k| keepalive[k] }
