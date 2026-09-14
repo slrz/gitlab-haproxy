@@ -34,6 +34,7 @@
   # is internal and thus does not pass through Cloudflare beforehand.
   # https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/26205
   http-request set-header X-GitLab-RateLimit-Bypass 1 if is_https_git is_git_method
+  http-request set-header X-GitLab-RateLimit-Bypass 1 if is_runner_manager
 
   # Set the canonical host as Host header so that ci-gateway
   # is transparent for GitLab backends

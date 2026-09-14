@@ -157,6 +157,7 @@ control 'haproxy-main-flavor-checks' do
     # Verifies the ci-gateway limited API allowlist for runner managers.
     its('content') do
       should include 'acl is_api_runners_verify path_reg -i ^\/api\/v\d\/runners\/verify$',
+                     'http-request set-header X-GitLab-RateLimit-Bypass 1 if is_runner_manager',
                      'use_backend api if is_runner_manager is_api_runners_verify METH_POST'
     end
 
