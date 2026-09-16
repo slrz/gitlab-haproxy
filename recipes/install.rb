@@ -93,9 +93,13 @@ package 'haproxy' do
   notifies :restart, 'service[rsyslog]', :delayed
 end
 
-# This package installs the debugging symbols required by tools such as perf and gdb.
-# These symbols are installed separately and have no performance effect on the haproxy binary itself.
-package 'haproxy-dbgsym'
+# Debug symbols for perf and gdb. The PPA publishes them in main/debug, which
+# the internal apt mirror cannot serve, and the package depends on the exact
+# haproxy version, so on a mirror-sourced node it would fail to install after
+# any haproxy upgrade or downgrade.
+package 'haproxy-dbgsym' do
+  only_if { Array(apt['components']).include?('main/debug') }
+end
 
 execute 'test-haproxy-config' do
   command 'haproxy -c -f /etc/haproxy/haproxy.cfg'
