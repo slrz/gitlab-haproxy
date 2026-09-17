@@ -454,6 +454,8 @@ default['gitlab-haproxy']['agent']['check_inter'] = '2s'
 # apt-mirror-gprd.gpg), so the key file differs too.
 # Overriding the uri alone leaves apt asking for a component the mirror does not
 # serve, which fails `apt-get update` on the next converge.
+# uri takes a string or a list. With more than one source, apt picks the
+# highest version unless a pin says otherwise (see pins below).
 default['gitlab-haproxy']['apt']['uri'] = 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
 default['gitlab-haproxy']['apt']['components'] = ['main', 'main/debug']
 default['gitlab-haproxy']['apt']['key'] = ['vbernat-haproxy.gpg']
@@ -464,3 +466,10 @@ default['gitlab-haproxy']['apt']['key'] = ['vbernat-haproxy.gpg']
 # which on Cinc 16 has no signed_by property and adds the key to the global
 # /etc/apt/trusted.gpg instead.
 default['gitlab-haproxy']['apt']['keyring'] = nil
+
+# apt preferences for the haproxy sources, rendered to
+# /etc/apt/preferences.d/haproxy. Each entry is { 'pin' => '<apt Pin>',
+# 'priority' => <n> }, e.g. { 'pin' => 'release o=LP-PPA-vbernat-haproxy-3.0',
+# 'priority' => 400 } keeps `apt-get upgrade` on the current major while a
+# `haproxy=<version>` install from that source still works.
+default['gitlab-haproxy']['apt']['pins'] = []
