@@ -17,6 +17,7 @@ raise "need to include #{cookbook_name}::prerequisites before #{cookbook_name}::
 # either way, because access to https://keyserver.ubuntu.com is not stable from
 # haproxy servers.
 apt = node['gitlab-haproxy']['apt']
+uris = Array(apt['uri'])
 
 if apt['keyring']
   # signed-by= names a single keyring file, so more than one key cannot be
@@ -48,20 +49,36 @@ if apt['keyring']
   end
 
   file '/etc/apt/sources.list.d/haproxy.list' do
-    content "deb [signed-by=/etc/apt/keyrings/#{apt['keyring']}] " \
-            "#{apt['uri']} #{node['lsb']['codename']} #{Array(apt['components']).join(' ')}\n"
+    content uris.map { |source_uri|
+      "deb [signed-by=/etc/apt/keyrings/#{apt['keyring']}] " \
+      "#{source_uri} #{node['lsb']['codename']} #{Array(apt['components']).join(' ')}\n"
+    }.join
     owner 'root'
     group 'root'
     mode '0644'
     notifies :update, 'apt_update[haproxy]', :immediately
   end
 else
-  apt_repository 'haproxy' do
-    uri          apt['uri']
-    distribution node['lsb']['codename']
-    components   apt['components']
-    key          apt['key']
+  uris.each_with_index do |source_uri, i|
+    apt_repository(i.zero? ? 'haproxy' : "haproxy-#{i}") do
+      uri          source_uri
+      distribution node['lsb']['codename']
+      components   apt['components']
+      key          apt['key']
+    end
   end
+end
+
+# With more than one source apt picks the highest version; the pins decide
+# otherwise. An explicit haproxy=<version> ignores them.
+file '/etc/apt/preferences.d/haproxy' do
+  content Array(apt['pins']).map { |pin|
+    "Package: *\nPin: #{pin['pin']}\nPin-Priority: #{pin['priority']}\n\n"
+  }.join
+  owner 'root'
+  group 'root'
+  mode '0644'
+  action Array(apt['pins']).empty? ? :delete : :create
 end
 
 # Required as hatop only invokes `python` and ubuntu ships with `python3`.
