@@ -69,9 +69,8 @@ else
   end
 end
 
-# apt takes the highest version across all sources, so with more than one
-# source configured a pin decides which one a plain `apt-get install haproxy`
-# or `apt-get upgrade` picks. An explicit `haproxy=<version>` ignores the pin.
+# With more than one source apt picks the highest version; the pins decide
+# otherwise. An explicit haproxy=<version> ignores them.
 file '/etc/apt/preferences.d/haproxy' do
   content Array(apt['pins']).map { |pin|
     "Package: *\nPin: #{pin['pin']}\nPin-Priority: #{pin['priority']}\n\n"
