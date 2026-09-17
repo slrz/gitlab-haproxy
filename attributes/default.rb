@@ -454,6 +454,7 @@ default['gitlab-haproxy']['agent']['check_inter'] = '2s'
 # apt-mirror-gprd.gpg), so the key file differs too.
 # Overriding the uri alone leaves apt asking for a component the mirror does not
 # serve, which fails `apt-get update` on the next converge.
+# A string or a list of sources.
 default['gitlab-haproxy']['apt']['uri'] = 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu'
 default['gitlab-haproxy']['apt']['components'] = ['main', 'main/debug']
 default['gitlab-haproxy']['apt']['key'] = ['vbernat-haproxy.gpg']
@@ -464,3 +465,8 @@ default['gitlab-haproxy']['apt']['key'] = ['vbernat-haproxy.gpg']
 # which on Cinc 16 has no signed_by property and adds the key to the global
 # /etc/apt/trusted.gpg instead.
 default['gitlab-haproxy']['apt']['keyring'] = nil
+
+# apt preferences, one { 'pin' => 'release o=...', 'priority' => n } per entry.
+# Priority 400 on a source keeps apt-get upgrade off it while haproxy=<version>
+# still installs from it.
+default['gitlab-haproxy']['apt']['pins'] = []
