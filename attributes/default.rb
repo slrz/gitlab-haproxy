@@ -398,7 +398,7 @@ default['gitlab-haproxy']['ci-gateway']['packhorse_repos'] = []
 # to Packhorse. The Packhorse internal LB is only reachable from the
 # ci-gateway-side NIC, so health checks fail unless the source IP is
 # pinned to that interface.
-default['gitlab-haproxy']['ci-gateway']['packhorse_source_interface'] = 'ens5'
+default['gitlab-haproxy']['ci-gateway']['packhorse_source_interface'] = nil
 
 default['gitlab-haproxy']['frontend']['packhorse_host']  = ''
 default['gitlab-haproxy']['frontend']['packhorse_repos'] = []
